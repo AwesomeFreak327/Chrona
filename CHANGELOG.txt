@@ -1,0 +1,217 @@
+CHRONA — PERSONAL CHANGELOG
+============================
+For internal tracking only. Not for public distribution.
+Format: 0.xx series tracks incremental build sessions.
+
+
+────────────────────────────────────────────────────────────
+0.01 — Initial concept & spec
+────────────────────────────────────────────────────────────
+- Defined project as an institutional ambient display platform
+- Named: Chrona (suggested via ChatGPT, confirmed)
+- Core display concept: large clock, date, logo, diagonal watermark
+- Decided on pure HTML/CSS/JS — no React, no backend
+- GitHub Pages compatible target
+- Two-file architecture planned: settings.html + display.html
+
+
+────────────────────────────────────────────────────────────
+0.02 — First working build
+────────────────────────────────────────────────────────────
+- Built settings.html (3-column: sidebar + config + live preview)
+- Built display.html (ambient screen output)
+- 6 themes: Eclipse, Minimal, Ambient, Glass, Horizon, Monolith
+- BroadcastChannel API for settings↔display communication
+- localStorage config persistence
+- Diagonal watermark animation (alternating row directions)
+- Cinematic entrance animations (rise-in, staggered)
+- Logo upload (drag and drop + browse)
+- Organisation name input
+- Seconds toggle
+- Quote feed with fade transitions
+- Weather widget (wttr.in, graceful offline fallback)
+- Announcement overlay pill (slide-in, fade-out)
+- Burn-in prevention (micro shift every 4 minutes)
+- Present button opens display.html in new window
+- Resizable divider between config and preview panels
+- Export / Import config as JSON
+
+
+────────────────────────────────────────────────────────────
+0.03 — Polish pass (v1.0 stability refinements)
+────────────────────────────────────────────────────────────
+FIXES:
+- Preview panel layout bug on reload: switched shell from CSS Grid
+  to Flexbox — eliminates wrap bug entirely
+- Watermark opacity range expanded (max was ~6%, now up to 35%)
+- Watermark color now theme-aware (--wm-r/g/b CSS variables)
+- Settings panel layout tightened — less "long webpage" feel
+- Theme cards enlarged (44px swatches) with hover lift effect
+- Separator/divider under clock removed
+- Overlay pill fully theme-aware (border, bg, text all adapt)
+- Experimental mode / easter egg complexity removed
+- About section rewritten as product philosophy text
+- Resizable divider replaced with proper flex resizer
+  (persistent width saved to localStorage)
+
+ADDITIONS:
+- Preview scales at 1920×1080 internally, scales down to fit panel
+- ResizeObserver on preview wrap for accurate scaling
+
+
+────────────────────────────────────────────────────────────
+0.04 — Sizing + quote parser + UX refinements
+────────────────────────────────────────────────────────────
+FIXES (items 11–15 from refinement list):
+- Layout bug: DOMContentLoaded + double rAF for scaling init
+- Config panel width persisted correctly across reloads
+
+NEW — Sizing panel:
+- 5 independent element size sliders: Logo, Clock, Meta, Quote, Wm
+- Logo has Small/Balanced/Large/Wide presets
+- All size scales map to CSS variables (--scale-*)
+- "Reset all sizes" button
+
+NEW — Quote parser improvements:
+- Accepts: — , -- , – , and spaced " - " as separators
+- Auto-detects existing outer quotes — no double-wrapping
+- Hint text in settings shows accepted formats
+
+ADDITIONS:
+- Scroll position memory per nav panel (localStorage)
+- AM/PM toggle in Clock section
+- Quote alignment toggle: Center / Left
+- Fullscreen preview button — opens display.html in overlay
+  covering the admin screen (separate from projector output)
+
+
+────────────────────────────────────────────────────────────
+0.05 — Extended themes, font selector, announcement presets
+────────────────────────────────────────────────────────────
+FIXES:
+- Halo/fog layer added behind content stack (#halo element)
+  — soft radial ellipse, theme-aware, improves text legibility
+  against high-opacity watermarks
+- Watermark seamless loop: replaced frame counter with
+  continuous float offset driven by delta-time
+  Uses modulo within exact tileW — zero visible snap at any speed
+- Announcement dash: presets and placeholders now use plain " - "
+- Quote opacity: two independent sliders (text + source line)
+
+ADDITIONS — Themes (14 total, up from 6):
+  New: Ash, Dusk, Nordic, Ember, Forest, Slate, Ivory, Void
+  Theme grid: 4 columns, larger swatches
+
+ADDITIONS — Fonts:
+  Clock font picker: 6 projection-safe serif fonts
+  UI font picker: 6 clean sans-serif fonts
+  Both preloaded for accurate chip previews
+
+ADDITIONS — Announcement presets:
+  Save any message as a named chip
+  Click chip → triggers instantly on display
+  Delete individual presets
+  Stored in localStorage (separate key from config)
+
+ADDITIONS — Reset button:
+  Two-step confirmation (no accidental wipe)
+  Clears config + presets together
+
+
+────────────────────────────────────────────────────────────
+0.06 — Full architectural refactor + 16-point refinement pass
+────────────────────────────────────────────────────────────
+ARCHITECTURE CHANGES:
+  chrona/
+  ├── index.html          (renamed from settings.html)
+  ├── display.html        (presentation screen)
+  ├── assets/
+  │   ├── css/
+  │   │   ├── settings.css
+  │   │   └── display.css
+  │   ├── js/
+  │   │   ├── config.js      (shared state, font registry, history)
+  │   │   ├── watermark.js   (isolated animation — offset never resets)
+  │   │   ├── settings.js
+  │   │   └── display.js
+  │   └── fonts/             (reserved for future local font files)
+  ├── CHANGELOG.txt
+  └── README.md
+
+FIXES:
+1.  Fullscreen exit — fullscreenchange event listener closes
+    the overlay when browser exits fullscreen via ESC
+    "Exit Test" renamed to "Exit"
+2.  Timezone — replaced text input with curated dropdown of
+    35 institutional timezones globally + auto-detect button
+    (uses Intl.DateTimeFormat().resolvedOptions().timeZone)
+3.  Theme cards — now show actual clock color as digit
+    overlay on swatch, 3-column grid, larger cards (52px swatch)
+4.  Fonts — full overhaul to 5 independent slots:
+      Clock, Date/Weather, Quote Text, Quote Source, Watermark
+    Each slot has its own curated projection-safe font list
+    Fonts: Cormorant Garamond, EB Garamond, Bodoni Moda,
+    Playfair Display, Libre Baskerville, Fraunces (display)
+    Inter, DM Sans, Source Sans 3, Lato, IBM Plex Sans,
+    Outfit (UI), Lora, Merriweather (reading)
+    All preloaded for chip previews, graceful offline fallback
+5.  Sizing — all size groups now have Small/Default/Large presets
+    Watermark group adds Fine/Bold/Display presets
+6.  Feed tab — renamed from "Quotes / Feed" to "Feed"
+    File upload button fully themed (no browser-default input)
+    Manual Next button + Pause/Resume toggle
+7.  Weather — one-shot geolocation detect button (privacy-safe)
+    Saved cities list (chip-based, same pattern as ann. presets)
+    City input paired with Save button
+8.  Announcement cancel — "✕ Cancel" button broadcasts
+    overlay-cancel to display, hides pill immediately
+9.  Advanced tab — added: smooth animations toggle,
+    keyboard shortcut hints (hover-only, invisible at rest)
+    Info box with multi-monitor + keyboard guidance
+10. About section — rewritten as proper product identity page
+    Demo Mode notice repositioned as subtle footnote
+11. Credit link — now a proper <a> tag pointing to GitHub
+    (#github link placeholder, replace before deploy)
+12. Present controls — sidebar footer now has:
+    ● Live / ○ Preview toggle (live mode vs push-to-display)
+    ⏸ Pause (fades foreground, watermark keeps running)
+    ■ Blank (completely blanks display)
+    Push to Display button (visible in preview mode only)
+13. History — localStorage ring buffer, 40 entries max
+    Each config change logs: timestamp + label + full state
+    Click entry to restore. Delete individual or clear all.
+    Debounced 800ms so sliders don't spam entries
+14. Smooth animations — CSS transition system with .smooth class
+    Theme changes: background + color interpolate 1.2s
+    Font changes: fade-out 220ms → swap → fade-in
+    All button/interaction states: 0.22s ease
+    Toggle in Advanced for low-spec hardware
+    Watermark animation module isolated — offset NEVER resets
+    on any config change (delta-time based, continuous float)
+15. Preview bar — live green dot (pulsing) or grey (paused)
+    Status text: "Live" / "Paused" / "Not presenting"
+    Resolution display updates to match scaled dimensions
+16. RAM hints — noted in tooltip text for the 3 settings
+    that affect GPU: Smooth Animations, Watermark Speed, Opacity
+
+OFFLINE:
+  All fonts load from Google Fonts with graceful degradation
+  to system serif/sans when offline
+  Config, history, presets all in localStorage — survive reload
+  Weather fetched fresh, hides cleanly if unavailable
+  Previously loaded font stylesheets cached by browser
+
+FILES TO OPEN:
+  index.html  — settings and control panel
+  display.html — presentation output screen
+  Keep all files in the same folder.
+
+
+────────────────────────────────────────────────────────────
+UPCOMING (not yet built)
+────────────────────────────────────────────────────────────
+- Local woff2 font files in assets/fonts/ for true offline use
+- Production build with institution deployment presets
+- README GitHub formatting improvements
+- Optional: secondary monitor resolution detection via
+  window.screen.isExtended (Chrome 100+)

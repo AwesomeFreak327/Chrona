@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  Chrona v1.0 · display.html
+  Ambient presentation screen.
+
+  Open via index.html — do not open this file directly.
+  Configuration is loaded from localStorage on init.
+  Receives live updates via BroadcastChannel('chrona_v1').
+
+  Fullscreen: press F inside this window.
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Chrona — Ambient Display Platform">
+<title>Chrona</title>
+
+<!-- DNS prefetch for font loading -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!--
+  Preload default fonts only.
+  Defaults match config.js DEFAULTS: fontClock='Crimson Text', fontMeta='Work Sans'.
+  All other fonts are loaded on demand by display.js via loadFont().
+  Adding display=swap prevents invisible text during font load.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Inter:wght@200;300;400&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/display.css">
+
+<!--
+  Prevent any flash of wrong theme or transition on load.
+  This tiny inline block runs synchronously before body renders,
+  applying the saved theme before the first paint.
+-->
+<script>
+(function() {
+  try {
+    var cfg = JSON.parse(localStorage.getItem('chrona_config') || '{}');
+    if (cfg.theme) {
+      document.documentElement.setAttribute('data-theme-init', cfg.theme);
+    }
+    // Do NOT apply .smooth here — let display.js do it after reading config.
+    // This avoids transitions firing on initial paint.
+  } catch(e) {}
+})();
+</script>
+</head>
+
+<!--
+  No class="smooth" here — display.js adds it after reading smoothAnimations setting.
+  No data-theme here — display.js sets it on first applyAll() call.
+  data-theme-init is set above by the inline script to prevent theme flash;
+  display.js reads this and syncs data-theme on body on first apply.
+-->
+<body>
+
+<!-- Layer 0: watermark canvas (behind everything) -->
+<canvas id="wm-canvas"></canvas>
+
+<!-- Layer 1: ambient colour glow -->
+<div class="glow-orb"></div>
+
+<!-- Layer 2: readability halo (fog between watermark and content) -->
+<div id="halo"></div>
+
+<!-- Layer 10: main content stage -->
+<div id="stage">
+
+  <!-- Branding — shown only when logo/name configured -->
+  <div id="logo-area">
+    <img id="logo-img" src="" alt="">
+    <span id="logo-name"></span>
+  </div>
+
+  <!-- Clock -->
+  <div id="clock-wrap">
+    <div id="clock">12:00</div>
+    <span id="ampm"></span>
+  </div>
+
+  <!-- Date + optional weather (inline, same row) -->
+  <div id="meta-row">
+    <span id="date-txt" class="meta-txt"></span>
+    <span class="meta-pipe" id="wpipe"></span>
+    <span id="weather-txt" class="meta-txt"></span>
+  </div>
+
+  <!-- Countdown timer -->
+  <div id="timer-area" class="hidden">
+    <div id="timer-display">0:00:00</div>
+    <div id="timer-label">Time Remaining</div>
+  </div>
+  
+  <!-- Quote / message feed -->
+  <div id="quote-area" class="align-center">
+    <div id="quote-txt"></div>
+    <div id="quote-src"></div>
+  </div>
+
+</div><!-- /stage -->
+
+<!-- Layer 20: announcement overlay pill -->
+<div id="overlay"></div>
+
+<!-- Fallback for no-JS environments -->
+<noscript>
+  <div style="position:fixed;inset:0;background:#060409;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:rgba(226,208,255,.6);font-size:1.2rem;letter-spacing:.1em">
+    Chrona requires JavaScript.
+  </div>
+</noscript>
+
+<!--
+  Script load order matters:
+  1. config.js   — DEFAULTS, Config, History, THEMES, FONTS, BC, helpers
+  2. watermark.js — Watermark module (needs THEMES from config.js)
+  3. display.js  — runtime logic (needs everything above)
+-->
+<script src="assets/js/config.js"></script>
+<script src="assets/js/watermark.js"></script>
+<script src="assets/js/display.js"></script>
+
+</body>
+</html>

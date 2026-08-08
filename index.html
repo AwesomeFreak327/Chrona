@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chrona — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/settings.css">
+</head>
+<body data-accent="eclipse">
+
+<div id="shell">
+
+  <!-- ══ SIDEBAR ════════════════════════════════════════════ -->
+  <aside id="sidebar">
+    <div id="sidebar-header">
+      <div id="brand">Chr<em>o</em>na</div>
+      <div id="brand-sub">Ambient Display Platform</div>
+    </div>
+
+    <nav>
+      <div class="nav-group">Display</div>
+
+      <div class="nav-item active" data-panel="branding">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
+        Branding
+        <span class="kb">Alt+1</span>
+      </div>
+      <div class="nav-item" data-panel="clock">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Clock
+        <span class="kb">Alt+2</span>
+      </div>
+      <div class="nav-item" data-panel="appearance">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Appearance
+        <span class="kb">Alt+3</span>
+      </div>
+      <div class="nav-item" data-panel="fonts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+        Fonts
+        <span class="kb">Alt+4</span>
+      </div>
+      <div class="nav-item" data-panel="background">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h10M4 18h7"/></svg>
+        Background
+        <span class="kb">Alt+5</span>
+      </div>
+      <div class="nav-item" data-panel="sizing">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+        Sizing
+        <span class="kb">Alt+6</span>
+      </div>
+
+      <div class="nav-group">Features</div>
+
+      <div class="nav-item" data-panel="feed">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21c3 0 7-1 7-8V5a2 2 0 00-2-2H4a2 2 0 00-2 2v6c0 4 2 7 5 8zm11 0c3 0 7-1 7-8V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v6c0 4 2 7 5 8z"/></svg>
+        Feed
+        <span class="kb">Alt+7</span>
+      </div>
+      <div class="nav-item" data-panel="weather">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+        Weather
+        <span class="kb">Alt+8</span>
+      </div>
+      <div class="nav-item" data-panel="timer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/><path d="M16.51 3.51L21 2l-1.5 4.5"/></svg>
+        Timer
+        <span class="kb">Alt+0</span>
+      </div>
+      <div class="nav-item" data-panel="overlay">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Announcements
+        <span class="kb">Alt+9</span>
+      </div>
+
+      <div class="nav-group">System</div>
+
+      <div class="nav-item" data-panel="advanced">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Advanced
+        <span class="kb">Alt+0</span>
+      </div>
+      <div class="nav-item" data-panel="history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+        History
+      </div>
+      <div class="nav-item" data-panel="about">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        About
+      </div>
+    </nav>
+
+    <div id="sidebar-footer">
+      <div class="present-controls">
+
+        <!-- Display status indicator -->
+        <div class="live-row">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="live-dot offline" id="live-dot"></div>
+            <span id="live-txt" style="font-size:.69rem;color:var(--txt3)">Not presenting</span>
+          </div>
+          <button class="ctrl-btn" id="btn-live-toggle"
+            title="Toggle between live push and preview mode"
+            style="padding:3px 9px;font-size:.67rem">○ Preview</button>
+        </div>
+        <button class="act-btn" id="btn-push"
+          style="display:none;font-size:.74rem">
+          ↗ Push to Display
+        </button>
+
+        <!-- Main present button -->
+        <button id="btn-present" title="Open the projection display window (P)">▶ Present</button>
+
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ CONFIG PANEL ════════════════════════════════════════ -->
+  <div id="config-panel">
+
+    <!-- ── BRANDING ── -->
+    <div class="config-section active" id="panel-branding">
+      <div class="sec-title">Institution Branding</div>
+
+      <div class="field">
+        <label class="lbl">
+          Organisation name
+          <span class="tip" data-tip="Displayed below the logo in small caps on the presentation screen.">i</span>
+        </label>
+        <input type="text" id="orgName" placeholder="e.g. St. Joseph's College">
+      </div>
+      <div class="tog-row">
+        <span class="tog-lbl">Show name on display</span>
+        <label class="tog">
+          <input type="checkbox" id="showOrgName" checked>
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="lbl">
+          Logo
+          <span class="tip" data-tip="PNG with transparency recommended. Displayed at original proportions — no cropping.">i</span>
+        </label>
+        <div id="logo-drop">
+          <img id="logo-preview" src="" alt="" style="display:none">
+          <p>Drop image here or <span>browse</span></p>
+          <input type="file" id="logo-input" accept="image/*">
+        </div>
+        <button id="logo-clear"
+          style="display:none;font-size:.7rem;color:#f87171;background:none;border:none;cursor:pointer;font-family:var(--fu);margin-top:4px">
+          ✕  Remove logo
+        </button>
+      </div>
+      <div class="tog-row">
+        <span class="tog-lbl">Show logo on display</span>
+        <label class="tog">
+          <input type="checkbox" id="showLogo" checked>
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+    </div>
+
+    <!-- ── CLOCK ── -->
+    <div class="config-section" id="panel-clock">
+      <div class="sec-title">Clock &amp; Time</div>
+
+      <div class="tog-row">
+        <span class="tog-lbl">
+          Show seconds
+          <span class="tip" data-tip="12:45:30 vs 12:45. Recommended for examination halls.">i</span>
+        </span>
+        <label class="tog">
+          <input type="checkbox" id="showSeconds" checked>
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-lbl">Show AM / PM</span>
+        <label class="tog">
+          <input type="checkbox" id="showAmPm">
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="lbl">
+          Timezone
+          <span class="tip" data-tip="Select your region. Use Auto to follow the system clock.">i</span>
+        </label>
+        <select id="tzSelect"></select>
+        <button class="ghost-btn" id="btn-tz-auto" style="margin-top:5px">
+          ⌖  Auto-detect my timezone
+        </button>
+        <div id="tz-status" class="weather-status"></div>
+      </div>
+    </div>
+
+    <!-- ── APPEARANCE ── -->
+    <div class="config-section" id="panel-appearance">
+      <div class="sec-title">Theme</div>
+      <!-- Built dynamically by _buildThemeGrid() in settings.js -->
+      <div class="theme-grid" id="theme-grid"></div>
+    </div>
+
+    <!-- ── FONTS ── -->
+    <div class="config-section" id="panel-fonts">
+      <div class="sec-title">Typography</div>
+      <p style="font-size:.71rem;color:var(--txt3);line-height:1.5;margin-bottom:4px">
+        Each display element has its own font slot. All fonts are projection-safe and curated for institutional environments.
+      </p>
+      <!-- Built dynamically by _buildFontSlots() in settings.js -->
+      <div id="font-slots-container"></div>
+    </div>
+
+    <!-- ── BACKGROUND ── -->
+    <div class="config-section" id="panel-background">
+      <div class="sec-title">Watermark Background</div>
+
+      <div class="field">
+        <label class="lbl">
+          Repeating text
+          <span class="tip" data-tip="Scrolls diagonally behind the clock. Your institution name or CHRONA works well here.">i</span>
+        </label>
+        <input type="text" id="wmText" placeholder="CHRONA" maxlength="60">
+      </div>
+      <div class="field">
+        <label class="lbl">
+          Opacity
+          <span class="tip" data-tip="1–4: atmospheric, barely visible. 5–7: visible branding. 8–10: strong presence.">i</span>
+        </label>
+        <div class="slider-row">
+          <input type="range" id="wmOpacity" min="1" max="10" value="4">
+          <span class="slider-val" id="wmOpacity-val">4</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Line spacing</label>
+        <div class="slider-row">
+          <input type="range" id="wmSpacing" min="1" max="10" value="5">
+          <span class="slider-val" id="wmSpacing-val">5</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">
+          Motion speed
+          <span class="tip" data-tip="2–4 gives the most cinematic feel. Motion is seamless at all speeds — no visible reset point.">i</span>
+        </label>
+        <div class="slider-row">
+          <input type="range" id="wmSpeed" min="1" max="10" value="4">
+          <span class="slider-val" id="wmSpeed-val">4</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SIZING ── -->
+    <div class="config-section" id="panel-sizing">
+      <div class="sec-title">Element Sizing</div>
+      <p style="font-size:.71rem;color:var(--txt3);line-height:1.5;margin-bottom:4px">
+        Scale each element independently for different projector sizes and viewing distances.
+      </p>
+
+      <div class="size-group">
+        <div class="size-group-title">Logo</div>
+        <div class="slider-row">
+          <input type="range" id="scaleLogo" min="0.4" max="2.5" step="0.05" value="1">
+          <span class="slider-val" id="scaleLogo-val">1.0×</span>
+        </div>
+        <div class="preset-row">
+          <button class="preset-btn" data-target="scaleLogo" data-val="0.6">Small</button>
+          <button class="preset-btn" data-target="scaleLogo" data-val="1.0">Default</button>
+          <button class="preset-btn" data-target="scaleLogo" data-val="1.5">Large</button>
+          <button class="preset-btn" data-target="scaleLogo" data-val="2.0">Wide</button>
+        </div>
+      </div>
+
+      <div class="size-group">
+        <div class="size-group-title">Clock</div>
+        <div class="slider-row">
+          <input type="range" id="scaleClock" min="0.5" max="2.0" step="0.05" value="1">
+          <span class="slider-val" id="scaleClock-val">1.0×</span>
+        </div>
+        <div class="preset-row">
+          <button class="preset-btn" data-target="scaleClock" data-val="0.7">Small</button>
+          <button class="preset-btn" data-target="scaleClock" data-val="1.0">Default</button>
+          <button class="preset-btn" data-target="scaleClock" data-val="1.3">Large</button>
+          <button class="preset-btn" data-target="scaleClock" data-val="1.6">Massive</button>
+        </div>
+      </div>
+
+      <div class="size-group">
+        <div class="size-group-title">Date &amp; Weather</div>
+        <div class="slider-row">
+          <input type="range" id="scaleMeta" min="0.5" max="2.0" step="0.05" value="1">
+          <span class="slider-val" id="scaleMeta-val">1.0×</span>
+        </div>
+        <div class="preset-row">
+          <button class="preset-btn" data-target="scaleMeta" data-val="0.7">Small</button>
+          <button class="preset-btn" data-target="scaleMeta" data-val="1.0">Default</button>
+          <button class="preset-btn" data-target="scaleMeta" data-val="1.4">Large</button>
+        </div>
+      </div>
+
+      <div class="size-group">
+        <div class="size-group-title">Quote / Feed</div>
+        <div class="slider-row">
+          <input type="range" id="scaleQuote" min="0.5" max="2.0" step="0.05" value="1">
+          <span class="slider-val" id="scaleQuote-val">1.0×</span>
+        </div>
+        <div class="preset-row">
+          <button class="preset-btn" data-target="scaleQuote" data-val="0.7">Small</button>
+          <button class="preset-btn" data-target="scaleQuote" data-val="1.0">Default</button>
+          <button class="preset-btn" data-target="scaleQuote" data-val="1.4">Large</button>
+        </div>
+      </div>
+
+      <div class="size-group">
+        <div class="size-group-title">Watermark Text</div>
+        <div class="slider-row">
+          <input type="range" id="scaleWmFont" min="0.4" max="4.0" step="0.1" value="1">
+          <span class="slider-val" id="scaleWmFont-val">1.0×</span>
+        </div>
+        <div class="preset-row">
+          <button class="preset-btn" data-target="scaleWmFont" data-val="0.6">Fine</button>
+          <button class="preset-btn" data-target="scaleWmFont" data-val="1.0">Default</button>
+          <button class="preset-btn" data-target="scaleWmFont" data-val="2.0">Bold</button>
+          <button class="preset-btn" data-target="scaleWmFont" data-val="3.5">Display</button>
+        </div>
+      </div>
+
+      <div class="size-group">
+        <div class="size-group-title">Countdown Timer</div>
+        <div class="slider-row">
+          <input type="range" id="scaleTimer" min="0.4" max="2.0" step="0.05" value="1">
+          <span class="slider-val" id="scaleTimer-val">1.0×</span>
+        </div>
+        <div class="preset-row">
+          <button class="preset-btn" data-target="scaleTimer" data-val="0.6">Small</button>
+          <button class="preset-btn" data-target="scaleTimer" data-val="1.0">Default</button>
+          <button class="preset-btn" data-target="scaleTimer" data-val="1.4">Large</button>
+        </div>
+      </div>
+      
+      <button class="ghost-btn" id="btn-reset-sizes">Reset all sizes to default</button>
+    </div>
+
+    <!-- ── FEED ── -->
+    <div class="config-section" id="panel-feed">
+      <div class="sec-title">Feed</div>
+
+      <div class="tog-row">
+        <span class="tog-lbl">Enable feed</span>
+        <label class="tog">
+          <input type="checkbox" id="showQuotes">
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="lbl">
+          Messages
+          <span class="tip" data-tip="One per line. Add source after: - or — or --. e.g. Work hard - Colossians 3:23. Existing quote marks are preserved.">i</span>
+        </label>
+        <textarea id="quotesText"
+          placeholder="Your message here. - Source&#10;Another quote. — Reference&#10;A message without a source."></textarea>
+      </div>
+
+      <div class="info-box" style="font-size:.69rem">
+        Accepts <b>-</b> &nbsp;·&nbsp; <b>—</b> &nbsp;·&nbsp; <b>--</b> as source separators.
+        Existing quotation marks are preserved automatically.
+      </div>
+
+      <div class="field">
+        <label class="lbl">
+          Upload file
+          <span class="tip" data-tip=".txt with one quote per line, or .json array of {text, source} objects.">i</span>
+        </label>
+        <label class="file-upload-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Upload quotes file
+          <input type="file" id="quotesFile" accept=".txt,.json" class="file-hidden">
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Rotation interval</label>
+        <div class="slider-row">
+          <input type="range" id="quoteInterval" min="10" max="120" step="5" value="30">
+          <span class="slider-val" id="quoteInterval-val">30s</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Quote text opacity</label>
+        <div class="slider-row">
+          <input type="range" id="quoteOpacity" min="0.1" max="1" step="0.05" value="1">
+          <span class="slider-val" id="quoteOpacity-val">100%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Source line opacity</label>
+        <div class="slider-row">
+          <input type="range" id="quoteSrcOpacity" min="0.05" max="1" step="0.05" value="0.68">
+          <span class="slider-val" id="quoteSrcOpacity-val">68%</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Text alignment</label>
+        <div class="seg-ctrl">
+          <button class="seg-btn" data-align="left">Left</button>
+          <button class="seg-btn active" data-align="center">Center</button>
+          <button class="seg-btn" data-align="right">Right</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:7px">
+        <button class="ctrl-btn" id="btn-quote-next" style="flex:1;padding:8px">⏭ Next</button>
+        <button class="ctrl-btn" id="btn-quote-pause" style="flex:1;padding:8px">⏸ Pause feed</button>
+      </div>
+    </div>
+
+    <!-- ── WEATHER ── -->
+    <div class="config-section" id="panel-weather">
+      <div class="sec-title">Weather</div>
+
+      <div class="tog-row">
+        <span class="tog-lbl">Show weather on display</span>
+        <label class="tog">
+          <input type="checkbox" id="showWeather">
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="lbl">
+          Location
+          <span class="tip" data-tip="Type a city name, or use Detect to get your current coordinates automatically.">i</span>
+        </label>
+        <div style="display:flex;gap:7px">
+          <input type="text" id="weatherCity" placeholder="e.g. Chennai" style="flex:1">
+          <button class="ctrl-btn" id="btn-geo"
+            style="white-space:nowrap;padding:8px 11px;flex-shrink:0"
+            title="One-time location detection — not stored or tracked">
+            ⌖ Detect
+          </button>
+        </div>
+        <!-- Geo status — shown/hidden by _weatherStatus() in settings.js -->
+        <div id="weather-status" class="weather-status"></div>
+        <button class="ghost-btn" id="btn-save-city" style="margin-top:5px">+ Save city</button>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Saved cities</label>
+        <div class="chip-list" id="cities-list">
+          <div class="chip-empty" id="cities-empty">No saved cities yet.</div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        Weather via Open-Meteo (open-meteo.com). No API key required.
+        Hides gracefully when offline — no broken layout.
+      </div>
+    </div>
+
+    <!-- ── TIMER ── -->
+    <div class="config-section" id="panel-timer">
+      <div class="sec-title">Exam Countdown Timer</div>
+
+      <div class="tog-row">
+        <span class="tog-lbl">
+          Enable timer
+          <span class="tip" data-tip="Shows a countdown below the clock on the display. Hides automatically when not active.">i</span>
+        </span>
+        <label class="tog">
+          <input type="checkbox" id="timerEnabled">
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="lbl">
+          Duration (minutes)
+          <span class="tip" data-tip="Total exam duration. 120 = 2 hours, 180 = 3 hours.">i</span>
+        </label>
+        <input type="number" id="timerDuration" min="1" max="600" value="120">
+      </div>
+
+      <div class="field">
+        <label class="lbl">
+          Scheduled start time
+          <span class="tip" data-tip="Optional. If set, timer starts automatically when the clock reaches this time. Leave blank to start manually.">i</span>
+        </label>
+        <input type="text" id="timerStartTime" placeholder="e.g. 14:00 for 2:00 PM (24h format)">
+      </div>
+
+      <div class="tog-row">
+        <span class="tog-lbl">Auto-start at scheduled time</span>
+        <label class="tog">
+          <input type="checkbox" id="timerAutoStart">
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+
+      <div style="display:flex;gap:7px;margin-top:4px">
+        <button class="act-btn" id="btn-timer-start" style="flex:1">▶ Start</button>
+        <button class="ctrl-btn" id="btn-timer-pause" style="flex:1;padding:9px">⏸ Pause</button>
+        <button class="ctrl-btn danger" id="btn-timer-reset" style="flex:1;padding:9px">↺ Reset</button>
+      </div>
+
+      <div class="info-box" id="timer-status-box" style="text-align:center;font-size:.8rem;color:var(--txt2)">
+        Timer not running
+      </div>
+    </div>
+    <!-- ── ANNOUNCEMENTS ── -->
+    <div class="config-section" id="panel-overlay">
+      <div class="sec-title">Announcements</div>
+
+      <div class="field">
+        <label class="lbl">
+          Message
+          <span class="tip" data-tip="Slides in as a pill at the bottom of the display for the set duration, then fades out.">i</span>
+        </label>
+        <input type="text" id="overlayText" placeholder="e.g. Last 10 minutes remaining">
+      </div>
+
+      <div class="field">
+        <label class="lbl">Display duration</label>
+        <div class="slider-row">
+          <input type="range" id="overlayDuration" min="3" max="30" value="8">
+          <span class="slider-val" id="overlayDuration-val">8s</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:7px">
+        <button class="act-btn" id="btn-overlay" style="flex:1">Send to Display</button>
+        <button class="ctrl-btn danger" id="btn-overlay-cancel" style="flex:1;padding:9px">✕ Cancel</button>
+      </div>
+      <button class="ghost-btn" id="btn-save-preset">+ Save as preset</button>
+
+      <div class="field" style="margin-top:4px">
+        <label class="lbl">
+          Saved presets
+          <span class="tip" data-tip="Click to send instantly. Double-click to rename. Star to favourite.">i</span>
+        </label>
+        <div class="chip-list" id="ann-presets">
+          <div class="chip-empty" id="ann-presets-empty">No presets saved yet.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ADVANCED ── -->
+    <div class="config-section" id="panel-advanced">
+      <div class="sec-title">Advanced</div>
+
+      <div class="tog-row">
+        <span class="tog-lbl">
+          Burn-in prevention
+          <span class="tip" data-tip="Shifts the display layout by a few pixels every 4 minutes. Recommended for LED walls and OLED screens.">i</span>
+        </span>
+        <label class="tog">
+          <input type="checkbox" id="burnIn" checked>
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-lbl">Auto fullscreen on present</span>
+        <label class="tog">
+          <input type="checkbox" id="autoFullscreen" checked>
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-lbl">
+          Smooth animations
+          <span class="tip" data-tip="Fluid theme and font transitions. Disable on low-spec hardware to reduce GPU load.">i</span>
+        </span>
+        <label class="tog">
+          <input type="checkbox" id="smoothAnimations" checked>
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+
+      <div class="info-box">
+        <b>Multi-monitor</b><br>
+        Open the display, drag its window to the projector or secondary screen,
+        then press <b>F</b> to fullscreen it. Settings stay on your primary screen.<br><br>
+        <b>Keyboard shortcuts</b><br>
+        Hover any nav item to see its shortcut. Press <b>P</b> anywhere to Present.
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button class="ghost-btn" id="btn-export">Export Configuration</button>
+        <button class="ghost-btn" id="btn-import-trigger">Import Configuration</button>
+        <input type="file" id="btn-import" accept=".json" class="file-hidden">
+      </div>
+
+      <div>
+        <button class="danger-btn" id="btn-reset-trigger">Reset All Settings</button>
+        <div class="confirm-box" id="reset-confirm">
+          This will clear all settings, presets, cities, and history. This cannot be undone.
+          <div class="confirm-row">
+            <button class="danger-btn" id="btn-reset-confirm" style="flex:1">Yes, reset everything</button>
+            <button class="ghost-btn" id="btn-reset-cancel" style="flex:1">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY ── -->
+    <div class="config-section" id="panel-history">
+      <div class="sec-title">Change History</div>
+      <p style="font-size:.71rem;color:var(--txt3);line-height:1.5;margin-bottom:4px">
+        Click any entry to restore that state. Each restore creates a new entry, like browser history. Up to 40 entries stored locally.
+      </p>
+      <div class="chip-list" id="history-list">
+        <div class="chip-empty" id="history-empty">No history yet. Changes will appear here.</div>
+      </div>
+      <button class="danger-btn" id="btn-clear-history">Clear all history</button>
+      <!-- Inline confirm — no native confirm() dialog -->
+      <div class="confirm-box" id="history-confirm">
+        Clear all history? This cannot be undone.
+        <div class="confirm-row">
+          <button class="danger-btn" id="btn-history-confirm" style="flex:1">Yes, clear history</button>
+          <button class="ghost-btn" id="btn-history-cancel" style="flex:1">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ABOUT ── -->
+    <div class="config-section" id="panel-about">
+      <div class="sec-title">About</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <p style="font-size:.84rem;color:var(--txt);line-height:1.74;font-weight:400">
+          Chrona is an ambient display platform for institutional spaces where time is not just shown — it is felt.
+        </p>
+
+        <p style="font-size:.76rem;color:var(--txt2);line-height:1.74">
+          Most digital signage is designed to fill a screen. Chrona is designed to belong to a room.
+          The clock is large because presence matters. The background moves slowly because stillness
+          without motion becomes hollow. Every typographic and motion decision is restrained by intention.
+        </p>
+
+        <p style="font-size:.76rem;color:var(--txt2);line-height:1.74">
+          Built for projectors, LED walls, and auditorium screens. Designed to work gracefully with or
+          without internet. Tested for examination halls, assemblies, lobbies, and events.
+        </p>
+
+        <div style="padding:12px;background:var(--surface2);border-radius:9px;display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:.69rem;color:var(--txt3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px">Version</div>
+          <!-- Version injected by JS via CHRONA_VERSION constant -->
+          <div id="about-version" style="font-size:.8rem;color:var(--txt2);font-weight:500">Chrona v1.0</div>
+          <div style="font-size:.71rem;color:var(--txt3)">Public demo build · Core features enabled</div>
+        </div>
+
+        <div style="padding-top:8px;border-top:1px solid var(--border);text-align:center">
+          <a id="credit-btn"
+            href="https://github.com/AwesomeFreak"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="font-size:.68rem;color:var(--txt3);text-decoration:none;border-bottom:1px dotted var(--txt3);display:inline-block;padding-bottom:1px">
+            Chrona v1.0 &nbsp;·&nbsp; crafted by AwesomeFreak
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /config-panel -->
+
+  <!-- ══ RESIZER ════════════════════════════════════════════ -->
+  <div id="resizer"></div>
+
+  <!-- ══ PREVIEW PANEL ══════════════════════════════════════ -->
+  <div id="preview-panel">
+    <div id="preview-bar">
+      <div id="preview-status">
+        <div id="preview-live-dot" class="offline"></div>
+        <span id="preview-status-txt">Not presenting</span>
+      </div>
+      <div id="preview-actions">
+        <span id="preview-res">—</span>
+        <button class="preview-act-btn" id="btn-fullscreen-preview"
+          title="Test the display in fullscreen on this screen — does not affect the projector output">
+          ⛶ Test Fullscreen
+        </button>
+      </div>
+    </div>
+    <div id="preview-wrap">
+      <div id="preview-stage">
+        <iframe
+          id="preview-frame"
+          src="display.html"
+          title="Chrona Live Preview"
+          frameborder="0"
+          scrolling="no"
+          sandbox="allow-scripts allow-same-origin"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<!-- ══ FULLSCREEN TEST OVERLAY ════════════════════════════ -->
+<div id="fs-overlay">
+  <div id="fs-bar">
+    <span>Chrona &nbsp;·&nbsp; Fullscreen Test</span>
+    <button id="fs-close">Exit</button>
+  </div>
+  <iframe id="fs-frame" src="" title="Chrona Fullscreen Test" frameborder="0" scrolling="no"></iframe>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/settings.js"></script>
+
+<!-- Inject version string from JS constant -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('about-version');
+    if (el && typeof CHRONA_VERSION !== 'undefined') {
+      el.textContent = `Chrona v${CHRONA_VERSION}`;
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,634 @@
+/* ─────────────────────────────────────────────────────────────
+   Chrona v1.0 · display.css
+
+   Animation durations come from CSS custom properties injected
+   by config.js at runtime (--dur-fast, --dur-theme, etc.).
+   Never hardcode durations here — always use the tokens.
+───────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+/* ── EASING TOKENS ────────────────────────────────────────── */
+/* Named easing curves — one place, used everywhere           */
+:root {
+  --ease-out:    cubic-bezier(.25,.46,.45,.94);  /* general out  */
+  --ease-spring: cubic-bezier(.16,1,.3,1);       /* spring feel  */
+  --ease-in-out: cubic-bezier(.4,0,.2,1);        /* material     */
+}
+
+/* ── THEME COLOUR TOKENS ──────────────────────────────────── */
+/* Defaults match Eclipse. JS overrides via data-theme attr.  */
+:root {
+  --bg:             #060409;
+  --clock-c:        #e2d0ff;
+  --secondary:      rgba(226,208,255,.52);
+  --quote-c:        rgba(226,208,255,.30);
+  --glow:           rgba(150,60,255,.10);
+  --sep:            rgba(226,208,255,.16);
+  --halo:           rgba(6,4,9,.72);
+  --overlay-bg:     rgba(226,208,255,.07);
+  --overlay-border: rgba(226,208,255,.13);
+  --overlay-txt:    rgba(226,208,255,.92);
+
+  /* shadow language — one token, used everywhere */
+  --shadow-overlay: 0 4px 32px rgba(0,0,0,.20);
+  --shadow-none:    none;
+
+  /* font stacks — defaults match config.js DEFAULTS */
+  --font-clock:     'Crimson Text', Georgia, serif;
+  --font-meta:      'Work Sans', system-ui, sans-serif;
+  --font-quote:     'Crimson Text', Georgia, serif;
+  --font-quote-src: 'Work Sans', system-ui, sans-serif;
+
+  /* scale multipliers — overridden by JS */
+  --s-logo:  1;
+  --s-clock: 1;
+  --s-meta:  1;
+  --s-quote: 1;
+  --s-timer: 1;
+  --s-wm:    1;
+
+  /* quote opacity — overridden by JS */
+  --q-op:   1;
+  --q-s-op: 0.68;
+}
+
+/* ── THEMES ───────────────────────────────────────────────── */
+[data-theme=eclipse]  { --bg:#060409;  --clock-c:#e2d0ff; --secondary:rgba(226,208,255,.82); --quote-c:rgba(226,208,255,.72); --glow:rgba(150,60,255,.10);  --sep:rgba(226,208,255,.16); --halo:rgba(6,4,9,.82);          --overlay-bg:rgba(226,208,255,.07); --overlay-border:rgba(226,208,255,.13); --overlay-txt:rgba(226,208,255,.92); }
+[data-theme=minimal]  { --bg:#f4f1ec;  --clock-c:#181510; --secondary:rgba(24,21,16,.85);    --quote-c:rgba(24,21,16,.72);    --glow:rgba(0,0,0,.03);       --sep:rgba(24,21,16,.16);    --halo:rgba(244,241,236,.88);     --overlay-bg:rgba(24,21,16,.07);    --overlay-border:rgba(24,21,16,.14);    --overlay-txt:rgba(24,21,16,.88);    }
+[data-theme=ambient]  { --bg:#070c14;  --clock-c:#d8eaff; --secondary:rgba(216,234,255,.84); --quote-c:rgba(216,234,255,.72); --glow:rgba(80,140,255,.09);  --sep:rgba(216,234,255,.17); --halo:rgba(7,12,20,.84);         --overlay-bg:rgba(216,234,255,.07); --overlay-border:rgba(216,234,255,.14); --overlay-txt:rgba(216,234,255,.92); }
+[data-theme=glass]    { --bg:#0b1422;  --clock-c:#dff0ff; --secondary:rgba(223,240,255,.84); --quote-c:rgba(223,240,255,.72); --glow:rgba(100,180,255,.08); --sep:rgba(223,240,255,.17); --halo:rgba(11,20,34,.84);        --overlay-bg:rgba(223,240,255,.07); --overlay-border:rgba(223,240,255,.14); --overlay-txt:rgba(223,240,255,.92); }
+[data-theme=horizon]  { --bg:#0c0805;  --clock-c:#ffddb8; --secondary:rgba(255,221,184,.84); --quote-c:rgba(255,221,184,.72); --glow:rgba(255,140,40,.09);  --sep:rgba(255,221,184,.17); --halo:rgba(12,8,5,.84);          --overlay-bg:rgba(255,221,184,.07); --overlay-border:rgba(255,221,184,.14); --overlay-txt:rgba(255,221,184,.92); }
+[data-theme=monolith] { --bg:#000000;  --clock-c:#ffffff;  --secondary:rgba(255,255,255,.82); --quote-c:rgba(255,255,255,.70); --glow:rgba(255,255,255,.055);--sep:rgba(255,255,255,.15); --halo:rgba(0,0,0,.86);           --overlay-bg:rgba(255,255,255,.07); --overlay-border:rgba(255,255,255,.14); --overlay-txt:rgba(255,255,255,.92); }
+[data-theme=ash]      { --bg:#111110;  --clock-c:#e8e4de; --secondary:rgba(232,228,222,.82); --quote-c:rgba(232,228,222,.70); --glow:rgba(200,195,185,.06); --sep:rgba(232,228,222,.15); --halo:rgba(17,17,16,.84);        --overlay-bg:rgba(232,228,222,.07); --overlay-border:rgba(232,228,222,.13); --overlay-txt:rgba(232,228,222,.90); }
+[data-theme=dusk]     { --bg:#0d0710;  --clock-c:#f0c8e8; --secondary:rgba(240,200,232,.82); --quote-c:rgba(240,200,232,.70); --glow:rgba(200,80,180,.10);  --sep:rgba(240,200,232,.15); --halo:rgba(13,7,16,.84);         --overlay-bg:rgba(240,200,232,.07); --overlay-border:rgba(240,200,232,.13); --overlay-txt:rgba(240,200,232,.90); }
+[data-theme=nordic]   { --bg:#f0f4f8;  --clock-c:#1a2332; --secondary:rgba(26,35,50,.85);    --quote-c:rgba(26,35,50,.70);    --glow:rgba(26,35,50,.04);    --sep:rgba(26,35,50,.14);    --halo:rgba(240,244,248,.90);     --overlay-bg:rgba(26,35,50,.06);    --overlay-border:rgba(26,35,50,.12);    --overlay-txt:rgba(26,35,50,.88);    }
+[data-theme=ember]    { --bg:#0a0604;  --clock-c:#ffcca0; --secondary:rgba(255,204,160,.82); --quote-c:rgba(255,204,160,.70); --glow:rgba(220,80,20,.10);   --sep:rgba(255,204,160,.15); --halo:rgba(10,6,4,.86);          --overlay-bg:rgba(255,204,160,.07); --overlay-border:rgba(255,204,160,.13); --overlay-txt:rgba(255,204,160,.90); }
+[data-theme=forest]   { --bg:#050e08;  --clock-c:#b8e8c0; --secondary:rgba(184,232,192,.82); --quote-c:rgba(184,232,192,.70); --glow:rgba(40,160,80,.09);   --sep:rgba(184,232,192,.15); --halo:rgba(5,14,8,.86);          --overlay-bg:rgba(184,232,192,.07); --overlay-border:rgba(184,232,192,.13); --overlay-txt:rgba(184,232,192,.90); }
+[data-theme=slate]    { --bg:#0c0f14;  --clock-c:#c8d4e0; --secondary:rgba(200,212,224,.82); --quote-c:rgba(200,212,224,.70); --glow:rgba(100,130,160,.08); --sep:rgba(200,212,224,.15); --halo:rgba(12,15,20,.86);        --overlay-bg:rgba(200,212,224,.07); --overlay-border:rgba(200,212,224,.13); --overlay-txt:rgba(200,212,224,.90); }
+[data-theme=ivory]    { --bg:#faf8f4;  --clock-c:#2c2820; --secondary:rgba(44,40,32,.85);    --quote-c:rgba(44,40,32,.70);    --glow:rgba(44,40,32,.03);    --sep:rgba(44,40,32,.13);    --halo:rgba(250,248,244,.92);     --overlay-bg:rgba(44,40,32,.06);    --overlay-border:rgba(44,40,32,.12);    --overlay-txt:rgba(44,40,32,.88);    }
+[data-theme=void]     { --bg:#020408;  --clock-c:#c8d8f0; --secondary:rgba(200,216,240,.82); --quote-c:rgba(200,216,240,.70); --glow:rgba(60,100,180,.08);  --sep:rgba(200,216,240,.13); --halo:rgba(2,4,8,.88);           --overlay-bg:rgba(200,216,240,.07); --overlay-border:rgba(200,216,240,.13); --overlay-txt:rgba(200,216,240,.90); }
+
+/* ── BASE ─────────────────────────────────────────────────── */
+html, body {
+  width:100%; height:100%; overflow:hidden;
+  background: var(--bg);
+  /* Background cross-fade uses the theme token from config.js */
+  transition: background var(--dur-theme, 1300ms) var(--ease-out);
+}
+
+/* ── SMOOTH ANIMATION SYSTEM ──────────────────────────────── */
+/*
+   .smooth is applied to <html> by display.js when smoothAnimations=true.
+   All theme-reactive elements transition only when .smooth is active.
+   When disabled, transitions are stripped entirely — instant response.
+*/
+
+/* Colour-only transitions for elements not covered by size rules above */
+html.smooth .meta-pipe {
+  transition:
+    color    var(--dur-theme, 1300ms) var(--ease-out),
+    opacity  var(--dur-slow,   500ms) var(--ease-out);
+}
+
+/* Size-reactive elements: scale transitions */
+html.smooth #clock {
+  transition:
+    color     var(--dur-theme, 1300ms) var(--ease-out),
+    font-size var(--dur-slow,   500ms) var(--ease-out),
+    opacity   var(--dur-slow,   500ms) var(--ease-out);
+}
+html.smooth #logo-img {
+  transition:
+    max-height var(--dur-slow, 500ms) var(--ease-out),
+    max-width  var(--dur-slow, 500ms) var(--ease-out),
+    opacity    var(--dur-slow, 500ms) var(--ease-out);
+}
+
+/* Date, weather, org name — scale via --s-meta */
+html.smooth .meta-txt,
+html.smooth #logo-name,
+html.smooth #ampm {
+  transition:
+    color      var(--dur-theme, 1300ms) var(--ease-out),
+    font-size  var(--dur-slow,   500ms) var(--ease-out),
+    opacity    var(--dur-slow,   500ms) var(--ease-out);
+}
+
+/* Quote text and source — scale via --s-quote */
+html.smooth #quote-txt,
+html.smooth #quote-src {
+  transition:
+    color      var(--dur-theme, 1300ms) var(--ease-out),
+    font-size  var(--dur-slow,   500ms) var(--ease-out),
+    opacity    var(--dur-slow,   500ms) var(--ease-out);
+}
+
+/* Timer display — scale via --s-timer */
+html.smooth #timer-display,
+html.smooth #timer-label {
+  transition:
+    color      var(--dur-theme, 1300ms) var(--ease-out),
+    font-size  var(--dur-slow,   500ms) var(--ease-out),
+    opacity    var(--dur-slow,   500ms) var(--ease-out);
+}
+
+/* Halo + glow: background colour transitions */
+html.smooth #halo,
+html.smooth .glow-orb {
+  transition:
+    background     var(--dur-theme, 1300ms) var(--ease-out),
+    background-color var(--dur-theme, 1300ms) var(--ease-out),
+    opacity        var(--dur-slow,   500ms) var(--ease-out);
+}
+
+/* Overlay: slide + theme colour */
+html.smooth #overlay {
+  transition:
+    opacity      var(--dur-overlay, 900ms) var(--ease-out),
+    transform    var(--dur-overlay, 900ms) var(--ease-spring),
+    background   var(--dur-theme,  1300ms) var(--ease-out),
+    color        var(--dur-theme,  1300ms) var(--ease-out),
+    border-color var(--dur-theme,  1300ms) var(--ease-out);
+}
+
+/* Disabled: strip all transitions for instant response */
+html:not(.smooth) *,
+html:not(.smooth) body {
+  transition: none !important;
+  animation-duration: 0.01ms !important;
+}
+
+/* ── FONT FADE SYSTEM ─────────────────────────────────────── */
+/*
+   JS adds .font-fading to <body> when a font change is detected.
+   Step 1: elements fade to opacity 0 (dur-font ms).
+   Step 2: JS swaps the font-family after transitionend fires.
+   Step 3: JS removes .font-fading → elements fade back in.
+   This ensures no mid-fade font swap flash.
+*/
+body.font-fading #clock,
+body.font-fading #quote-txt,
+body.font-fading #quote-src,
+body.font-fading .meta-txt,
+body.font-fading #logo-name {
+  opacity: 0 !important;
+  transition: opacity var(--dur-font, 220ms) var(--ease-out) !important;
+}
+
+/* ── LAYERS (z-index stack) ───────────────────────────────── */
+/*
+   0  wm-canvas      watermark animation
+   1  glow-orb       ambient colour bloom
+   2  halo           readability fog
+   10 stage          all foreground content
+   20 overlay        announcement pill
+*/
+
+#wm-canvas {
+  position:fixed; inset:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  z-index:0;
+}
+
+.glow-orb {
+  position:fixed;
+  width:65vw; height:65vw;
+  max-width:680px; max-height:680px;
+  border-radius:50%;
+  background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+  top:50%; left:50%;
+  transform: translate(-50%,-50%);
+  pointer-events:none;
+  z-index:1;
+}
+
+/* Center readability fog — sits between watermark and content */
+#halo {
+  position:fixed;
+  width:88vw; height:88vh;
+  min-width:560px; min-height:440px;
+  border-radius:50%;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:2;
+  /* Opacity transitions for blank/pause states */
+  transition: opacity var(--dur-slow, 500ms) var(--ease-out);
+}
+
+/* Two stacked pseudo-elements cross-fade on theme change.
+   ::before = outgoing colour, ::after = incoming colour.
+   JS toggles .theme-switching on body to trigger the fade. */
+#halo::before,
+#halo::after {
+  content:'';
+  position:absolute; inset:0;
+  border-radius:50%;
+  transition: opacity var(--dur-theme, 1300ms) var(--ease-out);
+}
+#halo::before {
+  background: radial-gradient(ellipse at center,
+    var(--halo) 0%, var(--halo) 30%, transparent 75%
+  );
+  opacity:1;
+}
+#halo::after {
+  background: radial-gradient(ellipse at center,
+    var(--halo) 0%, var(--halo) 30%, transparent 75%
+  );
+  opacity:0;
+}
+/* During theme switch: ::before fades out, ::after fades in */
+body.theme-switching #halo::before { opacity:0; }
+body.theme-switching #halo::after  { opacity:1; }
+
+/* ── STAGE ────────────────────────────────────────────────── */
+#stage {
+  position:fixed; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  z-index:10;
+  padding:6vh 8vw;
+}
+
+/* Subtle text backing — sits directly behind content stack.
+   Not a card or box — just enough opacity to lift text
+   off the watermark without killing the ambient feel.
+   Uses the same --halo colour token so it adapts per theme. */
+#stage::before {
+  content:'';
+  position:absolute;
+  /* Covers the content column only — not full width */
+  width:70%; height:80%;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  background: radial-gradient(ellipse at center,
+    var(--halo) 0%,
+    var(--halo) 15%,
+    transparent 65%
+  );
+  pointer-events:none;
+  z-index:-1;
+  border-radius:50%;
+  transition: background var(--dur-theme, 1300ms) var(--ease-out);
+}
+
+/* ── LOGO ─────────────────────────────────────────────────── */
+#logo-area {
+  display:flex; flex-direction:column;
+  align-items:center; gap:1vh;
+  margin-bottom:4.5vh;
+}
+#logo-img {
+  max-height: calc(7vh * var(--s-logo));
+  max-width:  calc(22vw * var(--s-logo));
+  object-fit:contain;
+  opacity:.84;
+}
+#logo-name {
+  font-family: var(--font-meta);
+  font-weight:300;
+  font-size: calc(clamp(.6rem,.9vw,.88rem) * var(--s-meta));
+  color: var(--secondary);
+  letter-spacing:.26em;
+  text-transform:uppercase;
+}
+
+/* ── CLOCK ────────────────────────────────────────────────── */
+#clock-wrap {
+  display:flex;
+  align-items:baseline;
+}
+#clock {
+  font-family: var(--font-clock);
+  font-size: calc(clamp(4.5rem,13vw,11.5rem) * var(--s-clock));
+  line-height:1;
+  color: var(--clock-c);
+  letter-spacing:-.02em;
+  text-align:center;
+  user-select:none;
+}
+#ampm {
+  font-family: var(--font-meta);
+  font-weight:300;
+  font-size: calc(clamp(1rem,2.2vw,1.8rem) * var(--s-clock));
+  color: var(--secondary);
+  letter-spacing:.12em;
+  margin-left:.4em;
+  vertical-align:super;
+}
+
+/* ── META ROW ─────────────────────────────────────────────── */
+#meta-row {
+  display:flex;
+  align-items:center;
+  gap:1.1em;
+  margin-top:1.8vh;
+}
+.meta-txt {
+  font-family: var(--font-meta);
+  font-weight:300;
+  font-size: calc(clamp(.75rem,1.55vw,1.18rem) * var(--s-meta));
+  color: var(--secondary);
+  letter-spacing:.05em;
+}
+.meta-pipe {
+  width:1px; height:.9em;
+  background: var(--sep);
+  flex-shrink:0;
+}
+
+/* ── COUNTDOWN TIMER ──────────────────────────────────────── */
+#timer-area {
+  display:flex; flex-direction:column;
+  align-items:center; gap:.4vh;
+  margin-top:1.8vh;
+}
+#timer-display {
+  font-family: var(--font-clock);
+  font-size: calc(clamp(2rem,5.5vw,4.5rem) * var(--s-timer, 1));
+  line-height:1;
+  color: var(--secondary);
+  letter-spacing:-.01em;
+  text-align:center;
+  user-select:none;
+  transition: color var(--dur-theme, 1300ms) var(--ease-out);
+}
+#timer-label {
+  font-family: var(--font-meta);
+  font-weight:300;
+  font-size: calc(clamp(.55rem,.8vw,.75rem) * var(--s-timer, 1));
+  color: var(--secondary);
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  opacity:.55;
+  transition: color var(--dur-theme, 1300ms) var(--ease-out);
+}
+
+/* Warning state — last 10 minutes */
+#timer-area.warning #timer-display {
+  color: var(--clock-c);
+  opacity:.85;
+}
+
+/* Finished state — time is up */
+#timer-area.finished #timer-display {
+  opacity:.4;
+}
+
+/* Hidden when timer not active */
+#timer-area.hidden {
+  display:none;
+}
+
+/* Entrance — fades and rises in when timer starts */
+@keyframes timerIn {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+#timer-area:not(.hidden) {
+  animation: timerIn 0.9s var(--ease-spring) both;
+}
+
+/* ── QUOTE / FEED ─────────────────────────────────────────── */
+#quote-area {
+  display:flex; flex-direction:column;
+  gap:.8vh;
+  max-width: min(640px,68vw);
+  margin-top:4.5vh;
+}
+/* Three alignment options */
+#quote-area.align-center { align-items:center; text-align:center; }
+#quote-area.align-left   { align-items:flex-start; text-align:left; }
+#quote-area.align-right  { align-items:flex-end; text-align:right; }
+
+#quote-txt {
+  font-family: var(--font-quote);
+  font-style:italic;
+  font-size: calc(clamp(.72rem,1.35vw,1rem) * var(--s-quote));
+  color: var(--quote-c);
+  line-height:1.6;
+  opacity: var(--q-op);
+}
+#quote-src {
+  font-family: var(--font-quote-src);
+  font-weight:300;
+  font-size: calc(clamp(.58rem,.88vw,.76rem) * var(--s-quote));
+  color: var(--quote-c);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  opacity: var(--q-s-op);
+}
+
+/* ── OVERLAY ANNOUNCEMENT ─────────────────────────────────── */
+/*
+  Two states:
+  Default — subtle pill at bottom (original behavior)
+  .prominent — full center-stage takeover with stage compression
+*/
+#overlay {
+  position:fixed;
+  left:50%;
+  transform: translateX(-50%) translateY(30px);
+  opacity:0;
+  background: var(--overlay-bg);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border:1px solid var(--overlay-border);
+  border-radius:14px;
+  padding:1.4vh 3vw;
+  font-family: var(--font-meta);
+  font-weight:400;
+  color: var(--overlay-txt);
+  letter-spacing:.05em;
+  z-index:20;
+  pointer-events:none;
+  box-shadow: 0 8px 40px rgba(0,0,0,.28);
+  /* Position and size transition for prominent mode */
+  transition:
+    opacity    var(--dur-overlay, 900ms) var(--ease-out),
+    transform  var(--dur-overlay, 900ms) var(--ease-spring),
+    bottom     var(--dur-overlay, 900ms) var(--ease-spring),
+    top        var(--dur-overlay, 900ms) var(--ease-spring),
+    font-size  var(--dur-overlay, 900ms) var(--ease-spring),
+    padding    var(--dur-overlay, 900ms) var(--ease-spring),
+    border-radius var(--dur-overlay, 900ms) var(--ease-spring),
+    background var(--dur-theme,  1300ms) var(--ease-out),
+    color      var(--dur-theme,  1300ms) var(--ease-out),
+    border-color var(--dur-theme, 1300ms) var(--ease-out);
+}
+
+/* Default pill — subtle bottom position */
+#overlay {
+  bottom: 5.5vh;
+  font-size: clamp(.74rem,1.25vw,.94rem);
+  white-space: nowrap;
+}
+
+#overlay.show {
+  opacity:1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── ANNOUNCEMENT MODE ────────────────────────────────────── */
+/* Clock shrinks when announcement is active */
+#stage.announcing #clock-wrap {
+  transform: translateY(-6vh) scale(0.45);
+  opacity: 0.5;
+  transition:
+    transform var(--dur-overlay, 900ms) var(--ease-spring),
+    opacity   var(--dur-overlay, 900ms) var(--ease-out);
+}
+#stage:not(.announcing) #clock-wrap {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  transition:
+    transform var(--dur-overlay, 900ms) var(--ease-spring),
+    opacity   var(--dur-overlay, 900ms) var(--ease-out);
+}
+
+/* Meta row (date/weather) fades out during announcement */
+#stage.announcing #meta-row {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity   var(--dur-overlay, 900ms) var(--ease-out),
+    transform var(--dur-overlay, 900ms) var(--ease-out);
+}
+#stage:not(.announcing) #meta-row {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity   var(--dur-overlay, 900ms) var(--ease-out),
+    transform var(--dur-overlay, 900ms) var(--ease-out);
+}
+
+/* Timer fades during announcement if visible */
+#stage.announcing #timer-area {
+  opacity: 0;
+  transition: opacity var(--dur-overlay, 900ms) var(--ease-out);
+}
+#stage:not(.announcing) #timer-area {
+  opacity: 1;
+  transition: opacity var(--dur-overlay, 900ms) var(--ease-out);
+}
+
+/* Quote area fades during announcement */
+#stage.announcing #quote-area {
+  opacity: 0;
+  transition: opacity var(--dur-overlay, 900ms) var(--ease-out);
+}
+#stage:not(.announcing) #quote-area {
+  opacity: 1;
+  transition: opacity var(--dur-overlay, 900ms) var(--ease-out);
+}
+
+/* Main announcement text — center stage */
+#overlay {
+  position:fixed;
+  left:50%; top:50%;
+  transform: translateX(-50%) translateY(calc(-50% + 20px));
+  opacity:0;
+  background: var(--overlay-bg);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border:1px solid var(--overlay-border);
+  border-radius:18px;
+  padding: 2.8vh 5vw;
+  font-family: var(--font-meta);
+  font-weight:300;
+  font-size: clamp(1.4rem, 3.5vw, 2.8rem);
+  color: var(--overlay-txt);
+  letter-spacing:.04em;
+  z-index:20;
+  pointer-events:none;
+  text-align:center;
+  max-width:78vw;
+  white-space:normal;
+  box-shadow: 0 12px 48px rgba(0,0,0,.32);
+  transition:
+    opacity    var(--dur-overlay, 900ms) var(--ease-out),
+    transform  var(--dur-overlay, 900ms) var(--ease-spring),
+    background var(--dur-theme,  1300ms) var(--ease-out),
+    color      var(--dur-theme,  1300ms) var(--ease-out),
+    border-color var(--dur-theme,1300ms) var(--ease-out);
+}
+
+#overlay.show {
+  opacity:1;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+/* ── BLANK STATE ──────────────────────────────────────────── */
+/*
+   Blank: foreground fades out, watermark keeps running.
+   The display is dark but the internal clock keeps ticking.
+*/
+body.blanked #stage,
+body.blanked #halo,
+body.blanked .glow-orb {
+  opacity:0;
+  transition: opacity var(--dur-slow, 500ms) var(--ease-in-out);
+}
+body.blanked #wm-canvas {
+  opacity:1;
+}
+body:not(.blanked) #stage,
+body:not(.blanked) #halo,
+body:not(.blanked) .glow-orb {
+  opacity:1;
+  /* 
+    Only transition on un-blank, not on initial page load.
+    JS adds .was-blanked to body after first blank event,
+    which activates this rule.
+  */
+}
+body.was-blanked:not(.blanked) #stage,
+body.was-blanked:not(.blanked) #halo,
+body.was-blanked:not(.blanked) .glow-orb {
+  transition: opacity var(--dur-slow, 500ms) var(--ease-in-out);
+}
+
+/* ── PAUSE STATE ──────────────────────────────────────────── */
+/*
+   Pause: everything visible fades out completely.
+   JS additionally stops the watermark rAF and clock interval.
+   Display becomes a true still frame.
+*/
+body.paused #stage,
+body.paused #halo,
+body.paused .glow-orb {
+  opacity:0;
+  transition:
+    opacity var(--dur-theme, 1300ms) var(--ease-in-out);
+}
+body.was-paused:not(.paused) #stage {
+  opacity:1;
+  transition: opacity 1600ms var(--ease-spring) 300ms;
+}
+body.was-paused:not(.paused) #halo {
+  opacity:1;
+  transition: opacity 1600ms var(--ease-spring) 100ms;
+}
+body.was-paused:not(.paused) .glow-orb {
+  opacity:1;
+  transition: opacity 1400ms var(--ease-spring);
+}
+
+/* ── ENTRANCE ANIMATION ───────────────────────────────────── */
+/*
+   Applied once on page load via JS adding .entrance class to
+   #stage children. JS removes .entrance after animation ends
+   so subsequent applyConfig() calls don't retrigger it.
+*/
+.entrance-logo    { animation: riseIn 2.4s var(--ease-spring) 0.2s both; }
+.entrance-clock   { animation: riseIn 2.4s var(--ease-spring) 0.5s both; }
+.entrance-meta    { animation: riseIn 2.4s var(--ease-spring) 0.8s both; }
+.entrance-quote   { animation: riseIn 2.4s var(--ease-spring) 1.0s both; }
+
+@keyframes riseIn {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
