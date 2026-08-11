@@ -32,6 +32,7 @@ let _burnTimer = null;
 
 // Overlay
 let _overlayTimer = null;
+let _annScheduleFired = false;
 
 // Countdown timer
 let _timerInterval  = null;
@@ -402,6 +403,7 @@ function _tick() {
   _el.dateTxt.textContent =
     `${DAYS[now.getDay()]}, ${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
   _timerCheckAutoStart(_cfg);
+  _annCheckSchedule(_cfg);
 }
 
 /* ── QUOTES ───────────────────────────────────────────────── */
@@ -583,6 +585,27 @@ function _timerCheckAutoStart(cfg) {
   const curr = `${pad(h)}:${pad(m)}`;
   if (curr === cfg.timerStartTime && s === 0) {
     _timerStart((cfg.timerDuration || 120) * 60);
+  }
+}
+
+let _annScheduleFired = false;
+
+function _annCheckSchedule(cfg) {
+  if (!cfg?.annScheduleEnabled || !cfg?.annScheduleTime || !cfg?.annScheduleText) return;
+  const now  = new Date();
+  const h    = now.getHours();
+  const m    = now.getMinutes();
+  const s    = now.getSeconds();
+  const curr = `${pad(h)}:${pad(m)}`;
+
+  if (curr !== cfg.annScheduleTime) {
+    _annScheduleFired = false;
+    return;
+  }
+
+  if (s < 5 && !_annScheduleFired) {
+    _annScheduleFired = true;
+    _showOverlay(cfg.annScheduleText, cfg.overlayDuration || 8);
   }
 }
 

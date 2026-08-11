@@ -97,20 +97,16 @@
     <div id="sidebar-footer">
       <div class="present-controls">
 
-        <!-- Display status indicator -->
-        <div class="live-row">
-          <div style="display:flex;align-items:center;gap:6px">
-            <div class="live-dot offline" id="live-dot"></div>
-            <span id="live-txt" style="font-size:.69rem;color:var(--txt3)">Not presenting</span>
-          </div>
-          <button class="ctrl-btn" id="btn-live-toggle"
-            title="Toggle between live push and preview mode"
-            style="padding:3px 9px;font-size:.67rem">○ Preview</button>
+        <!-- Live / Preview mode toggle -->
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="ctrl-btn active" id="btn-live-toggle"
+            title="Live: changes push instantly. Preview: test without affecting display."
+            style="flex:1;padding:6px;font-size:.69rem">● Live</button>
+          <button class="act-btn" id="btn-push"
+            style="display:none;flex:1;padding:6px;font-size:.69rem;text-align:center">
+            ↗ Push
+          </button>
         </div>
-        <button class="act-btn" id="btn-push"
-          style="display:none;font-size:.74rem">
-          ↗ Push to Display
-        </button>
 
         <!-- Main present button -->
         <button id="btn-present" title="Open the projection display window (P)">▶ Present</button>
@@ -539,6 +535,32 @@
         <button class="act-btn" id="btn-overlay" style="flex:1">Send to Display</button>
         <button class="ctrl-btn danger" id="btn-overlay-cancel" style="flex:1;padding:9px">✕ Cancel</button>
       </div>
+
+      <div style="height:1px;background:var(--border);margin:4px 0"></div>
+
+      <div class="sec-title" style="margin-top:4px">Scheduled Announcement</div>
+
+      <div class="tog-row">
+        <span class="tog-lbl">
+          Auto-send at scheduled time
+          <span class="tip" data-tip="Automatically shows the message below at the set time. Fires once per session.">i</span>
+        </span>
+        <label class="tog">
+          <input type="checkbox" id="annScheduleEnabled">
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Scheduled time <span class="tip" data-tip="24h format. e.g. 15:55 for 3:55 PM.">i</span></label>
+        <input type="text" id="annScheduleTime" placeholder="e.g. 15:55">
+      </div>
+
+      <div class="field">
+        <label class="lbl">Message to send</label>
+        <input type="text" id="annScheduleText" placeholder="e.g. Last 5 minutes remaining">
+      </div>
+      
       <button class="ghost-btn" id="btn-save-preset">+ Save as preset</button>
 
       <div class="field" style="margin-top:4px">

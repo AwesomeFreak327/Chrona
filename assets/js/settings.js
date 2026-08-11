@@ -16,6 +16,7 @@ let _liveMode    = true;
 let _quotePaused = false;
 let _pdTimer     = null;
 let _scrollMem   = {};
+let _timerState   = null;
 
 /* ── SINGLE INIT ──────────────────────────────────────────── */
 window.addEventListener('DOMContentLoaded', () => {
@@ -188,6 +189,11 @@ function _pushToPreview() {
     const cfg = Config.get();
     _postToFrame('preview-frame', cfg);
     _postToFrame('fs-frame', cfg);
+    if (_timerState) {
+      setTimeout(() => {
+        _sendToFrame('preview-frame', _timerState);
+      }, 120);
+    }
   }, 80);
 }
 
@@ -235,7 +241,8 @@ function _bind(id, key, transform) {
 function _wireSimpleBindings() {
   ['orgName','showOrgName','showLogo','showSeconds','showAmPm',
    'showWeather','showQuotes','wmText','overlayText',
-   'burnIn','autoFullscreen','smoothAnimations']
+   'burnIn','autoFullscreen','smoothAnimations',
+   'annScheduleEnabled','annScheduleTime','annScheduleText']
     .forEach(k => _bind(k, k));
 
   _bind('wmOpacity',       'wmOpacity',       Number);
@@ -266,7 +273,7 @@ function _wireSimpleBindings() {
   });
 
   // Sizing sliders
-  ['scaleLogo','scaleClock','scaleMeta','scaleQuote','scaleWmFont'].forEach(k => {
+  ['scaleLogo','scaleClock','scaleMeta','scaleQuote','scaleWmFont','scaleTimer'].forEach(k => {
     document.getElementById(k)?.addEventListener('input', function() {
       const v = parseFloat(this.value);
       _sizeLbl(k, v);
@@ -675,8 +682,9 @@ function _initTimer() {
   // Start button
   document.getElementById('btn-timer-start')?.addEventListener('click', () => {
     const dur = (Config.get().timerDuration || 120) * 60;
-    BC.postMessage({ type: 'timer-start', seconds: dur });
-    _sendToFrame('preview-frame', { type: 'timer-start', seconds: dur });
+    _timerState = { type: 'timer-start', seconds: dur };
+    BC.postMessage(_timerState);
+    _sendToFrame('preview-frame', _timerState);
     _setTimerStatus(`Running — ${Config.get().timerDuration} min`);
   });
 
@@ -692,6 +700,7 @@ function _initTimer() {
 
   // Reset button
   document.getElementById('btn-timer-reset')?.addEventListener('click', () => {
+    _timerState = null;
     BC.postMessage({ type: 'timer-reset' });
     _sendToFrame('preview-frame', { type: 'timer-reset' });
     const btn = document.getElementById('btn-timer-pause');
@@ -731,8 +740,8 @@ function _renderAnnPresets() {
     // Send on click
     chip.querySelector('.chip-txt').addEventListener('click', () => {
       const dur = Config.get().overlayDuration || 8;
-      BC.postMessage({ type: 'overlay', text: item.text, duration: dur, prominent: true });
-      _sendToFrame('preview-frame', { type: 'overlay', text: item.text, duration: dur, prominent: true });
+      BC.postMessage({ type: 'overlay', text: item.text, duration: dur });
+      _sendToFrame('preview-frame', { type: 'overlay', text: item.text, duration: dur });
       Announcements.markUsed(item.id);
       // Re-render to update sort order
       setTimeout(_renderAnnPresets, 50);
@@ -857,9 +866,13 @@ function _initPresentControls() {
 
     // Open display window
     BC.postMessage({ type: 'config', config: Config.get() });
+    const sw = window.screen.width;
+    const sh = window.screen.height;
     displayWin = window.open(
       'display.html', 'chrona_display',
-      'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no'
+      `width=${sw},height=${sh},left=0,top=0,` +
+      'menubar=no,toolbar=no,location=no,status=no,' +
+      'scrollbars=no,resizable=yes'
     );
 
     if (displayWin) {
@@ -921,22 +934,15 @@ function _updatePresentStatus(presenting) {
 // Syncs the sidebar live dot with current state
 // Three states: not open → preview only → live
 function _syncDotState() {
-  const dot = document.getElementById('live-dot');
-  const txt = document.getElementById('live-txt');
   const isOpen = displayWin && !displayWin.closed;
+  const btn = document.getElementById('btn-live-toggle');
 
   if (!isOpen) {
-    // Grey — display not open
-    if (dot) { dot.className = 'live-dot offline'; }
-    if (txt) txt.textContent = 'Not presenting';
+    if (btn) { btn.textContent = '○ Not Live'; btn.classList.remove('active'); }
   } else if (!_liveMode) {
-    // Amber — display open but in preview mode
-    if (dot) { dot.className = 'live-dot preview'; }
-    if (txt) txt.textContent = 'Preview only';
+    if (btn) { btn.textContent = '◑ Preview'; btn.classList.remove('active'); }
   } else {
-    // Green pulsing — display open and live
-    if (dot) { dot.className = 'live-dot'; }
-    if (txt) txt.textContent = 'Sending live';
+    if (btn) { btn.textContent = '● Live'; btn.classList.add('active'); }
   }
 }
 

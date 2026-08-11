@@ -100,6 +100,9 @@ const DEFAULTS = {
   // overlay
   overlayText:      '',
   overlayDuration:  8,
+  annScheduleEnabled: false,
+  annScheduleTime:    '',
+  annScheduleText:    '',
   // countdown timer
   timerEnabled:     false,
   timerDuration:    120,   // in minutes

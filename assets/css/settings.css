@@ -258,6 +258,7 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
 /* Pause, Blank — frosted feel, less prominent than Present */
 .ctrl-btn {
   flex:1; padding:7px 6px;
+  min-width:80px;
   background:var(--surface2);
   border:1px solid var(--border2);
   color:var(--txt2);
@@ -347,16 +348,20 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
   width:13px; height:13px; border-radius:50%;
   background:var(--border2); color:var(--txt3);
   font-size:.57rem; cursor:help; flex-shrink:0;
-  position:relative; isolation:isolate;
+  position:relative;
 }
 .tip:hover::after {
   content:attr(data-tip);
-  position:absolute; left:18px; top:-4px; z-index:400;
+  position:fixed;
+  left:auto; right:20px;
+  top:auto;
+  margin-top:-8px;
+  z-index:9000;
   background:#1a1a2a; border:1px solid var(--border2);
   color:var(--txt2); font-size:.69rem; line-height:1.5;
-  padding:6px 10px; border-radius:7px; width:200px;
+  padding:8px 12px; border-radius:8px; width:220px;
   white-space:normal; pointer-events:none;
-  box-shadow:0 4px 16px rgba(0,0,0,.4);
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
 }
 
 input[type=text],

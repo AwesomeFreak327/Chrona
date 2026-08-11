@@ -21,8 +21,8 @@
 :root {
   --bg:             #060409;
   --clock-c:        #e2d0ff;
-  --secondary:      rgba(226,208,255,.52);
-  --quote-c:        rgba(226,208,255,.30);
+  --secondary:      rgba(226,208,255,.82);
+  --quote-c:        rgba(226,208,255,.72);
   --glow:           rgba(150,60,255,.10);
   --sep:            rgba(226,208,255,.16);
   --halo:           rgba(6,4,9,.72);
@@ -424,52 +424,41 @@ body.theme-switching #halo::after  { opacity:1; }
 
 /* ── OVERLAY ANNOUNCEMENT ─────────────────────────────────── */
 /*
-  Two states:
-  Default — subtle pill at bottom (original behavior)
-  .prominent — full center-stage takeover with stage compression
+  Sits dead center. Clock shrinks when active via .announcing on #stage.
+  No glass box — clean text only. Background is minimal, just enough
+  to separate text from the clock behind it.
 */
 #overlay {
   position:fixed;
-  left:50%;
-  transform: translateX(-50%) translateY(30px);
+  left:50%; top:50%;
+  transform: translateX(-50%) translateY(calc(-50% + 24px));
   opacity:0;
-  background: var(--overlay-bg);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  border:1px solid var(--overlay-border);
-  border-radius:14px;
-  padding:1.4vh 3vw;
-  font-family: var(--font-meta);
+  background: transparent;
+  border:none;
+  border-radius:0;
+  padding: 0 4vw;
+  font-family: var(--font-clock);
+  font-style:italic;
   font-weight:400;
-  color: var(--overlay-txt);
-  letter-spacing:.05em;
+  font-size: clamp(1.6rem, 4vw, 3.2rem);
+  color: var(--clock-c);
+  letter-spacing:.02em;
   z-index:20;
   pointer-events:none;
-  box-shadow: 0 8px 40px rgba(0,0,0,.28);
-  /* Position and size transition for prominent mode */
+  text-align:center;
+  max-width:82vw;
+  white-space:normal;
+  line-height:1.25;
+  box-shadow: none;
   transition:
-    opacity    var(--dur-overlay, 900ms) var(--ease-out),
-    transform  var(--dur-overlay, 900ms) var(--ease-spring),
-    bottom     var(--dur-overlay, 900ms) var(--ease-spring),
-    top        var(--dur-overlay, 900ms) var(--ease-spring),
-    font-size  var(--dur-overlay, 900ms) var(--ease-spring),
-    padding    var(--dur-overlay, 900ms) var(--ease-spring),
-    border-radius var(--dur-overlay, 900ms) var(--ease-spring),
-    background var(--dur-theme,  1300ms) var(--ease-out),
-    color      var(--dur-theme,  1300ms) var(--ease-out),
-    border-color var(--dur-theme, 1300ms) var(--ease-out);
-}
-
-/* Default pill — subtle bottom position */
-#overlay {
-  bottom: 5.5vh;
-  font-size: clamp(.74rem,1.25vw,.94rem);
-  white-space: nowrap;
+    opacity   var(--dur-overlay, 900ms) var(--ease-out),
+    transform var(--dur-overlay, 900ms) var(--ease-spring),
+    color     var(--dur-theme,  1300ms) var(--ease-out);
 }
 
 #overlay.show {
   opacity:1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateX(-50%) translateY(-50%);
 }
 
 /* ── ANNOUNCEMENT MODE ────────────────────────────────────── */
@@ -523,42 +512,6 @@ body.theme-switching #halo::after  { opacity:1; }
 #stage:not(.announcing) #quote-area {
   opacity: 1;
   transition: opacity var(--dur-overlay, 900ms) var(--ease-out);
-}
-
-/* Main announcement text — center stage */
-#overlay {
-  position:fixed;
-  left:50%; top:50%;
-  transform: translateX(-50%) translateY(calc(-50% + 20px));
-  opacity:0;
-  background: var(--overlay-bg);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-  border:1px solid var(--overlay-border);
-  border-radius:18px;
-  padding: 2.8vh 5vw;
-  font-family: var(--font-meta);
-  font-weight:300;
-  font-size: clamp(1.4rem, 3.5vw, 2.8rem);
-  color: var(--overlay-txt);
-  letter-spacing:.04em;
-  z-index:20;
-  pointer-events:none;
-  text-align:center;
-  max-width:78vw;
-  white-space:normal;
-  box-shadow: 0 12px 48px rgba(0,0,0,.32);
-  transition:
-    opacity    var(--dur-overlay, 900ms) var(--ease-out),
-    transform  var(--dur-overlay, 900ms) var(--ease-spring),
-    background var(--dur-theme,  1300ms) var(--ease-out),
-    color      var(--dur-theme,  1300ms) var(--ease-out),
-    border-color var(--dur-theme,1300ms) var(--ease-out);
-}
-
-#overlay.show {
-  opacity:1;
-  transform: translateX(-50%) translateY(-50%);
 }
 
 /* ── BLANK STATE ──────────────────────────────────────────── */
