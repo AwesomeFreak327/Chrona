@@ -588,7 +588,6 @@ function _timerCheckAutoStart(cfg) {
   }
 }
 
-let _annScheduleFired = false;
 
 function _annCheckSchedule(cfg) {
   if (!cfg?.annScheduleEnabled || !cfg?.annScheduleTime || !cfg?.annScheduleText) return;
