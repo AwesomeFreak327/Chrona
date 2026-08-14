@@ -659,37 +659,92 @@
     <!-- ── ABOUT ── -->
     <div class="config-section" id="panel-about">
       <div class="sec-title">About</div>
-      <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:20px">
 
-        <p style="font-size:.84rem;color:var(--txt);line-height:1.74;font-weight:400">
-          Chrona is an ambient display platform for institutional spaces where time is not just shown — it is felt.
-        </p>
-
-        <p style="font-size:.76rem;color:var(--txt2);line-height:1.74">
-          Most digital signage is designed to fill a screen. Chrona is designed to belong to a room.
-          The clock is large because presence matters. The background moves slowly because stillness
-          without motion becomes hollow. Every typographic and motion decision is restrained by intention.
-        </p>
-
-        <p style="font-size:.76rem;color:var(--txt2);line-height:1.74">
-          Built for projectors, LED walls, and auditorium screens. Designed to work gracefully with or
-          without internet. Tested for examination halls, assemblies, lobbies, and events.
-        </p>
-
-        <div style="padding:12px;background:var(--surface2);border-radius:9px;display:flex;flex-direction:column;gap:6px">
-          <div style="font-size:.69rem;color:var(--txt3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px">Version</div>
-          <!-- Version injected by JS via CHRONA_VERSION constant -->
-          <div id="about-version" style="font-size:.8rem;color:var(--txt2);font-weight:500">Chrona v1.0</div>
-          <div style="font-size:.71rem;color:var(--txt3)">Public demo build · Core features enabled</div>
+        <!-- Product identity -->
+        <div>
+          <div style="font-size:1.1rem;font-weight:600;color:var(--txt);letter-spacing:.02em;margin-bottom:8px">
+            Chr<span style="color:var(--accent)">o</span>na
+          </div>
+          <p style="font-size:.78rem;color:var(--txt2);line-height:1.8">
+            There are spaces where time carries weight — where what the clock says
+            matters more than what anyone in the room does. Chrona exists for those spaces.
+            Not to decorate a screen, but to hold a room's attention without demanding it.
+          </p>
         </div>
 
-        <div style="padding-top:8px;border-top:1px solid var(--border);text-align:center">
-          <a id="credit-btn"
-            href="https://github.com/AwesomeFreak"
-            target="_blank"
-            rel="noopener noreferrer"
-            style="font-size:.68rem;color:var(--txt3);text-decoration:none;border-bottom:1px dotted var(--txt3);display:inline-block;padding-bottom:1px">
-            Chrona v1.0 &nbsp;·&nbsp; crafted by AwesomeFreak
+        <!-- Vision -->
+        <p style="font-size:.75rem;color:var(--txt2);line-height:1.8">
+          Most display software is built around features. Chrona was built around
+          a feeling — that a well-designed ambient display should feel inevitable,
+          like it always belonged there. Calm. Precise. Present.
+          Every decision from typography to motion was made in service of that feeling,
+          and nothing else.
+        </p>
+
+        <!-- Use context -->
+        <p style="font-size:.75rem;color:var(--txt2);line-height:1.8">
+          Built for projectors, LED walls, and large screens in institutional environments.
+          Designed to work gracefully with or without internet. Tested across examination
+          sessions, assemblies, and formal events. Configurable without a manual.
+        </p>
+
+        <!-- Divider -->
+        <div style="height:1px;background:var(--border)"></div>
+
+        <!-- Creator -->
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:.63rem;font-weight:500;letter-spacing:.16em;
+                      text-transform:uppercase;color:var(--txt3)">
+            Built by
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;
+                        background:var(--accent-dim);border:1px solid var(--accent-b);
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:.75rem;font-weight:600;color:var(--accent);
+                        flex-shrink:0">
+              J
+            </div>
+            <div>
+              <div style="font-size:.82rem;font-weight:500;color:var(--txt)">
+                Joshua
+              </div>
+              <div style="font-size:.69rem;color:var(--txt3);margin-top:1px">
+                AwesomeFreak327 &nbsp;·&nbsp; Building things that solve real problems
+              </div>
+            </div>
+          </div>
+          <p style="font-size:.72rem;color:var(--txt3);line-height:1.7">
+            I believe the best solutions are the ones nobody notices — because they
+            just work, quietly, exactly when needed. Chrona is one of those attempts.
+          </p>
+        </div>
+
+        <!-- Version + GitHub -->
+        <div style="padding:12px;background:var(--surface2);border-radius:9px;
+                    display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div>
+            <div id="about-version"
+                 style="font-size:.8rem;color:var(--txt2);font-weight:500">
+              Chrona v1.0
+            </div>
+            <div style="font-size:.67rem;color:var(--txt3);margin-top:2px">
+              Open source · Runs in any modern browser
+            </div>
+          </div>
+          <a href="https://github.com/AwesomeFreak327"
+             target="_blank"
+             rel="noopener noreferrer"
+             style="display:inline-flex;align-items:center;gap:6px;
+                    padding:6px 12px;border-radius:7px;
+                    background:var(--accent-dim);border:1px solid var(--accent-b);
+                    color:var(--accent);font-size:.69rem;font-weight:500;
+                    text-decoration:none;white-space:nowrap;flex-shrink:0">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            GitHub
           </a>
         </div>
 
