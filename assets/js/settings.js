@@ -1003,6 +1003,11 @@ function _initAdvanced() {
     _renderHistory();
     document.getElementById('reset-confirm')?.classList.remove('open');
   });
+  document.getElementById('btn-force-refresh')?.addEventListener('click', () => {
+    // Force browser to bypass cache and reload all files fresh
+    // This solves stale cache issues after app updates
+    window.location.reload(true);
+  });
 }
 
 /* ── History ── */
