@@ -116,92 +116,87 @@ const FONTS = {
   // Slot: clock — large display numerals on projector
   clock: {
     'Cormorant Garamond': {
-      url:   'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap',
+      url:   'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap',
       stack: "'Cormorant Garamond', Georgia, serif",
-      note:  'Ultra-elegant — very high contrast strokes',
+      note:  'Ultra elegant — cinematic on dark themes',
+    },
+    'Orbitron': {
+      url:   'https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap',
+      stack: "'Orbitron', system-ui, sans-serif",
+      note:  'Geometric tech — bold and unmistakable',
+    },
+    'Montserrat': {
+      url:   'https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap',
+      stack: "'Montserrat', system-ui, sans-serif",
+      note:  'Editorial strong — universal and clean',
+    },
+    'Oswald': {
+      url:   'https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap',
+      stack: "'Oswald', system-ui, sans-serif",
+      note:  'Condensed punchy — excellent on projectors',
     },
     'Playfair Display': {
-      url:   'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap',
+      url:   'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap',
       stack: "'Playfair Display', Georgia, serif",
-      note:  'Strong editorial — bold on projectors',
-    },
-    'DM Serif Display': {
-      url:   'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap',
-      stack: "'DM Serif Display', Georgia, serif",
-      note:  'Warm and authoritative — modern serif',
-    },
-    'Libre Baskerville': {
-      url:   'https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital@0;1&display=swap',
-      stack: "'Libre Baskerville', Georgia, serif",
-      note:  'Solid and sturdy — excellent projection',
-    },
-    'Lora': {
-      url:   'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&display=swap',
-      stack: "'Lora', Georgia, serif",
-      note:  'Balanced — warm and readable at distance',
-    },
-    'EB Garamond': {
-      url:   'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&display=swap',
-      stack: "'EB Garamond', Georgia, serif",
-      note:  'Classical — refined old-style numerals',
+      note:  'Classic serif — strong editorial numerals',
     },
   },
 
   // Slot: meta — date, weather, org name
   meta: {
     'Inter': {
-      url:   'https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap',
+      url:   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap',
       stack: "'Inter', system-ui, sans-serif",
-      note:  'Neutral and highly legible — safe choice',
+      note:  'Most neutral and legible — safe default',
     },
-    'DM Sans': {
-      url:   'https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400&display=swap',
-      stack: "'DM Sans', system-ui, sans-serif",
-      note:  'Geometric — pairs well with serif clocks',
+    'Work Sans': {
+      url:   'https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500&display=swap',
+      stack: "'Work Sans', system-ui, sans-serif",
+      note:  'Professional and warm — pairs with serifs',
     },
-    'Outfit': {
-      url:   'https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400&display=swap',
-      stack: "'Outfit', system-ui, sans-serif",
-      note:  'Friendly — rounded and modern',
+    'Plus Jakarta Sans': {
+      url:   'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500&display=swap',
+      stack: "'Plus Jakarta Sans', system-ui, sans-serif",
+      note:  'Clean geometric — modern institutional',
     },
-    'IBM Plex Sans': {
-      url:   'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@200;300;400&display=swap',
-      stack: "'IBM Plex Sans', system-ui, sans-serif",
-      note:  'Technical — precise and institutional',
+    'Sora': {
+      url:   'https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500&display=swap',
+      stack: "'Sora', system-ui, sans-serif",
+      note:  'Modern geometric — subtle and distinct',
     },
-    'Josefin Sans': {
-      url:   'https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@200;300;400&display=swap',
-      stack: "'Josefin Sans', system-ui, sans-serif",
-      note:  'Elegant thin caps — distinctive look',
+    'Nunito': {
+      url:   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700&display=swap',
+      stack: "'Nunito', system-ui, sans-serif",
+      note:  'Friendly rounded — approachable feel',
     },
   },
 
   // Slot: quote — verse / message body text
   quote: {
     'Lora': {
-      url:   'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;1,400&display=swap',
+      url:   'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap',
       stack: "'Lora', Georgia, serif",
-      note:  'Warm — best for inspirational text',
-    },
-    'Merriweather': {
-      url:   'https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;1,300&display=swap',
-      stack: "'Merriweather', Georgia, serif",
-      note:  'High readability — designed for screens',
+      note:  'Warm and readable — best italic presence',
     },
     'Cormorant Garamond': {
-      url:   'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap',
+      url:   'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap',
       stack: "'Cormorant Garamond', Georgia, serif",
-      note:  'Literary — refined italic character',
+      note:  'Ultra elegant italic — literary feel',
     },
-    'EB Garamond': {
-      url:   'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&display=swap',
-      stack: "'EB Garamond', Georgia, serif",
-      note:  'Scholarly — elegant long-form reading',
+    'Playfair Display': {
+      url:   'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&display=swap',
+      stack: "'Playfair Display', Georgia, serif",
+      note:  'Editorial italic — strong visual weight',
     },
-    'DM Serif Display': {
-      url:   'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap',
-      stack: "'DM Serif Display', Georgia, serif",
-      note:  'Expressive — strong italic presence',
+    'Fraunces': {
+      url:   'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&display=swap',
+      stack: "'Fraunces', Georgia, serif",
+      note:  'Expressive light italic — distinctive voice',
+    },
+    'Montserrat': {
+      url:   'https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;1,300&display=swap',
+      stack: "'Montserrat', system-ui, sans-serif",
+      note:  'Clean light italic — modern and minimal',
     },
   },
 
@@ -210,26 +205,26 @@ const FONTS = {
     'Inter': {
       url:   'https://fonts.googleapis.com/css2?family=Inter:wght@200;300&display=swap',
       stack: "'Inter', system-ui, sans-serif",
-      note:  'Clean — neutral reference line',
+      note:  'Clean at small sizes — neutral attribution',
     },
-    'DM Sans': {
-      url:   'https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,300&display=swap',
-      stack: "'DM Sans', system-ui, sans-serif",
-      note:  'Light geometric — subtle attribution',
+    'Work Sans': {
+      url:   'https://fonts.googleapis.com/css2?family=Work+Sans:wght@200;300&display=swap',
+      stack: "'Work Sans', system-ui, sans-serif",
+      note:  'Professional — light source line',
     },
-    'Josefin Sans': {
-      url:   'https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@200;300&display=swap',
-      stack: "'Josefin Sans', system-ui, sans-serif",
-      note:  'Spaced caps — elegant small attribution',
+    'Sora': {
+      url:   'https://fonts.googleapis.com/css2?family=Sora:wght@200;300&display=swap',
+      stack: "'Sora', system-ui, sans-serif",
+      note:  'Modern minimal — subtle attribution',
     },
-    'IBM Plex Sans': {
-      url:   'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@200;300&display=swap',
-      stack: "'IBM Plex Sans', system-ui, sans-serif",
-      note:  'Precise — technical references',
+    'Plus Jakarta Sans': {
+      url:   'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300&display=swap',
+      stack: "'Plus Jakarta Sans', system-ui, sans-serif",
+      note:  'Geometric clean — precise reference line',
     },
-    'Outfit': {
-      url:   'https://fonts.googleapis.com/css2?family=Outfit:wght@200;300&display=swap',
-      stack: "'Outfit', system-ui, sans-serif",
+    'Nunito': {
+      url:   'https://fonts.googleapis.com/css2?family=Nunito:wght@300;400&display=swap',
+      stack: "'Nunito', system-ui, sans-serif",
       note:  'Friendly — warm attribution style',
     },
   },
@@ -239,27 +234,27 @@ const FONTS = {
     'Inter': {
       url:   'https://fonts.googleapis.com/css2?family=Inter:wght@200;300&display=swap',
       stack: "'Inter', system-ui, sans-serif",
-      note:  'Minimal — disappears into background',
+      note:  'Even stroke weight — tiles most cleanly',
     },
-    'IBM Plex Sans': {
-      url:   'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@200;300&display=swap',
-      stack: "'IBM Plex Sans', system-ui, sans-serif",
-      note:  'Even stroke — tiles cleanly',
+    'Work Sans': {
+      url:   'https://fonts.googleapis.com/css2?family=Work+Sans:wght@200;300&display=swap',
+      stack: "'Work Sans', system-ui, sans-serif",
+      note:  'Slightly more character — subtle texture',
     },
-    'Josefin Sans': {
-      url:   'https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@200;300&display=swap',
-      stack: "'Josefin Sans', system-ui, sans-serif",
-      note:  'Spaced — creates a premium texture',
+    'Plus Jakarta Sans': {
+      url:   'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300&display=swap',
+      stack: "'Plus Jakarta Sans', system-ui, sans-serif",
+      note:  'Geometric repeat — premium pattern feel',
     },
-    'Outfit': {
-      url:   'https://fonts.googleapis.com/css2?family=Outfit:wght@200;300&display=swap',
-      stack: "'Outfit', system-ui, sans-serif",
-      note:  'Geometric — consistent tile pattern',
+    'Sora': {
+      url:   'https://fonts.googleapis.com/css2?family=Sora:wght@200;300&display=swap',
+      stack: "'Sora', system-ui, sans-serif",
+      note:  'Modern subtle — disappears into background',
     },
-    'DM Sans': {
-      url:   'https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,300&display=swap',
-      stack: "'DM Sans', system-ui, sans-serif",
-      note:  'Light — subtle atmospheric texture',
+    'Nunito': {
+      url:   'https://fonts.googleapis.com/css2?family=Nunito:wght@300;400&display=swap',
+      stack: "'Nunito', system-ui, sans-serif",
+      note:  'Rounded tile — softer watermark texture',
     },
   },
 };
