@@ -68,6 +68,7 @@ window.addEventListener('DOMContentLoaded', () => {
   _initFullscreenTest();
   _wireSimpleBindings();
   _initCredit();
+  _initPresenter();
 });
 
 /* ─────────────────────────────────────────────────────────────
@@ -1116,6 +1117,17 @@ function _initCredit() {
     const el = document.getElementById('credit-btn');
     el.style.color = 'var(--accent)';
     setTimeout(() => { el.style.color = ''; }, 1200);
+  });
+}
+
+/* ── Presenter ── */
+function _initPresenter() {
+  document.getElementById('btn-open-presenter')?.addEventListener('click', () => {
+    window.open(
+      'presenter.html', 'chrona_presenter',
+      `width=800,height=480,left=0,top=0,` +
+      'menubar=no,toolbar=no,location=no,status=no,scrollbars=no'
+    );
   });
 }
 

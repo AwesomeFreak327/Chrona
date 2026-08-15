@@ -88,6 +88,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
         History
       </div>
+      <div class="nav-item" data-panel="presenter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Stage Monitor
+      </div>
       <div class="nav-item" data-panel="about">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
         About
@@ -656,6 +660,23 @@
       </div>
     </div>
 
+    <!-- ── PRESENTER ── -->
+    <div class="config-section" id="panel-presenter">
+      <div class="sec-title">Stage Monitor</div>
+      <p style="font-size:.71rem;color:var(--txt3);line-height:1.6;margin-bottom:4px">
+        Opens a minimal stage-facing screen showing the countdown timer and current time.
+        Designed for a small monitor or tablet facing the speaker — not the audience.
+      </p>
+      <button class="act-btn" id="btn-open-presenter" style="width:100%">
+        ↗ Open Stage Monitor
+      </button>
+      <div class="info-box" style="margin-top:4px">
+        <b>How to use:</b> Open this on a second screen or tablet facing the stage.
+        It stays in sync with the main display automatically via the same channel.
+        Timer, current time, and scheduled announcements are shown.
+      </div>
+    </div>
+    
     <!-- ── ABOUT ── -->
     <div class="config-section" id="panel-about">
       <div class="sec-title">About</div>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chrona — Stage Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  html, body {
+    width:100%; height:100%; overflow:hidden;
+    background:#000; color:#fff;
+    font-family:'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    user-select:none;
+  }
+
+  /* ── LAYOUT ── */
+  #stage {
+    position:fixed; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:0; padding:6vh 8vw;
+  }
+
+  /* ── LABEL ── */
+  .label {
+    font-size:clamp(.6rem, 1.2vw, .85rem);
+    font-weight:400; letter-spacing:.22em;
+    text-transform:uppercase; color:rgba(255,255,255,.28);
+    margin-bottom:.8vh;
+  }
+
+  /* ── TIMER ── */
+  #timer-wrap {
+    display:flex; flex-direction:column;
+    align-items:center; margin-bottom:5vh;
+  }
+  #timer-display {
+    font-family:'Orbitron', monospace;
+    font-size:clamp(4rem, 16vw, 11rem);
+    font-weight:700; letter-spacing:.04em;
+    color:#fff; line-height:1;
+  }
+  #timer-display.warning { color:#f59e0b; }
+  #timer-display.finished { color:rgba(255,255,255,.25); }
+  #timer-label {
+    font-size:clamp(.65rem, 1.4vw, .95rem);
+    font-weight:300; letter-spacing:.18em;
+    text-transform:uppercase; color:rgba(255,255,255,.35);
+    margin-top:1.2vh;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width:40px; height:1px;
+    background:rgba(255,255,255,.12);
+    margin:3vh 0;
+  }
+
+  /* ── CURRENT TIME ── */
+  #clock-wrap {
+    display:flex; flex-direction:column; align-items:center;
+  }
+  #clock-display {
+    font-family:'Inter', system-ui, sans-serif;
+    font-size:clamp(1.4rem, 4.5vw, 3rem);
+    font-weight:200; letter-spacing:.08em;
+    color:rgba(255,255,255,.55); line-height:1;
+  }
+
+  /* ── ANNOUNCEMENT PREVIEW ── */
+  #ann-wrap {
+    position:fixed; bottom:4vh; left:50%;
+    transform:translateX(-50%);
+    display:none; flex-direction:column; align-items:center; gap:4px;
+  }
+  #ann-wrap.visible { display:flex; }
+  #ann-label {
+    font-size:.6rem; letter-spacing:.2em;
+    text-transform:uppercase; color:rgba(255,255,255,.28);
+  }
+  #ann-text {
+    font-size:clamp(.8rem, 2vw, 1.1rem);
+    font-weight:300; color:rgba(255,255,255,.65);
+    text-align:center; max-width:80vw; line-height:1.5;
+  }
+
+  /* ── NOT CONNECTED ── */
+  #not-connected {
+    position:fixed; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:12px;
+    background:#000;
+  }
+  #not-connected.hidden { display:none; }
+  #not-connected p {
+    font-size:.75rem; color:rgba(255,255,255,.28);
+    letter-spacing:.1em; text-align:center; line-height:1.7;
+  }
+  #not-connected .dot {
+    width:8px; height:8px; border-radius:50%;
+    background:rgba(255,255,255,.15);
+    margin-bottom:4px;
+  }
+
+  /* ── FULLSCREEN HINT ── */
+  #fs-hint {
+    position:fixed; bottom:2vh; right:2vw;
+    font-size:.6rem; color:rgba(255,255,255,.15);
+    letter-spacing:.08em;
+  }
+</style>
+</head>
+<body>
+
+<div id="not-connected">
+  <div class="dot"></div>
+  <p>Waiting for Chrona to connect.<br>Open index.html and click Present first.</p>
+</div>
+
+<div id="stage" style="display:none">
+
+  <div id="timer-wrap">
+    <div class="label" id="timer-label-top">Countdown</div>
+    <div id="timer-display">—:——:——</div>
+    <div id="timer-label">Waiting for timer</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div id="clock-wrap">
+    <div class="label">Current Time</div>
+    <div id="clock-display">—:——</div>
+  </div>
+
+</div>
+
+<!-- Announcement preview at bottom -->
+<div id="ann-wrap">
+  <div id="ann-label">Announcement</div>
+  <div id="ann-text"></div>
+</div>
+
+<div id="fs-hint">Press F to fullscreen</div>
+
+<script src="assets/js/config.js"></script>
+<script>
+/* ── STATE ── */
+let _timerRemaining = 0;
+let _timerRunning   = false;
+let _timerPaused    = false;
+let _timerInterval  = null;
+let _connected      = false;
+let _annTimer       = null;
+
+const pad = n => String(n).padStart(2, '0');
+
+const el = {
+  stage:      document.getElementById('stage'),
+  notConn:    document.getElementById('not-connected'),
+  timerDisp:  document.getElementById('timer-display'),
+  timerLabel: document.getElementById('timer-label'),
+  clockDisp:  document.getElementById('clock-display'),
+  annWrap:    document.getElementById('ann-wrap'),
+  annText:    document.getElementById('ann-text'),
+};
+
+/* ── CLOCK ── */
+function _tickClock() {
+  const now = new Date();
+  const h   = now.getHours() % 12 || 12;
+  const m   = now.getMinutes();
+  const s   = now.getSeconds();
+  const pm  = now.getHours() >= 12 ? 'PM' : 'AM';
+  el.clockDisp.textContent = `${pad(h)}:${pad(m)}:${pad(s)} ${pm}`;
+}
+setInterval(_tickClock, 1000);
+_tickClock();
+
+/* ── TIMER RENDER ── */
+function _renderTimer() {
+  if (!_timerRunning && _timerRemaining === 0) {
+    el.timerDisp.textContent = '—:——:——';
+    el.timerLabel.textContent = 'Waiting for timer';
+    el.timerDisp.className = '';
+    return;
+  }
+  const h = Math.floor(_timerRemaining / 3600);
+  const m = Math.floor((_timerRemaining % 3600) / 60);
+  const s = _timerRemaining % 60;
+  el.timerDisp.textContent = `${h}:${pad(m)}:${pad(s)}`;
+
+  if (_timerRemaining === 0) {
+    el.timerDisp.className = 'finished';
+    el.timerLabel.textContent = 'Time Up';
+  } else if (_timerRemaining <= 600) {
+    el.timerDisp.className = 'warning';
+    el.timerLabel.textContent = 'Last 10 minutes';
+  } else {
+    el.timerDisp.className = '';
+    el.timerLabel.textContent = _timerPaused ? 'Paused' : 'Time Remaining';
+  }
+}
+
+/* ── TIMER TICK ── */
+function _timerTick() {
+  if (!_timerRunning || _timerPaused) return;
+  _timerRemaining = Math.max(0, _timerRemaining - 1);
+  _renderTimer();
+  if (_timerRemaining === 0) {
+    _timerRunning = false;
+    clearInterval(_timerInterval);
+    _timerInterval = null;
+  }
+}
+
+/* ── CONNECT ── */
+function _setConnected() {
+  if (_connected) return;
+  _connected = true;
+  el.notConn.classList.add('hidden');
+  el.stage.style.display = 'flex';
+}
+
+/* ── BROADCAST CHANNEL ── */
+BC.onmessage = e => {
+  const d = e.data;
+  if (!d) return;
+  _setConnected();
+
+  switch(d.type) {
+    case 'config':
+    case 'preview':
+      // Config received — we're connected
+      break;
+
+    case 'timer-start':
+      clearInterval(_timerInterval);
+      _timerRemaining = d.seconds;
+      _timerRunning   = true;
+      _timerPaused    = false;
+      _renderTimer();
+      _timerInterval  = setInterval(_timerTick, 1000);
+      break;
+
+    case 'timer-pause':
+      _timerPaused = !_timerPaused;
+      _renderTimer();
+      break;
+
+    case 'timer-reset':
+      clearInterval(_timerInterval);
+      _timerInterval  = null;
+      _timerRunning   = false;
+      _timerPaused    = false;
+      _timerRemaining = 0;
+      _renderTimer();
+      break;
+
+    case 'overlay':
+      // Show announcement at bottom
+      el.annText.textContent = d.text;
+      el.annWrap.classList.add('visible');
+      if (_annTimer) clearTimeout(_annTimer);
+      _annTimer = setTimeout(() => {
+        el.annWrap.classList.remove('visible');
+      }, (d.duration || 8) * 1000);
+      break;
+
+    case 'overlay-cancel':
+      el.annWrap.classList.remove('visible');
+      if (_annTimer) { clearTimeout(_annTimer); _annTimer = null; }
+      break;
+  }
+};
+
+/* ── FULLSCREEN ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'f' || e.key === 'F') {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  }
+});
+</script>
+</body>
+</html>
