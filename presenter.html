@@ -38,6 +38,10 @@
   #timer-wrap {
     display:flex; flex-direction:column;
     align-items:center; margin-bottom:5vh;
+    transition: opacity 0.6s ease;
+  }
+  #timer-wrap.inactive {
+    display:none;
   }
   #timer-display {
     font-family:'Orbitron', monospace;
@@ -59,17 +63,31 @@
     width:40px; height:1px;
     background:rgba(255,255,255,.12);
     margin:3vh 0;
+    transition: opacity 0.6s ease;
   }
+  .divider.inactive { display:none; }
 
   /* ── CURRENT TIME ── */
   #clock-wrap {
     display:flex; flex-direction:column; align-items:center;
   }
+  /* Default: clock is secondary — timer is primary */
   #clock-display {
     font-family:'Inter', system-ui, sans-serif;
     font-size:clamp(1.4rem, 4.5vw, 3rem);
     font-weight:200; letter-spacing:.08em;
     color:rgba(255,255,255,.55); line-height:1;
+    transition: font-size 0.6s ease, color 0.6s ease;
+  }
+  /* When timer is inactive — clock becomes dominant */
+  #clock-wrap.dominant #clock-display {
+    font-family:'Orbitron', monospace;
+    font-size:clamp(4rem, 16vw, 11rem);
+    font-weight:700; letter-spacing:.04em;
+    color:#fff;
+  }
+  #clock-wrap.dominant .label {
+    opacity:0;
   }
 
   /* ── ANNOUNCEMENT PREVIEW ── */
@@ -180,15 +198,25 @@ function _tickClock() {
 }
 setInterval(_tickClock, 1000);
 _tickClock();
+_renderTimer();
 
 /* ── TIMER RENDER ── */
 function _renderTimer() {
+  const timerWrap = document.getElementById('timer-wrap');
+  const divider   = document.querySelector('.divider');
+  const clockWrap = document.getElementById('clock-wrap');
+
   if (!_timerRunning && _timerRemaining === 0) {
-    el.timerDisp.textContent = '—:——:——';
-    el.timerLabel.textContent = 'Waiting for timer';
-    el.timerDisp.className = '';
+    timerWrap?.classList.add('inactive');
+    divider?.classList.add('inactive');
+    clockWrap?.classList.add('dominant');
     return;
   }
+
+  timerWrap?.classList.remove('inactive');
+  divider?.classList.remove('inactive');
+  clockWrap?.classList.remove('dominant');
+
   const h = Math.floor(_timerRemaining / 3600);
   const m = Math.floor((_timerRemaining % 3600) / 60);
   const s = _timerRemaining % 60;
@@ -197,6 +225,11 @@ function _renderTimer() {
   if (_timerRemaining === 0) {
     el.timerDisp.className = 'finished';
     el.timerLabel.textContent = 'Time Up';
+    setTimeout(() => {
+      timerWrap?.classList.add('inactive');
+      divider?.classList.add('inactive');
+      clockWrap?.classList.add('dominant');
+    }, 5000);
   } else if (_timerRemaining <= 600) {
     el.timerDisp.className = 'warning';
     el.timerLabel.textContent = 'Last 10 minutes';

@@ -111,12 +111,40 @@
   </div>
 </noscript>
 
-<!--
-  Script load order matters:
-  1. config.js   — DEFAULTS, Config, History, THEMES, FONTS, BC, helpers
-  2. watermark.js — Watermark module (needs THEMES from config.js)
-  3. display.js  — runtime logic (needs everything above)
--->
+<script>
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen()
+        .catch(() => {
+          const hint = document.createElement('div');
+          hint.textContent = 'Press F to fullscreen';
+          hint.style.cssText = `
+            position:fixed; bottom:20px; left:50%;
+            transform:translateX(-50%);
+            background:rgba(255,255,255,.08);
+            color:rgba(255,255,255,.5);
+            font-family:system-ui,sans-serif;
+            font-size:.75rem; letter-spacing:.1em;
+            padding:8px 16px; border-radius:6px;
+            z-index:999; pointer-events:none;
+            animation: fadeout 3s ease 2s both;
+          `;
+          const style = document.createElement('style');
+          style.textContent = `
+            @keyframes fadeout {
+              from { opacity:1; }
+              to   { opacity:0; }
+            }
+          `;
+          document.head.appendChild(style);
+          document.body.appendChild(hint);
+          setTimeout(() => hint.remove(), 5500);
+        });
+    }
+  }, 300);
+});
+</script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/watermark.js"></script>
 <script src="assets/js/display.js"></script>

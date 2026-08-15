@@ -193,6 +193,11 @@ function _pushToPreview() {
     if (_timerState) {
       setTimeout(() => {
         _sendToFrame('preview-frame', _timerState);
+        if (_timerState.paused) {
+          setTimeout(() => {
+            _sendToFrame('preview-frame', { type: 'timer-pause' });
+          }, 50);
+        }
       }, 120);
     }
   }, 80);
@@ -682,6 +687,7 @@ function _initTimer() {
 
   // Start button
   document.getElementById('btn-timer-start')?.addEventListener('click', () => {
+    if (!Config.get().timerEnabled) return;
     const dur = (Config.get().timerDuration || 120) * 60;
     _timerState = { type: 'timer-start', seconds: dur };
     BC.postMessage(_timerState);
@@ -691,16 +697,21 @@ function _initTimer() {
 
   // Pause button
   document.getElementById('btn-timer-pause')?.addEventListener('click', () => {
-    BC.postMessage({ type: 'timer-pause' });
-    _sendToFrame('preview-frame', { type: 'timer-pause' });
-    const btn = document.getElementById('btn-timer-pause');
+    if (!Config.get().timerEnabled) return;
+    const btn    = document.getElementById('btn-timer-pause');
     const paused = btn?.textContent.includes('Pause');
+    const msg    = { type: 'timer-pause' };
+    BC.postMessage(msg);
+    _sendToFrame('preview-frame', msg);
+    // Update saved state so re-syncs know current pause status
+    if (_timerState) _timerState = { ..._timerState, paused: !paused };
     if (btn) btn.textContent = paused ? '▶ Resume' : '⏸ Pause';
     _setTimerStatus(paused ? 'Paused' : `Running — ${Config.get().timerDuration} min`);
   });
 
   // Reset button
   document.getElementById('btn-timer-reset')?.addEventListener('click', () => {
+    if (!Config.get().timerEnabled) return;
     _timerState = null;
     BC.postMessage({ type: 'timer-reset' });
     _sendToFrame('preview-frame', { type: 'timer-reset' });
@@ -873,7 +884,7 @@ function _initPresentControls() {
       'display.html', 'chrona_display',
       `width=${sw},height=${sh},left=0,top=0,` +
       'menubar=no,toolbar=no,location=no,status=no,' +
-      'scrollbars=no,resizable=yes'
+      'scrollbars=no,resizable=yes,popup=yes'
     );
 
     if (displayWin) {

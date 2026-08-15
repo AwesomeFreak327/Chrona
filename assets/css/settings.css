@@ -259,6 +259,7 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
 .ctrl-btn {
   flex:1; padding:7px 6px;
   min-width:80px;
+  min-height:34px;
   background:var(--surface2);
   border:1px solid var(--border2);
   color:var(--txt2);
