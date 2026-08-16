@@ -112,38 +112,51 @@
 </noscript>
 
 <script>
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    if (!document.fullscreenElement) {
+(function() {
+  if (!window.opener) return;
+
+  const prompt = document.createElement('div');
+  prompt.id = 'fs-prompt';
+  prompt.innerHTML = `
+    <div style="
+      position:fixed; inset:0; z-index:99999;
+      background:#000;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      cursor:pointer; font-family:system-ui,sans-serif;
+    ">
+      <div style="
+        color:rgba(255,255,255,.18);
+        font-size:clamp(.75rem,1.5vw,1rem);
+        letter-spacing:.22em;
+        text-transform:uppercase;
+        user-select:none;
+      ">Click anywhere to begin</div>
+    </div>
+  `;
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.body.appendChild(prompt);
+  });
+
+  prompt.addEventListener('click', () => {
+    document.documentElement.requestFullscreen()
+      .then(() => {
+        prompt.remove();
+      })
+      .catch(() => {
+        prompt.remove();
+      });
+  });
+
+  window.addEventListener('keydown', e => {
+    if ((e.key === 'f' || e.key === 'F') && !document.fullscreenElement) {
       document.documentElement.requestFullscreen()
-        .catch(() => {
-          const hint = document.createElement('div');
-          hint.textContent = 'Press F to fullscreen';
-          hint.style.cssText = `
-            position:fixed; bottom:20px; left:50%;
-            transform:translateX(-50%);
-            background:rgba(255,255,255,.08);
-            color:rgba(255,255,255,.5);
-            font-family:system-ui,sans-serif;
-            font-size:.75rem; letter-spacing:.1em;
-            padding:8px 16px; border-radius:6px;
-            z-index:999; pointer-events:none;
-            animation: fadeout 3s ease 2s both;
-          `;
-          const style = document.createElement('style');
-          style.textContent = `
-            @keyframes fadeout {
-              from { opacity:1; }
-              to   { opacity:0; }
-            }
-          `;
-          document.head.appendChild(style);
-          document.body.appendChild(hint);
-          setTimeout(() => hint.remove(), 5500);
-        });
+        .then(() => prompt.remove())
+        .catch(() => prompt.remove());
     }
-  }, 300);
-});
+  }, { once: true });
+})();
 </script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/watermark.js"></script>
