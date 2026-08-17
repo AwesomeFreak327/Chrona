@@ -156,6 +156,12 @@
         .catch(() => prompt.remove());
     }
   }, { once: true });
+
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      window.close();
+    }
+  });
 })();
 </script>
 <script src="assets/js/config.js"></script>
