@@ -176,6 +176,12 @@ function _handleMessage(d) {
     case 'timer-reset':
       _timerReset();
       break;
+    case 'timer-sync-tick':
+      if (window.parent) {
+        _timerRemaining = d.seconds;
+        _timerRender();
+      }
+      break;
   }
 }
 
@@ -187,12 +193,18 @@ function _applyAll(cfg, immediate = false) {
   _el.html.classList.toggle('smooth', !!cfg.smoothAnimations);
 
   // 2. Theme
-  if (!immediate) {
+  const newTheme = _cfg.theme || 'eclipse';
+  const oldTheme = document.body.getAttribute('data-theme');
+
+  if (!immediate && oldTheme && oldTheme !== newTheme) {
     document.body.classList.add('theme-switching');
-    setTimeout(() => document.body.classList.remove('theme-switching'),
-      DURATION.theme || 1300);
+    document.body.setAttribute('data-theme', newTheme);
+    setTimeout(() => {
+      document.body.classList.remove('theme-switching');
+    }, DURATION.theme || 1300);
+  } else {
+    document.body.setAttribute('data-theme', newTheme);
   }
-  document.body.setAttribute('data-theme', cfg.theme || 'eclipse');
 
   // 3. CSS custom properties (fonts, scales, opacity)
   _setCSSVars(cfg);

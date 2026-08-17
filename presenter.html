@@ -6,7 +6,7 @@
 <title>Chrona — Stage Monitor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&family=Inter:wght@200;300;400;500&family=Orbitron:wght@700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
@@ -44,7 +44,7 @@
     display:none;
   }
   #timer-display {
-    font-family:'Orbitron', monospace;
+    font-family: var(--font-clock, 'Orbitron', monospace);
     font-size:clamp(4rem, 16vw, 11rem);
     font-weight:700; letter-spacing:.04em;
     color:#fff; line-height:1;
@@ -73,7 +73,7 @@
   }
   /* Default: clock is secondary — timer is primary */
   #clock-display {
-    font-family:'Inter', system-ui, sans-serif;
+    font-family: var(--font-meta, 'Inter', system-ui, sans-serif);
     font-size:clamp(1.4rem, 4.5vw, 3rem);
     font-weight:200; letter-spacing:.08em;
     color:rgba(255,255,255,.55); line-height:1;
@@ -81,9 +81,9 @@
   }
   /* When timer is inactive — clock becomes dominant */
   #clock-wrap.dominant #clock-display {
-    font-family:'Orbitron', monospace;
+    font-family: var(--font-clock, 'Cormorant Garamond', Georgia, serif);
     font-size:clamp(4rem, 16vw, 11rem);
-    font-weight:700; letter-spacing:.04em;
+    font-weight:400; letter-spacing:-.02em;
     color:#fff;
   }
   #clock-wrap.dominant .label {
@@ -194,7 +194,7 @@ function _tickClock() {
   const m   = now.getMinutes();
   const s   = now.getSeconds();
   const pm  = now.getHours() >= 12 ? 'PM' : 'AM';
-  el.clockDisp.textContent = `${pad(h)}:${pad(m)}:${pad(s)} ${pm}`;
+  el.clockDisp.innerHTML = `${pad(h)}:${pad(m)}:${pad(s)}<span style="font-size:.35em;letter-spacing:.18em;margin-left:.3em;vertical-align:super;opacity:.6">${pm}</span>`;
 }
 setInterval(_tickClock, 1000);
 _tickClock();
@@ -268,7 +268,12 @@ BC.onmessage = e => {
   switch(d.type) {
     case 'config':
     case 'preview':
-      // Config received — we're connected
+      if (d.config) {
+        const s = document.documentElement.style;
+        const f = d.config;
+        if (f.fontClock) s.setProperty('--font-clock', `'${f.fontClock}', Georgia, serif`);
+        if (f.fontMeta)  s.setProperty('--font-meta',  `'${f.fontMeta}', system-ui, sans-serif`);
+      }
       break;
 
     case 'timer-start':

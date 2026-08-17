@@ -126,14 +126,7 @@
     <div class="config-section active" id="panel-branding">
       <div class="sec-title">Institution Branding</div>
 
-      <div class="field">
-        <label class="lbl">
-          Organisation name
-          <span class="tip" data-tip="Displayed below the logo in small caps on the presentation screen.">i</span>
-        </label>
-        <input type="text" id="orgName" placeholder="e.g. St. Joseph's College">
-      </div>
-      <div class="tog-row">
+      <div class="tog-row" data-controls="orgName-section">
         <span class="tog-lbl">Show name on display</span>
         <label class="tog">
           <input type="checkbox" id="showOrgName" checked>
@@ -141,27 +134,36 @@
         </label>
       </div>
 
-      <div class="field">
-        <label class="lbl">
-          Logo
-          <span class="tip" data-tip="PNG with transparency recommended. Displayed at original proportions — no cropping.">i</span>
-        </label>
-        <div id="logo-drop">
-          <img id="logo-preview" src="" alt="" style="display:none">
-          <p>Drop image here or <span>browse</span></p>
-          <input type="file" id="logo-input" accept="image/*">
+      <div id="orgName-section" data-disabled-msg="Enable 'Show name' to edit">
+        <div class="field">
+          <label class="lbl">Organisation name</label>
+          <input type="text" id="orgName" placeholder="e.g. St. Joseph's College">
         </div>
-        <button id="logo-clear"
-          style="display:none;font-size:.7rem;color:#f87171;background:none;border:none;cursor:pointer;font-family:var(--fu);margin-top:4px">
-          ✕  Remove logo
-        </button>
       </div>
-      <div class="tog-row">
+
+      <div class="tog-row" data-controls="logo-section">
         <span class="tog-lbl">Show logo on display</span>
         <label class="tog">
           <input type="checkbox" id="showLogo" checked>
           <div class="tog-track"></div><div class="tog-thumb"></div>
         </label>
+      </div>
+      <div id="logo-section" data-disabled-msg="Enable logo to upload">
+        <div class="field">
+          <label class="lbl">
+            Logo
+            <span class="tip" data-tip="PNG with transparency recommended. Displayed at original proportions — no cropping.">i</span>
+          </label>
+          <div id="logo-drop">
+            <img id="logo-preview" src="" alt="" style="display:none">
+            <p>Drop image here or <span>browse</span></p>
+            <input type="file" id="logo-input" accept="image/*">
+          </div>
+          <button id="logo-clear"
+            style="display:none;font-size:.7rem;color:#f87171;background:none;border:none;cursor:pointer;font-family:var(--fu);margin-top:4px">
+            ✕  Remove logo
+          </button>
+        </div>
       </div>
     </div>
 
@@ -352,13 +354,14 @@
     <div class="config-section" id="panel-feed">
       <div class="sec-title">Feed</div>
 
-      <div class="tog-row">
+      <div class="tog-row" data-controls="feed-section">
         <span class="tog-lbl">Enable feed</span>
         <label class="tog">
           <input type="checkbox" id="showQuotes">
           <div class="tog-track"></div><div class="tog-thumb"></div>
         </label>
       </div>
+      <div id="feed-section" data-disabled-msg="Enable feed to edit messages">
 
       <div class="field">
         <label class="lbl">
@@ -421,19 +424,21 @@
         <button class="ctrl-btn" id="btn-quote-next" style="flex:1;padding:8px">⏭ Next</button>
         <button class="ctrl-btn" id="btn-quote-pause" style="flex:1;padding:8px">⏸ Pause feed</button>
       </div>
+      </div>
     </div>
 
     <!-- ── WEATHER ── -->
     <div class="config-section" id="panel-weather">
       <div class="sec-title">Weather</div>
 
-      <div class="tog-row">
+      <div class="tog-row" data-controls="weather-section">
         <span class="tog-lbl">Show weather on display</span>
         <label class="tog">
           <input type="checkbox" id="showWeather">
           <div class="tog-track"></div><div class="tog-thumb"></div>
         </label>
       </div>
+      <div id="weather-section" data-disabled-msg="Enable weather to edit location">
 
       <div class="field">
         <label class="lbl">
@@ -464,13 +469,14 @@
         Weather via Open-Meteo (open-meteo.com). No API key required.
         Hides gracefully when offline — no broken layout.
       </div>
+      </div>
     </div>
 
     <!-- ── TIMER ── -->
     <div class="config-section" id="panel-timer">
       <div class="sec-title">Exam Countdown Timer</div>
 
-      <div class="tog-row">
+      <div class="tog-row" data-controls="timer-section">
         <span class="tog-lbl">
           Enable timer
           <span class="tip" data-tip="Shows a countdown below the clock on the display. Hides automatically when not active.">i</span>
@@ -480,6 +486,7 @@
           <div class="tog-track"></div><div class="tog-thumb"></div>
         </label>
       </div>
+      <div id="timer-section" data-disabled-msg="Enable timer to configure">
 
       <div class="field">
         <label class="lbl">
@@ -514,6 +521,7 @@
       <div class="info-box" id="timer-status-box" style="text-align:center;font-size:.8rem;color:var(--txt2)">
         Timer not running
       </div>
+      </div>
     </div>
     <!-- ── ANNOUNCEMENTS ── -->
     <div class="config-section" id="panel-overlay">
@@ -544,7 +552,7 @@
 
       <div class="sec-title" style="margin-top:4px">Scheduled Announcement</div>
 
-      <div class="tog-row">
+      <div class="tog-row" data-controls="ann-schedule-section">
         <span class="tog-lbl">
           Auto-send at scheduled time
           <span class="tip" data-tip="Automatically shows the message below at the set time. Fires once per session.">i</span>
@@ -554,6 +562,7 @@
           <div class="tog-track"></div><div class="tog-thumb"></div>
         </label>
       </div>
+      <div id="ann-schedule-section" data-disabled-msg="Enable auto-send to set schedule">
 
       <div class="field">
         <label class="lbl">Scheduled time <span class="tip" data-tip="24h format. e.g. 15:55 for 3:55 PM.">i</span></label>
@@ -563,6 +572,7 @@
       <div class="field">
         <label class="lbl">Message to send</label>
         <input type="text" id="annScheduleText" placeholder="e.g. Last 5 minutes remaining">
+      </div>
       </div>
 
       <button class="ghost-btn" id="btn-save-preset">+ Save as preset</button>
@@ -581,6 +591,16 @@
     <!-- ── ADVANCED ── -->
     <div class="config-section" id="panel-advanced">
       <div class="sec-title">Advanced</div>
+
+      <div class="field">
+        <label class="lbl">Settings panel theme</label>
+        <div class="seg-ctrl">
+          <button class="seg-btn" data-settings-mode="auto">Auto</button>
+          <button class="seg-btn" data-settings-mode="light">Light</button>
+          <button class="seg-btn active" data-settings-mode="dark">Dark</button>
+        </div>
+      </div>
+
 
       <div class="tog-row">
         <span class="tog-lbl">

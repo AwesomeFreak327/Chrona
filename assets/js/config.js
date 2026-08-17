@@ -77,7 +77,7 @@ const DEFAULTS = {
   quoteSrcOpacity:  0.68,
   // watermark
   wmText:           'CHRONA',
-  wmOpacity:        4,
+  wmOpacity:        10,
   wmSpacing:        5,
   wmSpeed:          4,
   // sizing

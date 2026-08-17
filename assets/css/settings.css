@@ -56,6 +56,42 @@
   --fu: 'Inter', system-ui, sans-serif;
 }
 
+/* ── SETTINGS PAGE THEME ─────────────────────────────────────── */
+[data-settings-theme=light] {
+  --bg:        #f4f2ef;
+  --surface:   #ffffff;
+  --surface2:  #f0ede8;
+  --surface3:  #e6e2dc;
+  --border:    rgba(0,0,0,.08);
+  --border2:   rgba(0,0,0,.13);
+  --txt:       #1a1814;
+  --txt2:      rgba(26,24,20,.65);
+  --txt3:      rgba(26,24,20,.35);
+  --danger:    #dc2626;
+  --green:     #16a34a;
+  --shadow-btn:   0 0 20px var(--accent-b);
+  --shadow-btn-h: 0 4px 24px var(--accent-b);
+}
+
+[data-settings-theme=light] input[type=text],
+[data-settings-theme=light] input[type=number],
+[data-settings-theme=light] select,
+[data-settings-theme=light] textarea {
+  background: var(--surface);
+  border-color: var(--border2);
+  color: var(--txt);
+}
+
+[data-settings-theme=light] #preview-wrap {
+  background:
+    repeating-conic-gradient(rgba(0,0,0,.04) 0% 25%, transparent 0% 50%)
+    0 0 / 10px 10px;
+}
+
+[data-settings-theme=light] #preview-panel {
+  background: #e8e4de;
+}
+
 /* ── ACCENT OVERRIDES ─────────────────────────────────────── */
 [data-accent=eclipse]  { --accent:#a78bfa; --accent-dim:rgba(167,139,250,.12); --accent-b:rgba(167,139,250,.28); }
 [data-accent=minimal]  { --accent:#94a3b8; --accent-dim:rgba(148,163,184,.12); --accent-b:rgba(148,163,184,.28); }
@@ -260,6 +296,7 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
   flex:1; padding:7px 6px;
   min-width:80px;
   min-height:34px;
+  white-space:nowrap;
   background:var(--surface2);
   border:1px solid var(--border2);
   color:var(--txt2);
@@ -448,27 +485,58 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
 }
 
 /* ── THEME GRID ───────────────────────────────────────────── */
-.theme-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--sp-2); }
+.theme-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:var(--sp-2);
+}
 .theme-card {
-  border:1px solid var(--border2); border-radius:9px;
+  border:1px solid var(--border2);
+  border-radius:9px;
   cursor:pointer; overflow:hidden; user-select:none;
+  transition:
+    border-color var(--dur-fast, 180ms) ease,
+    transform    var(--dur-fast, 180ms) ease;
 }
 .theme-card:hover { border-color:var(--accent); transform:translateY(-2px); }
 .theme-card.active { border-color:var(--accent); }
+
 .theme-swatch {
-  width:100%; height:52px; position:relative;
-  display:flex; align-items:center; justify-content:center;
+  width:100%; height:72px;
+  position:relative;
+  display:flex; flex-direction:column;
+  justify-content:flex-end;
 }
-.theme-swatch-digit {
-  font-size:1.4rem; font-weight:300; opacity:.85;
-  font-family:'Georgia', serif; letter-spacing:-.02em;
-  position:relative; z-index:1;
+
+.theme-swatch-bar {
+  position:absolute; top:0; left:0; right:0;
+  height:5px; opacity:.7;
 }
+
+.theme-swatch-preview {
+  padding:8px 10px 6px;
+  display:flex; flex-direction:column; gap:2px;
+}
+
+.theme-swatch-clock {
+  font-family:'Georgia', serif;
+  font-size:1.2rem; font-weight:300;
+  letter-spacing:-.02em; line-height:1;
+}
+
+.theme-swatch-name {
+  font-size:.55rem; letter-spacing:.14em;
+  text-transform:uppercase; display:block;
+}
+
 .theme-label {
-  padding:5px 8px; font-size:.68rem; font-weight:400; color:var(--txt2);
+  padding:5px 8px;
+  font-size:.68rem; font-weight:400; color:var(--txt2);
   display:flex; align-items:center; justify-content:space-between;
+  border-top:1px solid rgba(255,255,255,.04);
 }
 .theme-card.active .theme-label { color:var(--accent); font-weight:500; }
+
 .theme-dot {
   width:5px; height:5px; border-radius:50%;
   background:var(--accent); opacity:0;
@@ -751,3 +819,34 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
 ::-webkit-scrollbar { width:4px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
+
+/* ── DISABLED SECTION OVERLAY ─────────────────────────────── */
+.disabled-section {
+  opacity:.38;
+  pointer-events:none;
+  user-select:none;
+  position:relative;
+}
+
+.disabled-section::after {
+  content:attr(data-disabled-msg);
+  position:fixed;
+  left:auto; right:20px;
+  z-index:9000;
+  background:#1a1a2a;
+  border:1px solid var(--border2);
+  color:var(--txt2);
+  font-size:.69rem;
+  line-height:1.5;
+  padding:8px 12px;
+  border-radius:8px;
+  width:200px;
+  white-space:normal;
+  pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
+  display:none;
+}
+
+.disabled-section:hover::after {
+  display:block;
+}

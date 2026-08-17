@@ -11,12 +11,16 @@ const RENDER_H    = 1080;
 const CONFIG_W_KEY = 'chrona_config_w';
 
 /* ── MODULE STATE ─────────────────────────────────────────── */
-let displayWin   = null;
-let _liveMode    = true;
-let _quotePaused = false;
-let _pdTimer     = null;
-let _scrollMem   = {};
+let displayWin    = null;
+let _liveMode     = true;
+let _quotePaused  = false;
+let _pdTimer      = null;
+let _scrollMem    = {};
 let _timerState   = null;
+let _timerSeconds = 0;
+let _timerRunning = false;
+let _timerPaused  = false;
+let _timerSyncInt = null;
 
 /* ── SINGLE INIT ──────────────────────────────────────────── */
 window.addEventListener('DOMContentLoaded', () => {
@@ -69,6 +73,8 @@ window.addEventListener('DOMContentLoaded', () => {
   _wireSimpleBindings();
   _initCredit();
   _initPresenter();
+  _initDisabledSections();
+  _initSettingsTheme();
 });
 
 /* ─────────────────────────────────────────────────────────────
@@ -190,10 +196,13 @@ function _pushToPreview() {
     const cfg = Config.get();
     _postToFrame('preview-frame', cfg);
     _postToFrame('fs-frame', cfg);
-    if (_timerState) {
+    if (_timerState && _timerRunning) {
       setTimeout(() => {
-        _sendToFrame('preview-frame', _timerState);
-        if (_timerState.paused) {
+        _sendToFrame('preview-frame', {
+          type: 'timer-start',
+          seconds: _timerSeconds
+        });
+        if (_timerPaused) {
           setTimeout(() => {
             _sendToFrame('preview-frame', { type: 'timer-pause' });
           }, 50);
@@ -250,6 +259,18 @@ function _wireSimpleBindings() {
    'burnIn','autoFullscreen','smoothAnimations',
    'annScheduleEnabled','annScheduleTime','annScheduleText']
     .forEach(k => _bind(k, k));
+
+  document.getElementById('timerEnabled')?.addEventListener('change', function() {
+    _save({ timerEnabled: this.checked });
+    if (!this.checked) {
+      _timerState = null;
+      BC.postMessage({ type: 'timer-reset' });
+      _sendToFrame('preview-frame', { type: 'timer-reset' });
+      const btn = document.getElementById('btn-timer-pause');
+      if (btn) btn.textContent = '⏸ Pause';
+      _setTimerStatus('Timer not running');
+    }
+  });
 
   _bind('wmOpacity',       'wmOpacity',       Number);
   _bind('wmSpacing',       'wmSpacing',       Number);
@@ -314,9 +335,16 @@ function _buildThemeGrid() {
     card.dataset.theme = key;
     card.innerHTML = `
       <div class="theme-swatch" style="background:${t.bg}">
-        <span class="theme-swatch-digit" style="color:${t.clock}">12</span>
+        <div class="theme-swatch-bar" style="background:${t.clock}"></div>
+        <div class="theme-swatch-preview">
+          <span class="theme-swatch-clock" style="color:${t.clock}">12:00</span>
+          <span class="theme-swatch-name" style="color:${t.clock};opacity:.5">${t.label}</span>
+        </div>
       </div>
-      <div class="theme-label">${t.label}<span class="theme-dot"></span></div>
+      <div class="theme-label">
+        <span>${t.label}</span>
+        <span class="theme-dot"></span>
+      </div>
     `;
     card.addEventListener('click', () => {
       document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
@@ -579,16 +607,29 @@ function _initWeather() {
     geoBtn.disabled = true;
 
     navigator.geolocation.getCurrentPosition(
-      pos => {
-        const lat = pos.coords.latitude.toFixed(4);
-        const lon = pos.coords.longitude.toFixed(4);
-        if (cityInput) cityInput.value = `${lat},${lon}`;
-        _save({ weatherCity: `${lat},${lon}`, weatherLat: lat, weatherLon: lon });
-        _weatherStatus('success', 'Location detected.');
-        geoBtn.disabled = false;
-        // Auto-clear status after 3s
-        setTimeout(() => _weatherStatus('', ''), 3000);
-      },
+        async pos => {
+          const lat = pos.coords.latitude.toFixed(4);
+          const lon = pos.coords.longitude.toFixed(4);
+          _weatherStatus('loading', 'Detecting city name…');
+          let cityName = `${lat},${lon}`;
+          try {
+            const res  = await fetch(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+            );
+            const data = await res.json();
+            cityName   =
+              data.locality ||
+              data.city ||
+              data.principalSubdivision ||
+              data.countryName ||
+              cityName;
+          } catch(e) {}
+          if (cityInput) cityInput.value = cityName;
+          _save({ weatherCity: cityName, weatherLat: lat, weatherLon: lon });
+          _weatherStatus('success', `Detected: ${cityName}`);
+          geoBtn.disabled = false;
+          setTimeout(() => _weatherStatus('', ''), 4000);
+        },
       err => {
         const msg = err.code === 1
           ? 'Location permission denied. Enter city name manually.'
@@ -671,13 +712,11 @@ function _initOverlay() {
 
 /* ── Timer ── */
 function _initTimer() {
-  // Simple bindings
   _bind('timerEnabled',  'timerEnabled');
   _bind('timerAutoStart','timerAutoStart');
   _bind('timerDuration', 'timerDuration', Number);
   _bind('timerStartTime','timerStartTime');
 
-  // Scale slider
   const scaleEl = document.getElementById('scaleTimer');
   scaleEl?.addEventListener('input', function() {
     const v = parseFloat(this.value);
@@ -685,40 +724,65 @@ function _initTimer() {
     _save({ scaleTimer: v });
   });
 
-  // Start button
   document.getElementById('btn-timer-start')?.addEventListener('click', () => {
     if (!Config.get().timerEnabled) return;
     const dur = (Config.get().timerDuration || 120) * 60;
-    _timerState = { type: 'timer-start', seconds: dur };
+    _timerSeconds = dur;
+    _timerRunning = true;
+    _timerPaused  = false;
+    _timerState   = { type: 'timer-start', seconds: dur };
     BC.postMessage(_timerState);
     _sendToFrame('preview-frame', _timerState);
+    _startTimerSync();
     _setTimerStatus(`Running — ${Config.get().timerDuration} min`);
   });
 
-  // Pause button
   document.getElementById('btn-timer-pause')?.addEventListener('click', () => {
     if (!Config.get().timerEnabled) return;
-    const btn    = document.getElementById('btn-timer-pause');
-    const paused = btn?.textContent.includes('Pause');
-    const msg    = { type: 'timer-pause' };
+    _timerPaused = !_timerPaused;
+    const msg = { type: 'timer-pause' };
     BC.postMessage(msg);
     _sendToFrame('preview-frame', msg);
-    // Update saved state so re-syncs know current pause status
-    if (_timerState) _timerState = { ..._timerState, paused: !paused };
-    if (btn) btn.textContent = paused ? '▶ Resume' : '⏸ Pause';
-    _setTimerStatus(paused ? 'Paused' : `Running — ${Config.get().timerDuration} min`);
+    if (_timerState) _timerState = { ..._timerState, paused: _timerPaused };
+    const btn = document.getElementById('btn-timer-pause');
+    if (btn) btn.textContent = _timerPaused ? '▶ Resume' : '⏸ Pause';
+    _setTimerStatus(_timerPaused ? 'Paused' : `Running — ${Config.get().timerDuration} min`);
   });
 
-  // Reset button
   document.getElementById('btn-timer-reset')?.addEventListener('click', () => {
     if (!Config.get().timerEnabled) return;
-    _timerState = null;
+    _resetTimerState();
     BC.postMessage({ type: 'timer-reset' });
     _sendToFrame('preview-frame', { type: 'timer-reset' });
     const btn = document.getElementById('btn-timer-pause');
     if (btn) btn.textContent = '⏸ Pause';
     _setTimerStatus('Timer not running');
   });
+}
+
+function _startTimerSync() {
+  if (_timerSyncInt) clearInterval(_timerSyncInt);
+  _timerSyncInt = setInterval(() => {
+    if (!_timerRunning || _timerPaused) return;
+    _timerSeconds = Math.max(0, _timerSeconds - 1);
+    _sendToFrame('preview-frame', {
+      type: 'timer-sync-tick',
+      seconds: _timerSeconds
+    });
+    if (_timerSeconds === 0) {
+      _timerRunning = false;
+      clearInterval(_timerSyncInt);
+      _timerSyncInt = null;
+    }
+  }, 1000);
+}
+
+function _resetTimerState() {
+  _timerState   = null;
+  _timerSeconds = 0;
+  _timerRunning = false;
+  _timerPaused  = false;
+  if (_timerSyncInt) { clearInterval(_timerSyncInt); _timerSyncInt = null; }
 }
 
 function _setTimerStatus(msg) {
@@ -838,7 +902,7 @@ _winCheckInterval = setInterval(() => {
       displayWin = null;
       _setPresentBtn(false);
       _updatePresentStatus(false);
-      _syncDotState();
+      _updateLiveUI();
       clearInterval(_winCheckInterval);
       _winCheckInterval = null;
     }
@@ -913,49 +977,34 @@ function _initPresentControls() {
 }
 
 function _updateLiveUI() {
+  const isOpen  = displayWin && !displayWin.closed;
   const btn     = document.getElementById('btn-live-toggle');
   const pushBtn = document.getElementById('btn-push');
-
-  if (btn) {
-    btn.textContent = _liveMode ? '● Live' : '○ Preview';
-    btn.classList.toggle('active', _liveMode);
-  }
-  if (pushBtn) pushBtn.style.display = _liveMode ? 'none' : 'block';
-
-  _syncDotState();
-}
-
-function _updatePresentStatus(presenting) {
-  const dot = document.getElementById('preview-live-dot');
-  const txt = document.getElementById('preview-status-txt');
-
-  if (!presenting) {
-    if (dot) { dot.classList.add('offline'); dot.classList.remove('preview'); }
-    if (txt) txt.textContent = 'Not presenting';
-  } else if (!_liveMode) {
-    if (dot) { dot.classList.add('preview'); dot.classList.remove('offline'); }
-    if (txt) txt.textContent = 'Preview only';
-  } else {
-    if (dot) { dot.classList.remove('offline','preview'); }
-    if (txt) txt.textContent = 'Live';
-  }
-
-  _syncDotState();
-}
-
-// Syncs the sidebar live dot with current state
-// Three states: not open → preview only → live
-function _syncDotState() {
-  const isOpen = displayWin && !displayWin.closed;
-  const btn = document.getElementById('btn-live-toggle');
+  const dot     = document.getElementById('preview-live-dot');
+  const txt     = document.getElementById('preview-status-txt');
 
   if (!isOpen) {
     if (btn) { btn.textContent = '○ Not Live'; btn.classList.remove('active'); }
+    if (dot) { dot.classList.add('offline'); dot.classList.remove('preview'); }
+    if (txt) txt.textContent = 'Not presenting';
   } else if (!_liveMode) {
     if (btn) { btn.textContent = '◑ Preview'; btn.classList.remove('active'); }
+    if (dot) { dot.classList.add('preview'); dot.classList.remove('offline'); }
+    if (txt) txt.textContent = 'Preview only';
   } else {
     if (btn) { btn.textContent = '● Live'; btn.classList.add('active'); }
+    if (dot) { dot.classList.remove('offline', 'preview'); }
+    if (txt) txt.textContent = 'Live';
   }
+
+  if (pushBtn) pushBtn.style.display = (_liveMode || !isOpen) ? 'none' : 'block';
+}
+
+function _updatePresentStatus(presenting) {
+  if (!presenting) {
+    displayWin = null;
+  }
+  _updateLiveUI();
 }
 
 /* ── Advanced ── */
@@ -1019,6 +1068,67 @@ function _initAdvanced() {
     // Force browser to bypass cache and reload all files fresh
     // This solves stale cache issues after app updates
     window.location.reload(true);
+  });
+}
+
+function _initSettingsTheme() {
+  const STORAGE_KEY = 'chrona_settings_theme';
+  const body        = document.body;
+  const btns        = document.querySelectorAll('[data-settings-mode]');
+  const mq          = window.matchMedia('(prefers-color-scheme: light)');
+
+  function applyTheme(mode) {
+    let resolved = mode;
+    if (mode === 'auto') {
+      resolved = mq.matches ? 'light' : 'dark';
+    }
+    if (resolved === 'light') {
+      body.setAttribute('data-settings-theme', 'light');
+    } else {
+      body.removeAttribute('data-settings-theme');
+    }
+  }
+
+  function setMode(mode) {
+    localStorage.setItem(STORAGE_KEY, mode);
+    btns.forEach(b => b.classList.toggle('active', b.dataset.settingsMode === mode));
+    applyTheme(mode);
+  }
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => setMode(btn.dataset.settingsMode));
+  });
+
+  mq.addEventListener('change', () => {
+    const current = localStorage.getItem(STORAGE_KEY) || 'dark';
+    if (current === 'auto') applyTheme('auto');
+  });
+
+  const saved = localStorage.getItem(STORAGE_KEY) || 'dark';
+  btns.forEach(b => b.classList.toggle('active', b.dataset.settingsMode === saved));
+  applyTheme(saved);
+}
+
+/* ── Disabled sections ── */
+function _initDisabledSections() {
+  document.querySelectorAll('[data-controls]').forEach(row => {
+    const sectionId = row.dataset.controls;
+    const section   = document.getElementById(sectionId);
+    if (!section) return;
+
+    const checkbox = row.querySelector('input[type=checkbox]');
+    if (!checkbox) return;
+
+    function sync() {
+      if (checkbox.checked) {
+        section.classList.remove('disabled-section');
+      } else {
+        section.classList.add('disabled-section');
+      }
+    }
+
+    checkbox.addEventListener('change', sync);
+    sync();
   });
 }
 
