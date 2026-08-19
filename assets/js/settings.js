@@ -271,6 +271,21 @@ function _wireSimpleBindings() {
       _setTimerStatus('Timer not running');
     }
   });
+  document.getElementById('annScheduleTime')?.addEventListener('blur', function() {
+    const text    = document.getElementById('annScheduleText')?.value.trim();
+    const timeVal = this.value.trim();
+    const err     = document.getElementById('ann-schedule-err');
+    if (timeVal && !text && err) {
+      err.style.display = 'block';
+    } else if (err) {
+      err.style.display = 'none';
+    }
+  });
+
+  document.getElementById('annScheduleText')?.addEventListener('input', function() {
+    const err = document.getElementById('ann-schedule-err');
+    if (this.value.trim() && err) err.style.display = 'none';
+  });
 
   _bind('wmOpacity',       'wmOpacity',       Number);
   _bind('wmSpacing',       'wmSpacing',       Number);
@@ -329,16 +344,28 @@ function _buildThemeGrid() {
   const grid = document.getElementById('theme-grid');
   if (!grid) return;
   grid.innerHTML = '';
-  Object.entries(THEMES).forEach(([key, t]) => {
+
+  const ORDER = [
+    'eclipse','dusk',
+    'ambient','glass','void',
+    'horizon','ember','forest',
+    'monolith','ash','slate',
+    'nordic','ivory','minimal',
+  ];
+  const sorted = ORDER
+    .filter(k => THEMES[k])
+    .map(k => [k, THEMES[k]]);
+
+  sorted.forEach(([key, t]) => {
     const card = document.createElement('div');
     card.className = 'theme-card';
     card.dataset.theme = key;
     card.innerHTML = `
       <div class="theme-swatch" style="background:${t.bg}">
-        <div class="theme-swatch-bar" style="background:${t.clock}"></div>
+        <div class="theme-swatch-bar" style="background:${t.clock};box-shadow:0 0 8px ${t.clock}40"></div>
         <div class="theme-swatch-preview">
           <span class="theme-swatch-clock" style="color:${t.clock}">12:00</span>
-          <span class="theme-swatch-name" style="color:${t.clock};opacity:.5">${t.label}</span>
+          <span class="theme-swatch-name" style="color:${t.clock};opacity:.45">${t.label}</span>
         </div>
       </div>
       <div class="theme-label">
@@ -690,8 +717,17 @@ function _renderCities() {
 /* ── Announcements ── */
 function _initOverlay() {
   document.getElementById('btn-overlay')?.addEventListener('click', () => {
-    const text = document.getElementById('overlayText')?.value.trim();
-    if (!text) return;
+    const input   = document.getElementById('overlayText');
+    const hint    = document.getElementById('overlay-hint');
+    const text    = input?.value.trim();
+
+    if (!text) {
+      if (hint) hint.style.display = 'block';
+      setTimeout(() => { if (hint) hint.style.display = 'none'; }, 3000);
+      return;
+    }
+
+    if (hint) hint.style.display = 'none';
     const dur = Config.get().overlayDuration || 8;
     BC.postMessage({ type: 'overlay', text, duration: dur });
     _sendToFrame('preview-frame', { type: 'overlay', text, duration: dur });
@@ -927,7 +963,6 @@ function _setPresentBtn(open) {
 
 function _initPresentControls() {
   document.getElementById('btn-present')?.addEventListener('click', () => {
-    // If display is already open — close it
     if (displayWin && !displayWin.closed) {
       displayWin.close();
       displayWin = null;
@@ -940,7 +975,6 @@ function _initPresentControls() {
       return;
     }
 
-    // Open display window
     BC.postMessage({ type: 'config', config: Config.get() });
     const sw = window.screen.width;
     const sh = window.screen.height;
@@ -952,6 +986,8 @@ function _initPresentControls() {
     );
 
     if (displayWin) {
+      _liveMode = true;
+      Config.set({ liveMode: true }, { silent: true });
       if (Config.get().autoFullscreen) {
         displayWin.addEventListener('load', () => {
           setTimeout(() => {
@@ -977,24 +1013,28 @@ function _initPresentControls() {
 }
 
 function _updateLiveUI() {
-  const isOpen  = displayWin && !displayWin.closed;
-  const btn     = document.getElementById('btn-live-toggle');
-  const pushBtn = document.getElementById('btn-push');
-  const dot     = document.getElementById('preview-live-dot');
-  const txt     = document.getElementById('preview-status-txt');
+  const isOpen   = displayWin && !displayWin.closed;
+  const btn      = document.getElementById('btn-live-toggle');
+  const pushBtn  = document.getElementById('btn-push');
+  const dot      = document.getElementById('preview-live-dot');
+  const txt      = document.getElementById('preview-status-txt');
+  const panel    = document.getElementById('preview-panel');
 
   if (!isOpen) {
-    if (btn) { btn.textContent = '○ Not Live'; btn.classList.remove('active'); }
-    if (dot) { dot.classList.add('offline'); dot.classList.remove('preview'); }
-    if (txt) txt.textContent = 'Not presenting';
+    if (btn)   { btn.textContent = '○ Not Live'; btn.classList.remove('active'); }
+    if (dot)   { dot.classList.add('offline'); dot.classList.remove('preview'); }
+    if (txt)   txt.textContent = 'Not presenting';
+    if (panel) { panel.classList.remove('is-live','is-preview'); }
   } else if (!_liveMode) {
-    if (btn) { btn.textContent = '◑ Preview'; btn.classList.remove('active'); }
-    if (dot) { dot.classList.add('preview'); dot.classList.remove('offline'); }
-    if (txt) txt.textContent = 'Preview only';
+    if (btn)   { btn.textContent = '◑ Preview'; btn.classList.remove('active'); }
+    if (dot)   { dot.classList.add('preview'); dot.classList.remove('offline'); }
+    if (txt)   txt.textContent = 'Preview only';
+    if (panel) { panel.classList.add('is-preview'); panel.classList.remove('is-live'); }
   } else {
-    if (btn) { btn.textContent = '● Live'; btn.classList.add('active'); }
-    if (dot) { dot.classList.remove('offline', 'preview'); }
-    if (txt) txt.textContent = 'Live';
+    if (btn)   { btn.textContent = '● Live'; btn.classList.add('active'); }
+    if (dot)   { dot.classList.remove('offline','preview'); }
+    if (txt)   txt.textContent = 'Live';
+    if (panel) { panel.classList.add('is-live'); panel.classList.remove('is-preview'); }
   }
 
   if (pushBtn) pushBtn.style.display = (_liveMode || !isOpen) ? 'none' : 'block';
@@ -1104,7 +1144,7 @@ function _initSettingsTheme() {
     if (current === 'auto') applyTheme('auto');
   });
 
-  const saved = localStorage.getItem(STORAGE_KEY) || 'dark';
+  const saved = localStorage.getItem(STORAGE_KEY) || 'auto';
   btns.forEach(b => b.classList.toggle('active', b.dataset.settingsMode === saved));
   applyTheme(saved);
 }
@@ -1242,14 +1282,34 @@ function _initCredit() {
 }
 
 /* ── Presenter ── */
+let _presenterWin = null;
+let _presenterCheck = null;
+
 function _initPresenter() {
   document.getElementById('btn-open-presenter')?.addEventListener('click', () => {
-    window.open(
+    _presenterWin = window.open(
       'presenter.html', 'chrona_presenter',
-      `width=800,height=480,left=0,top=0,` +
+      'width=800,height=480,left=0,top=0,' +
       'menubar=no,toolbar=no,location=no,status=no,scrollbars=no'
     );
+    _updateStageMonitorDot(true);
+    if (_presenterCheck) clearInterval(_presenterCheck);
+    _presenterCheck = setInterval(() => {
+      if (_presenterWin && _presenterWin.closed) {
+        _presenterWin = null;
+        _updateStageMonitorDot(false);
+        clearInterval(_presenterCheck);
+        _presenterCheck = null;
+      }
+    }, 2000);
   });
+}
+
+function _updateStageMonitorDot(active) {
+  const dot = document.getElementById('stage-monitor-dot');
+  const txt = document.getElementById('stage-monitor-status');
+  if (dot) dot.classList.toggle('active', active);
+  if (txt) txt.textContent = active ? 'Stage on' : 'Stage off';
 }
 
 /* ─────────────────────────────────────────────────────────────

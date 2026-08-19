@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <title>Chrona — Settings</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -150,10 +151,8 @@
       </div>
       <div id="logo-section" data-disabled-msg="Enable logo to upload">
         <div class="field">
-          <label class="lbl">
-            Logo
-            <span class="tip" data-tip="PNG with transparency recommended. Displayed at original proportions — no cropping.">i</span>
-          </label>
+          <label class="lbl">Logo</label>
+          <p class="field-hint">PNG with transparency recommended. Proportions preserved - no cropping.</p>
           <div id="logo-drop">
             <img id="logo-preview" src="" alt="" style="display:none">
             <p>Drop image here or <span>browse</span></p>
@@ -174,13 +173,13 @@
       <div class="tog-row">
         <span class="tog-lbl">
           Show seconds
-          <span class="tip" data-tip="12:45:30 vs 12:45. Recommended for examination halls.">i</span>
         </span>
         <label class="tog">
           <input type="checkbox" id="showSeconds" checked>
           <div class="tog-track"></div><div class="tog-thumb"></div>
         </label>
       </div>
+      <p class="field-hint" style="margin-top:-8px">Shows 12:45:30 instead of 12:45.</p>
       <div class="tog-row">
         <span class="tog-lbl">Show AM / PM</span>
         <label class="tog">
@@ -192,8 +191,8 @@
       <div class="field">
         <label class="lbl">
           Timezone
-          <span class="tip" data-tip="Select your region. Use Auto to follow the system clock.">i</span>
         </label>
+        <p class="field-hint">Select your region, or use Auto to follow the system clock.</p>
         <select id="tzSelect"></select>
         <button class="ghost-btn" id="btn-tz-auto" style="margin-top:5px">
           ⌖  Auto-detect my timezone
@@ -226,15 +225,15 @@
       <div class="field">
         <label class="lbl">
           Repeating text
-          <span class="tip" data-tip="Scrolls diagonally behind the clock. Your institution name or CHRONA works well here.">i</span>
         </label>
+        <p class="field-hint">Scrolls diagonally behind the clock. Your name or CHRONA works well.</p>
         <input type="text" id="wmText" placeholder="CHRONA" maxlength="60">
       </div>
       <div class="field">
         <label class="lbl">
           Opacity
-          <span class="tip" data-tip="1–4: atmospheric, barely visible. 5–7: visible branding. 8–10: strong presence.">i</span>
         </label>
+        <p class="field-hint">1-4: barely visible · 5-7: branding · 8-10: strong presence</p>
         <div class="slider-row">
           <input type="range" id="wmOpacity" min="1" max="10" value="4">
           <span class="slider-val" id="wmOpacity-val">4</span>
@@ -250,8 +249,8 @@
       <div class="field">
         <label class="lbl">
           Motion speed
-          <span class="tip" data-tip="2–4 gives the most cinematic feel. Motion is seamless at all speeds — no visible reset point.">i</span>
         </label>
+        <p class="field-hint">2-4 gives the most cinematic feel. Seamless at all speeds.</p>
         <div class="slider-row">
           <input type="range" id="wmSpeed" min="1" max="10" value="4">
           <span class="slider-val" id="wmSpeed-val">4</span>
@@ -366,8 +365,8 @@
       <div class="field">
         <label class="lbl">
           Messages
-          <span class="tip" data-tip="One per line. Add source after: - or — or --. e.g. Work hard - Colossians 3:23. Existing quote marks are preserved.">i</span>
         </label>
+        <p class="field-hint">One per line. Add source after - or — e.g. "We love because he first loved us. - 1 John 4:19"</p>
         <textarea id="quotesText"
           placeholder="Your message here. - Source&#10;Another quote. — Reference&#10;A message without a source."></textarea>
       </div>
@@ -380,8 +379,8 @@
       <div class="field">
         <label class="lbl">
           Upload file
-          <span class="tip" data-tip=".txt with one quote per line, or .json array of {text, source} objects.">i</span>
         </label>
+        <p class="field-hint">.txt with one quote per line, or .json array of {text, source} objects.</p>
         <label class="file-upload-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
           Upload quotes file
@@ -443,13 +442,12 @@
       <div class="field">
         <label class="lbl">
           Location
-          <span class="tip" data-tip="Type a city name, or use Detect to get your current coordinates automatically.">i</span>
         </label>
+        <p class="field-hint">Type a city name, or use Detect to find automatically. Not tracked.</p>
         <div style="display:flex;gap:7px">
           <input type="text" id="weatherCity" placeholder="e.g. Chennai" style="flex:1">
           <button class="ctrl-btn" id="btn-geo"
-            style="white-space:nowrap;padding:8px 11px;flex-shrink:0"
-            title="One-time location detection — not stored or tracked">
+            style="white-space:nowrap;padding:8px 11px;flex-shrink:0">
             ⌖ Detect
           </button>
         </div>
@@ -474,13 +472,13 @@
 
     <!-- ── TIMER ── -->
     <div class="config-section" id="panel-timer">
-      <div class="sec-title">Exam Countdown Timer</div>
+      <div class="sec-title">Countdown Timer</div>
 
       <div class="tog-row" data-controls="timer-section">
         <span class="tog-lbl">
           Enable timer
-          <span class="tip" data-tip="Shows a countdown below the clock on the display. Hides automatically when not active.">i</span>
         </span>
+        <p class="field-hint" style="margin-top:-8px">Shows a countdown below the clock. Hides when not active.</p>
         <label class="tog">
           <input type="checkbox" id="timerEnabled">
           <div class="tog-track"></div><div class="tog-thumb"></div>
@@ -491,16 +489,16 @@
       <div class="field">
         <label class="lbl">
           Duration (minutes)
-          <span class="tip" data-tip="Total exam duration. 120 = 2 hours, 180 = 3 hours.">i</span>
         </label>
+        <p class="field-hint">120 = 2 hours · 180 = 3 hours · 60 = 1 hour</p>
         <input type="number" id="timerDuration" min="1" max="600" value="120">
       </div>
 
       <div class="field">
         <label class="lbl">
           Scheduled start time
-          <span class="tip" data-tip="Optional. If set, timer starts automatically when the clock reaches this time. Leave blank to start manually.">i</span>
         </label>
+        <p class="field-hint">Optional. Timer starts automatically at this time. Leave blank to start manually.</p>
         <input type="text" id="timerStartTime" placeholder="e.g. 14:00 for 2:00 PM (24h format)">
       </div>
 
@@ -524,23 +522,30 @@
       </div>
     </div>
     <!-- ── ANNOUNCEMENTS ── -->
-    <div class="config-section" id="panel-overlay">
+      <div class="config-section" id="panel-overlay">
       <div class="sec-title">Announcements</div>
 
       <div class="field">
-        <label class="lbl">
-          Message
-          <span class="tip" data-tip="Slides in as a pill at the bottom of the display for the set duration, then fades out.">i</span>
-        </label>
-        <input type="text" id="overlayText" placeholder="e.g. Last 10 minutes remaining">
-      </div>
-
-      <div class="field">
         <label class="lbl">Display duration</label>
+        <p style="font-size:.68rem;color:var(--txt3);margin-top:2px">
+          Applies to both manual send and scheduled announcements.
+        </p>
         <div class="slider-row">
           <input type="range" id="overlayDuration" min="3" max="30" value="8">
           <span class="slider-val" id="overlayDuration-val">8s</span>
         </div>
+      </div>
+
+      <div style="height:1px;background:var(--border)"></div>
+
+      <div class="sec-title">Manual Send</div>
+
+      <div class="field">
+        <label class="lbl">Message</label>
+        <input type="text" id="overlayText" placeholder="e.g. Last 10 minutes remaining">
+        <p id="overlay-hint" style="font-size:.68rem;color:var(--danger);display:none;margin-top:2px">
+          Type a message before sending.
+        </p>
       </div>
 
       <div style="display:flex;gap:7px">
@@ -548,14 +553,13 @@
         <button class="ctrl-btn danger" id="btn-overlay-cancel" style="flex:1;padding:9px">✕ Cancel</button>
       </div>
 
-      <div style="height:1px;background:var(--border);margin:4px 0"></div>
+      <div style="height:1px;background:var(--border)"></div>
 
-      <div class="sec-title" style="margin-top:4px">Scheduled Announcement</div>
+      <div class="sec-title">Scheduled Send</div>
 
       <div class="tog-row" data-controls="ann-schedule-section">
         <span class="tog-lbl">
           Auto-send at scheduled time
-          <span class="tip" data-tip="Automatically shows the message below at the set time. Fires once per session.">i</span>
         </span>
         <label class="tog">
           <input type="checkbox" id="annScheduleEnabled">
@@ -565,13 +569,18 @@
       <div id="ann-schedule-section" data-disabled-msg="Enable auto-send to set schedule">
 
       <div class="field">
-        <label class="lbl">Scheduled time <span class="tip" data-tip="24h format. e.g. 15:55 for 3:55 PM.">i</span></label>
+        <label class="lbl">Scheduled time</label>
+        <p class="field-hint">24-hour format — e.g. 15:55 for 3:55 PM</p>
         <input type="text" id="annScheduleTime" placeholder="e.g. 15:55">
       </div>
 
       <div class="field">
         <label class="lbl">Message to send</label>
         <input type="text" id="annScheduleText" placeholder="e.g. Last 5 minutes remaining">
+        <p id="ann-schedule-err"
+           style="font-size:.68rem;color:var(--danger);display:none;margin-top:2px">
+          Add a message — nothing will be sent without one.
+        </p>
       </div>
       </div>
 
@@ -580,8 +589,8 @@
       <div class="field" style="margin-top:4px">
         <label class="lbl">
           Saved presets
-          <span class="tip" data-tip="Click to send instantly. Double-click to rename. Star to favourite.">i</span>
         </label>
+        <p class="field-hint">Click to send · Double-click to rename · Star to favourite</p>
         <div class="chip-list" id="ann-presets">
           <div class="chip-empty" id="ann-presets-empty">No presets saved yet.</div>
         </div>
@@ -605,13 +614,13 @@
       <div class="tog-row">
         <span class="tog-lbl">
           Burn-in prevention
-          <span class="tip" data-tip="Shifts the display layout by a few pixels every 4 minutes. Recommended for LED walls and OLED screens.">i</span>
         </span>
         <label class="tog">
           <input type="checkbox" id="burnIn" checked>
           <div class="tog-track"></div><div class="tog-thumb"></div>
         </label>
       </div>
+      <p class="field-hint" style="margin-top:-8px">Shifts layout slightly every 4 minutes. Recommended for LED walls and OLED screens.</p>
       <div class="tog-row">
         <span class="tog-lbl">Auto fullscreen on present</span>
         <label class="tog">
@@ -622,13 +631,13 @@
       <div class="tog-row">
         <span class="tog-lbl">
           Smooth animations
-          <span class="tip" data-tip="Fluid theme and font transitions. Disable on low-spec hardware to reduce GPU load.">i</span>
         </span>
         <label class="tog">
           <input type="checkbox" id="smoothAnimations" checked>
           <div class="tog-track"></div><div class="tog-thumb"></div>
         </label>
       </div>
+      <p class="field-hint" style="margin-top:-8px">Fluid theme and font transitions. Disable on older hardware to reduce GPU load.</p>
 
       <div class="info-box">
         <b>Multi-monitor</b><br>
@@ -642,10 +651,10 @@
         <button class="ghost-btn" id="btn-export">Export Configuration</button>
         <button class="ghost-btn" id="btn-import-trigger">Import Configuration</button>
         <input type="file" id="btn-import" accept=".json" class="file-hidden">
-        <button class="ghost-btn" id="btn-force-refresh"
-          title="Clears browser cache and reloads all files fresh. Use if display stops responding after an update.">
+        <button class="ghost-btn" id="btn-force-refresh">
           ↺ Force Refresh App
         </button>
+        <p class="field-hint">Reloads all files fresh. Use if the display stops responding after an update.</p>
       </div>
 
       <div>
@@ -803,6 +812,9 @@
       <div id="preview-status">
         <div id="preview-live-dot" class="offline"></div>
         <span id="preview-status-txt">Not presenting</span>
+        <span style="color:var(--border2);margin:0 4px">·</span>
+        <div id="stage-monitor-dot"></div>
+        <span id="stage-monitor-status" class="stage-monitor-status">Stage off</span>
       </div>
       <div id="preview-actions">
         <span id="preview-res">—</span>
