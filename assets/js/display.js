@@ -35,10 +35,14 @@ let _overlayTimer = null;
 let _annScheduleFired = false;
 
 // Countdown timer
-let _timerInterval  = null;
-let _timerRemaining = 0;    // seconds remaining
-let _timerRunning   = false;
-let _timerPaused    = false;
+let _timerInterval   = null;
+let _timerDurationMs = 0;
+let _timerStartedAt  = null;
+let _timerPausedAt   = null;
+let _timerPausedMs   = 0;
+let _timerRunning    = false;
+let _timerPaused     = false;
+let _timerRemaining  = 0;
 
 // State flags for CSS class system
 let _wasPaused  = false;
@@ -66,6 +70,7 @@ const pad = n => String(n).padStart(2, '0');
   // Clock
   _clockInterval = setInterval(_tick, 1000);
   _tick();
+  _scheduleNextTick();
 
   // Watermark
   Watermark.start(_el.wmCanvas);
@@ -418,6 +423,15 @@ function _tick() {
   _annCheckSchedule(_cfg);
 }
 
+function _scheduleNextTick() {
+  const now   = Date.now();
+  const delay = 1000 - (now % 1000);
+  _clockInterval = setTimeout(() => {
+    _tick();
+    _scheduleNextTick();
+  }, delay);
+}
+
 /* ── QUOTES ───────────────────────────────────────────────── */
 function _startQuotes() {
   _stopQuotes();
@@ -531,25 +545,28 @@ function _weatherCode(code) {
 /* ── COUNTDOWN TIMER ──────────────────────────────────────── */
 function _timerStart(seconds) {
   _timerReset();
-  _timerRemaining = seconds;
-  _timerRunning   = true;
-  _timerPaused    = false;
-  _timerRender();
+  _timerDurationMs = seconds * 1000;
+  _timerStartedAt  = Date.now();
+  _timerPausedMs   = 0;
+  _timerRunning    = true;
+  _timerPaused     = false;
   if (_el.timerArea) _el.timerArea.classList.remove('hidden','finished','warning');
-  _timerInterval = setInterval(_timerTick, 1000);
+  _timerInterval   = setInterval(_timerTick, 500);
+  _timerTick();
 }
 
 function _timerTick() {
   if (!_timerRunning || _timerPaused) return;
-  _timerRemaining = Math.max(0, _timerRemaining - 1);
+
+  const elapsed    = Date.now() - _timerStartedAt - _timerPausedMs;
+  _timerRemaining  = Math.max(0, Math.round((_timerDurationMs - elapsed) / 1000));
+
   _timerRender();
 
-  // Warning state — last 10 minutes
   if (_timerRemaining <= 600 && _timerRemaining > 0) {
     _el.timerArea?.classList.add('warning');
   }
 
-  // Finished
   if (_timerRemaining === 0) {
     _timerRunning = false;
     clearInterval(_timerInterval);
@@ -563,6 +580,14 @@ function _timerTick() {
 function _timerTogglePause() {
   if (!_timerRunning) return;
   _timerPaused = !_timerPaused;
+  if (_timerPaused) {
+    _timerPausedAt = Date.now();
+  } else {
+    if (_timerPausedAt) {
+      _timerPausedMs += Date.now() - _timerPausedAt;
+      _timerPausedAt  = null;
+    }
+  }
   if (_el.timerLabel) {
     _el.timerLabel.textContent = _timerPaused ? 'Paused' : 'Time Remaining';
   }
@@ -570,12 +595,16 @@ function _timerTogglePause() {
 
 function _timerReset() {
   clearInterval(_timerInterval);
-  _timerInterval  = null;
-  _timerRunning   = false;
-  _timerPaused    = false;
-  _timerRemaining = 0;
-  if (_el.timerArea)   _el.timerArea.classList.add('hidden');
-  if (_el.timerArea)   _el.timerArea.classList.remove('warning','finished');
+  _timerInterval   = null;
+  _timerRunning    = false;
+  _timerPaused     = false;
+  _timerRemaining  = 0;
+  _timerDurationMs = 0;
+  _timerStartedAt  = null;
+  _timerPausedAt   = null;
+  _timerPausedMs   = 0;
+  if (_el.timerArea)    _el.timerArea.classList.add('hidden');
+  if (_el.timerArea)    _el.timerArea.classList.remove('warning','finished');
   if (_el.timerDisplay) _el.timerDisplay.textContent = '0:00:00';
   if (_el.timerLabel)   _el.timerLabel.textContent   = 'Time Remaining';
 }
@@ -670,7 +699,7 @@ function _setPause(active) {
 
   if (active) {
     // Stop clock ticker
-    if (_clockInterval) { clearInterval(_clockInterval); _clockInterval = null; }
+    if (_clockInterval) { clearTimeout(_clockInterval); _clockInterval = null; }
     // Stop quotes
     _stopQuotes();
     // Stop timer
@@ -680,8 +709,8 @@ function _setPause(active) {
   } else {
     // Restart clock
     if (!_clockInterval) {
-      _clockInterval = setInterval(_tick, 1000);
       _tick();
+      _scheduleNextTick();
     }
     // Restart quotes if they were running
     if (_cfg.showQuotes && _quoteList.length && !_quotePaused) {

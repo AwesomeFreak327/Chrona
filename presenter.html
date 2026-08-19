@@ -132,13 +132,44 @@
     font-size:.6rem; color:rgba(255,255,255,.15);
     letter-spacing:.08em;
   }
+    /* ── INVERT TOGGLE ── */
+  #invert-btn {
+    position:fixed; top:2vh; right:2vw;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.14);
+    color:rgba(255,255,255,.4);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:.6rem; letter-spacing:.1em;
+    padding:5px 10px; border-radius:6px;
+    cursor:pointer; z-index:100;
+  }
+  #invert-btn:hover { background:rgba(255,255,255,.15); color:#fff; }
+
+  body.inverted {
+    background:#fff; color:#000;
+  }
+  body.inverted #timer-display { color:#000; }
+  body.inverted #timer-display.warning { color:#d97706; }
+  body.inverted #timer-display.finished { color:rgba(0,0,0,.25); }
+  body.inverted #timer-label { color:rgba(0,0,0,.4); }
+  body.inverted .label { color:rgba(0,0,0,.3); }
+  body.inverted #clock-display { color:rgba(0,0,0,.55); }
+  body.inverted #clock-wrap.dominant #clock-display { color:#000; }
+  body.inverted .divider { background:rgba(0,0,0,.12); }
+  body.inverted #ann-text { color:rgba(0,0,0,.65); }
+  body.inverted #ann-label { color:rgba(0,0,0,.3); }
+  body.inverted #not-connected { background:#fff; }
+  body.inverted #not-connected p { color:rgba(0,0,0,.3); }
+  body.inverted #not-connected .dot { background:rgba(0,0,0,.15); }
+  body.inverted #invert-btn { color:rgba(0,0,0,.4); border-color:rgba(0,0,0,.14); background:rgba(0,0,0,.05); }
+  body.inverted #fs-hint { color:rgba(0,0,0,.15); }
 </style>
 </head>
 <body>
 
 <div id="not-connected">
   <div class="dot"></div>
-  <<p>Waiting to connect.<br>Start the display from the settings panel first.</p>
+  <p>Waiting to connect.<br>Start the display from the settings panel first.</p>
 </div>
 
 <div id="stage" style="display:none">
@@ -169,10 +200,14 @@
 <script src="assets/js/config.js"></script>
 <script>
 /* ── STATE ── */
-let _timerRemaining = 0;
-let _timerRunning   = false;
-let _timerPaused    = false;
-let _timerInterval  = null;
+let _timerRemaining  = 0;
+let _timerRunning    = false;
+let _timerPaused     = false;
+let _timerInterval   = null;
+let _timerDurationMs = 0;
+let _timerStartedAt  = null;
+let _timerPausedAt   = null;
+let _timerPausedMs   = 0;
 let _connected      = false;
 let _annTimer       = null;
 
@@ -197,9 +232,12 @@ function _tickClock() {
   const pm  = now.getHours() >= 12 ? 'PM' : 'AM';
   el.clockDisp.innerHTML = `${pad(h)}:${pad(m)}:${pad(s)}<span style="font-size:.35em;letter-spacing:.18em;margin-left:.3em;vertical-align:super;opacity:.6">${pm}</span>`;
 }
-setInterval(_tickClock, 1000);
 _tickClock();
 _renderTimer();
+(function _schedClock() {
+  const delay = 1000 - (Date.now() % 1000);
+  setTimeout(() => { _tickClock(); _schedClock(); }, delay);
+})();
 
 /* ── TIMER RENDER ── */
 function _renderTimer() {
@@ -243,7 +281,8 @@ function _renderTimer() {
 /* ── TIMER TICK ── */
 function _timerTick() {
   if (!_timerRunning || _timerPaused) return;
-  _timerRemaining = Math.max(0, _timerRemaining - 1);
+  const elapsed   = Date.now() - _timerStartedAt - _timerPausedMs;
+  _timerRemaining = Math.max(0, Math.round((_timerDurationMs - elapsed) / 1000));
   _renderTimer();
   if (_timerRemaining === 0) {
     _timerRunning = false;
@@ -279,24 +318,39 @@ BC.onmessage = e => {
 
     case 'timer-start':
       clearInterval(_timerInterval);
-      _timerRemaining = d.seconds;
-      _timerRunning   = true;
-      _timerPaused    = false;
+      _timerDurationMs = d.seconds * 1000;
+      _timerStartedAt  = Date.now();
+      _timerPausedMs   = 0;
+      _timerPausedAt   = null;
+      _timerRunning    = true;
+      _timerPaused     = false;
       _renderTimer();
-      _timerInterval  = setInterval(_timerTick, 1000);
+      _timerInterval   = setInterval(_timerTick, 500);
       break;
 
     case 'timer-pause':
       _timerPaused = !_timerPaused;
+      if (_timerPaused) {
+        _timerPausedAt = Date.now();
+      } else {
+        if (_timerPausedAt) {
+          _timerPausedMs += Date.now() - _timerPausedAt;
+          _timerPausedAt  = null;
+        }
+      }
       _renderTimer();
       break;
 
     case 'timer-reset':
       clearInterval(_timerInterval);
-      _timerInterval  = null;
-      _timerRunning   = false;
-      _timerPaused    = false;
-      _timerRemaining = 0;
+      _timerInterval   = null;
+      _timerRunning    = false;
+      _timerPaused     = false;
+      _timerRemaining  = 0;
+      _timerDurationMs = 0;
+      _timerStartedAt  = null;
+      _timerPausedAt   = null;
+      _timerPausedMs   = 0;
       _renderTimer();
       break;
 
@@ -327,6 +381,11 @@ document.addEventListener('keydown', e => {
     }
   }
 });
+document.getElementById('invert-btn')?.addEventListener('click', function() {
+  const inv = document.body.classList.toggle('inverted');
+  this.textContent = inv ? '☾ Dark' : '☀ Light';
+});
 </script>
+<button id="invert-btn">☀ Light</button>
 </body>
 </html>
