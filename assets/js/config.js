@@ -300,20 +300,20 @@ const TIMEZONES = [
 
 /* ── THEME DEFINITIONS ────────────────────────────────────── */
 const THEMES = {
-  eclipse:  { label:'Eclipse',  bg:'#060409', clock:'#e2d0ff', wm:'160,80,255',  halo:'rgba(6,4,9,.72)',       accent:'#a78bfa' },
-  minimal:  { label:'Minimal',  bg:'#f4f1ec', clock:'#181510', wm:'24,21,16',    halo:'rgba(244,241,236,.80)', accent:'#94a3b8' },
-  ambient:  { label:'Ambient',  bg:'#070c14', clock:'#d8eaff', wm:'100,160,255', halo:'rgba(7,12,20,.75)',     accent:'#60a5fa' },
-  glass:    { label:'Glass',    bg:'#0b1422', clock:'#dff0ff', wm:'150,210,255', halo:'rgba(11,20,34,.75)',    accent:'#7dd3fc' },
-  horizon:  { label:'Horizon',  bg:'#0c0805', clock:'#ffddb8', wm:'255,160,60',  halo:'rgba(12,8,5,.75)',      accent:'#fb923c' },
-  monolith: { label:'Monolith', bg:'#000000', clock:'#ffffff', wm:'255,255,255', halo:'rgba(0,0,0,.78)',       accent:'#cbd5e1' },
-  ash:      { label:'Ash',      bg:'#111110', clock:'#e8e4de', wm:'200,196,188', halo:'rgba(17,17,16,.75)',    accent:'#c8c0b0' },
-  dusk:     { label:'Dusk',     bg:'#0d0710', clock:'#f0c8e8', wm:'200,80,180',  halo:'rgba(13,7,16,.75)',     accent:'#e090d0' },
-  nordic:   { label:'Nordic',   bg:'#f0f4f8', clock:'#1a2332', wm:'26,35,50',    halo:'rgba(240,244,248,.82)', accent:'#4a7ab5' },
-  ember:    { label:'Ember',    bg:'#0a0604', clock:'#ffcca0', wm:'220,80,20',   halo:'rgba(10,6,4,.78)',      accent:'#e06020' },
-  forest:   { label:'Forest',   bg:'#050e08', clock:'#b8e8c0', wm:'40,160,80',   halo:'rgba(5,14,8,.78)',      accent:'#40a850' },
-  slate:    { label:'Slate',    bg:'#0c0f14', clock:'#c8d4e0', wm:'100,130,160', halo:'rgba(12,15,20,.78)',    accent:'#7090b0' },
-  ivory:    { label:'Ivory',    bg:'#faf8f4', clock:'#2c2820', wm:'44,40,32',    halo:'rgba(250,248,244,.84)', accent:'#8a7a60' },
-  void:     { label:'Void',     bg:'#020408', clock:'#c8d8f0', wm:'60,100,180',  halo:'rgba(2,4,8,.82)',       accent:'#5060b0' },
+  eclipse:  { label:'Eclipse',  bg:'#060409', clock:'#e2d0ff', wm:'160,80,255',  halo:'rgba(6,4,9,.82)',          accent:'#a78bfa' },
+  minimal:  { label:'Minimal',  bg:'#f4f1ec', clock:'#181510', wm:'24,21,16',    halo:'rgba(244,241,236,.88)',     accent:'#94a3b8' },
+  ambient:  { label:'Ambient',  bg:'#070c14', clock:'#d8eaff', wm:'100,160,255', halo:'rgba(7,12,20,.84)',         accent:'#60a5fa' },
+  glass:    { label:'Glass',    bg:'#0b1422', clock:'#dff0ff', wm:'150,210,255', halo:'rgba(11,20,34,.84)',        accent:'#7dd3fc' },
+  horizon:  { label:'Horizon',  bg:'#0c0805', clock:'#ffddb8', wm:'255,160,60',  halo:'rgba(12,8,5,.84)',          accent:'#fb923c' },
+  monolith: { label:'Monolith', bg:'#000000', clock:'#ffffff', wm:'255,255,255', halo:'rgba(0,0,0,.86)',           accent:'#cbd5e1' },
+  ash:      { label:'Ash',      bg:'#111110', clock:'#e8e4de', wm:'200,196,188', halo:'rgba(17,17,16,.84)',        accent:'#c8c0b0' },
+  dusk:     { label:'Dusk',     bg:'#0d0710', clock:'#f0c8e8', wm:'200,80,180',  halo:'rgba(13,7,16,.84)',         accent:'#e090d0' },
+  nordic:   { label:'Nordic',   bg:'#f0f4f8', clock:'#1a2332', wm:'26,35,50',    halo:'rgba(240,244,248,.90)',     accent:'#4a7ab5' },
+  ember:    { label:'Ember',    bg:'#0a0604', clock:'#ffcca0', wm:'220,80,20',   halo:'rgba(10,6,4,.86)',          accent:'#e06020' },
+  forest:   { label:'Forest',   bg:'#050e08', clock:'#b8e8c0', wm:'40,160,80',   halo:'rgba(5,14,8,.86)',          accent:'#40a850' },
+  slate:    { label:'Slate',    bg:'#0c0f14', clock:'#c8d4e0', wm:'100,130,160', halo:'rgba(12,15,20,.86)',        accent:'#7090b0' },
+  ivory:    { label:'Ivory',    bg:'#faf8f4', clock:'#2c2820', wm:'44,40,32',    halo:'rgba(250,248,244,.92)',     accent:'#8a7a60' },
+  void:     { label:'Void',     bg:'#020408', clock:'#c8d8f0', wm:'60,100,180',  halo:'rgba(2,4,8,.88)',           accent:'#5060b0' },
 };
 
 /* ── CONFIG ───────────────────────────────────────────────── */

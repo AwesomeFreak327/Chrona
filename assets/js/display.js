@@ -200,15 +200,34 @@ function _applyAll(cfg, immediate = false) {
   // 2. Theme
   const newTheme = _cfg.theme || 'eclipse';
   const oldTheme = document.body.getAttribute('data-theme');
+  const haloEl   = document.getElementById('halo');
 
   if (!immediate && oldTheme && oldTheme !== newTheme) {
+    const prevHalo = THEMES[oldTheme]?.halo || 'rgba(6,4,9,.82)';
+    const nextHalo = THEMES[newTheme]?.halo || 'rgba(6,4,9,.82)';
+
+    if (haloEl) {
+      haloEl.style.setProperty('--halo-prev', prevHalo);
+      haloEl.style.setProperty('--halo-next', nextHalo);
+    }
+
     document.body.classList.add('theme-switching');
     document.body.setAttribute('data-theme', newTheme);
+
     setTimeout(() => {
       document.body.classList.remove('theme-switching');
+      if (haloEl) {
+        haloEl.style.setProperty('--halo-prev', nextHalo);
+        haloEl.style.setProperty('--halo-next', nextHalo);
+      }
     }, DURATION.theme || 1300);
   } else {
     document.body.setAttribute('data-theme', newTheme);
+    const haloColour = THEMES[newTheme]?.halo || 'rgba(6,4,9,.82)';
+    if (haloEl) {
+      haloEl.style.setProperty('--halo-prev', haloColour);
+      haloEl.style.setProperty('--halo-next', haloColour);
+    }
   }
 
   // 3. CSS custom properties (fonts, scales, opacity)

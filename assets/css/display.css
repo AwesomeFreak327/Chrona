@@ -238,35 +238,20 @@ body.font-fading #logo-name {
 body.theme-switching #halo::before { opacity:0; }
 body.theme-switching #halo::after  { opacity:1; }
 
-[data-theme=eclipse]  #halo::before { background: radial-gradient(ellipse at center, rgba(6,4,9,.82) 0%, rgba(6,4,9,.82) 30%, transparent 75%); }
-[data-theme=eclipse]  #halo::after  { background: radial-gradient(ellipse at center, rgba(6,4,9,.82) 0%, rgba(6,4,9,.82) 30%, transparent 75%); }
-[data-theme=minimal]  #halo::before { background: radial-gradient(ellipse at center, rgba(244,241,236,.88) 0%, rgba(244,241,236,.88) 30%, transparent 75%); }
-[data-theme=minimal]  #halo::after  { background: radial-gradient(ellipse at center, rgba(244,241,236,.88) 0%, rgba(244,241,236,.88) 30%, transparent 75%); }
-[data-theme=ambient]  #halo::before { background: radial-gradient(ellipse at center, rgba(7,12,20,.84) 0%, rgba(7,12,20,.84) 30%, transparent 75%); }
-[data-theme=ambient]  #halo::after  { background: radial-gradient(ellipse at center, rgba(7,12,20,.84) 0%, rgba(7,12,20,.84) 30%, transparent 75%); }
-[data-theme=glass]    #halo::before { background: radial-gradient(ellipse at center, rgba(11,20,34,.84) 0%, rgba(11,20,34,.84) 30%, transparent 75%); }
-[data-theme=glass]    #halo::after  { background: radial-gradient(ellipse at center, rgba(11,20,34,.84) 0%, rgba(11,20,34,.84) 30%, transparent 75%); }
-[data-theme=horizon]  #halo::before { background: radial-gradient(ellipse at center, rgba(12,8,5,.84) 0%, rgba(12,8,5,.84) 30%, transparent 75%); }
-[data-theme=horizon]  #halo::after  { background: radial-gradient(ellipse at center, rgba(12,8,5,.84) 0%, rgba(12,8,5,.84) 30%, transparent 75%); }
-[data-theme=monolith] #halo::before { background: radial-gradient(ellipse at center, rgba(0,0,0,.86) 0%, rgba(0,0,0,.86) 30%, transparent 75%); }
-[data-theme=monolith] #halo::after  { background: radial-gradient(ellipse at center, rgba(0,0,0,.86) 0%, rgba(0,0,0,.86) 30%, transparent 75%); }
-[data-theme=ash]      #halo::before { background: radial-gradient(ellipse at center, rgba(17,17,16,.84) 0%, rgba(17,17,16,.84) 30%, transparent 75%); }
-[data-theme=ash]      #halo::after  { background: radial-gradient(ellipse at center, rgba(17,17,16,.84) 0%, rgba(17,17,16,.84) 30%, transparent 75%); }
-[data-theme=dusk]     #halo::before { background: radial-gradient(ellipse at center, rgba(13,7,16,.84) 0%, rgba(13,7,16,.84) 30%, transparent 75%); }
-[data-theme=dusk]     #halo::after  { background: radial-gradient(ellipse at center, rgba(13,7,16,.84) 0%, rgba(13,7,16,.84) 30%, transparent 75%); }
-[data-theme=nordic]   #halo::before { background: radial-gradient(ellipse at center, rgba(240,244,248,.90) 0%, rgba(240,244,248,.90) 30%, transparent 75%); }
-[data-theme=nordic]   #halo::after  { background: radial-gradient(ellipse at center, rgba(240,244,248,.90) 0%, rgba(240,244,248,.90) 30%, transparent 75%); }
-[data-theme=ember]    #halo::before { background: radial-gradient(ellipse at center, rgba(10,6,4,.86) 0%, rgba(10,6,4,.86) 30%, transparent 75%); }
-[data-theme=ember]    #halo::after  { background: radial-gradient(ellipse at center, rgba(10,6,4,.86) 0%, rgba(10,6,4,.86) 30%, transparent 75%); }
-[data-theme=forest]   #halo::before { background: radial-gradient(ellipse at center, rgba(5,14,8,.86) 0%, rgba(5,14,8,.86) 30%, transparent 75%); }
-[data-theme=forest]   #halo::after  { background: radial-gradient(ellipse at center, rgba(5,14,8,.86) 0%, rgba(5,14,8,.86) 30%, transparent 75%); }
-[data-theme=slate]    #halo::before { background: radial-gradient(ellipse at center, rgba(12,15,20,.86) 0%, rgba(12,15,20,.86) 30%, transparent 75%); }
-[data-theme=slate]    #halo::after  { background: radial-gradient(ellipse at center, rgba(12,15,20,.86) 0%, rgba(12,15,20,.86) 30%, transparent 75%); }
-[data-theme=ivory]    #halo::before { background: radial-gradient(ellipse at center, rgba(250,248,244,.92) 0%, rgba(250,248,244,.92) 30%, transparent 75%); }
-[data-theme=ivory]    #halo::after  { background: radial-gradient(ellipse at center, rgba(250,248,244,.92) 0%, rgba(250,248,244,.92) 30%, transparent 75%); }
-[data-theme=void]     #halo::before { background: radial-gradient(ellipse at center, rgba(2,4,8,.88) 0%, rgba(2,4,8,.88) 30%, transparent 75%); }
-[data-theme=void]     #halo::after  { background: radial-gradient(ellipse at center, rgba(2,4,8,.88) 0%, rgba(2,4,8,.88) 30%, transparent 75%); }
-
+#halo::before {
+  background: radial-gradient(ellipse at center,
+    var(--halo-prev, rgba(6,4,9,.82)) 0%,
+    var(--halo-prev, rgba(6,4,9,.82)) 30%,
+    transparent 75%
+  );
+}
+#halo::after {
+  background: radial-gradient(ellipse at center,
+    var(--halo-next, rgba(6,4,9,.82)) 0%,
+    var(--halo-next, rgba(6,4,9,.82)) 30%,
+    transparent 75%
+  );
+}
 /* ── STAGE ────────────────────────────────────────────────── */
 #stage {
   position:fixed; inset:0;
