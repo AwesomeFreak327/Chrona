@@ -87,11 +87,12 @@ const DEFAULTS = {
   scaleQuote:       1,
   scaleWmFont:      1,
   // fonts — 5 independent slots
-  fontClock:        'Cormorant Garamond',
+  fontClock:        'Playfair Display',
   fontMeta:         'Inter',
   fontQuote:        'Lora',
   fontQuoteSrc:     'Inter',
   fontWm:           'Inter',
+  customFonts:      {},
   // system
   burnIn:           true,
   autoFullscreen:   true,
@@ -115,39 +116,44 @@ const DEFAULTS = {
 const FONTS = {
   // Slot: clock — large display numerals on projector
   clock: {
-    'Cormorant Garamond': {
-      url:   'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap',
-      stack: "'Cormorant Garamond', Georgia, serif",
-      note:  'Ultra elegant — cinematic on dark themes',
+    'Playfair Display': {
+      url:   'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap',
+      stack: "'Playfair Display', Georgia, serif",
+      note:  'Elegant editorial — strong lining numerals',
     },
-    'Orbitron': {
-      url:   'https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap',
-      stack: "'Orbitron', system-ui, sans-serif",
-      note:  'Geometric tech — bold and unmistakable',
+    'DM Serif Display': {
+      url:   'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap',
+      stack: "'DM Serif Display', Georgia, serif",
+      note:  'Modern classic — warm and authoritative',
     },
     'Montserrat': {
-      url:   'https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap',
+      url:   'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
       stack: "'Montserrat', system-ui, sans-serif",
-      note:  'Editorial strong — universal and clean',
+      note:  'Geometric clean — all lining numerals',
     },
     'Oswald': {
-      url:   'https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap',
+      url:   'https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500&display=swap',
       stack: "'Oswald', system-ui, sans-serif",
-      note:  'Condensed punchy — excellent on projectors',
+      note:  'Condensed strong — excellent on projectors',
     },
-    'Playfair Display': {
-      url:   'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap',
-      stack: "'Playfair Display', Georgia, serif",
-      note:  'Classic serif — strong editorial numerals',
+    'Orbitron': {
+      url:   'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap',
+      stack: "'Orbitron', system-ui, sans-serif",
+      note:  'Technical precision — distinct and bold',
+    },
+    'Cormorant SC': {
+      url:   'https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@300;400;500&display=swap',
+      stack: "'Cormorant SC', Georgia, serif",
+      note:  'Small caps variant — lining numerals only',
     },
   },
 
   // Slot: meta — date, weather, org name
   meta: {
     'Inter': {
-      url:   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap',
+      url:   'https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&display=swap',
       stack: "'Inter', system-ui, sans-serif",
-      note:  'Most neutral and legible — safe default',
+      note:  'Neutral and highly legible — safe default',
     },
     'Work Sans': {
       url:   'https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500&display=swap',
@@ -165,7 +171,7 @@ const FONTS = {
       note:  'Modern geometric — subtle and distinct',
     },
     'Nunito': {
-      url:   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700&display=swap',
+      url:   'https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600&display=swap',
       stack: "'Nunito', system-ui, sans-serif",
       note:  'Friendly rounded — approachable feel',
     },
@@ -176,22 +182,22 @@ const FONTS = {
     'Lora': {
       url:   'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap',
       stack: "'Lora', Georgia, serif",
-      note:  'Warm and readable — best italic presence',
+      note:  'Warm and readable — best italic for quotes',
     },
-    'Cormorant Garamond': {
-      url:   'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap',
-      stack: "'Cormorant Garamond', Georgia, serif",
-      note:  'Ultra elegant italic — literary feel',
-    },
-    'Playfair Display': {
-      url:   'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&display=swap',
-      stack: "'Playfair Display', Georgia, serif",
-      note:  'Editorial italic — strong visual weight',
+    'Crimson Pro': {
+      url:   'https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap',
+      stack: "'Crimson Pro', Georgia, serif",
+      note:  'Refined italic — lining numerals, elegant',
     },
     'Fraunces': {
       url:   'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&display=swap',
       stack: "'Fraunces', Georgia, serif",
       note:  'Expressive light italic — distinctive voice',
+    },
+    'Playfair Display': {
+      url:   'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&display=swap',
+      stack: "'Playfair Display', Georgia, serif",
+      note:  'Editorial italic — strong visual weight',
     },
     'Montserrat': {
       url:   'https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;1,300&display=swap',

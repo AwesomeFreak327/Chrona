@@ -34,6 +34,7 @@ window.addEventListener('DOMContentLoaded', () => {
   _buildTimezoneSelect();
   _buildThemeGrid();
   _buildFontSlots();
+  _buildCustomFontInputs();
 
   // Populate all form controls from config
   _populateUI();
@@ -57,6 +58,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Preload all font sheets for font chip previews
   ['clock','meta','quote','quoteSrc','wm'].forEach(loadAllFontsForSlot);
+
+  const customFonts = Config.get().customFonts || {};
+  Object.values(customFonts).forEach(f => {
+    if (f?.url) loadFont(f.url);
+  });
 
   // Wire up all event listeners
   _initPresentControls();
@@ -451,6 +457,115 @@ function _buildFontSlots() {
       container.appendChild(hr);
     }
   });
+}
+
+function _buildCustomFontInputs() {
+  const area = document.getElementById('custom-font-area');
+  if (!area) return;
+  area.innerHTML = '';
+
+  const cfg   = Config.get();
+  const slots = [
+    { key:'clock',    label:'Clock',         cfgKey:'fontClock'    },
+    { key:'meta',     label:'Date & Weather', cfgKey:'fontMeta'     },
+    { key:'quote',    label:'Quote Text',     cfgKey:'fontQuote'    },
+    { key:'quotesrc', label:'Quote Source',   cfgKey:'fontQuoteSrc' },
+    { key:'wm',       label:'Watermark',      cfgKey:'fontWm'       },
+  ];
+
+  const divider = document.createElement('div');
+  divider.style.cssText = 'height:1px;background:var(--border);margin:4px 0 12px';
+  area.appendChild(divider);
+
+  const heading = document.createElement('div');
+  heading.className = 'sec-title';
+  heading.textContent = 'Custom Google Font';
+  area.appendChild(heading);
+
+  const hint = document.createElement('p');
+  hint.className = 'field-hint';
+  hint.textContent = 'Paste a Google Fonts URL to use any font not in the list above. One per slot.';
+  area.appendChild(hint);
+
+  slots.forEach(slot => {
+    const saved = cfg.customFonts?.[slot.key];
+
+    const group = document.createElement('div');
+    group.className = 'field';
+    group.style.marginTop = '10px';
+
+    group.innerHTML = `
+      <label class="lbl">${slot.label}</label>
+      <div style="display:flex;gap:7px;align-items:center">
+        <input
+          type="text"
+          id="custom-font-${slot.key}"
+          placeholder="https://fonts.googleapis.com/css2?family=..."
+          value="${saved?.url || ''}"
+          style="flex:1;font-size:.7rem"
+        >
+        <button class="ctrl-btn" id="custom-font-apply-${slot.key}"
+          style="padding:8px 12px;white-space:nowrap;flex-shrink:0">
+          Apply
+        </button>
+        ${saved ? `<button class="ctrl-btn danger" id="custom-font-clear-${slot.key}"
+          style="padding:8px 10px;flex-shrink:0">✕</button>` : ''}
+      </div>
+      ${saved ? `<p class="field-hint" style="color:var(--accent)">
+        Active: ${saved.name}</p>` : ''}
+    `;
+
+    area.appendChild(group);
+
+    document.getElementById(`custom-font-apply-${slot.key}`)?.addEventListener('click', () => {
+      const input = document.getElementById(`custom-font-${slot.key}`);
+      const url   = input?.value.trim();
+      if (!url) return;
+
+      const name = _extractFontName(url);
+      if (!name) {
+        input.style.borderColor = 'var(--danger)';
+        setTimeout(() => { input.style.borderColor = ''; }, 2000);
+        return;
+      }
+
+      loadFont(url);
+
+      const stack       = `'${name}', system-ui, sans-serif`;
+      const customFonts = { ...(Config.get().customFonts || {}), [slot.key]: { name, url, stack } };
+      _save({ [slot.cfgKey]: name, customFonts }, `Custom font → ${name}`);
+
+      FONTS[slot.key === 'quotesrc' ? 'quoteSrc' : slot.key === 'wm' ? 'wm' : slot.key][name] = { url, stack, note: 'Custom import' };
+
+      _buildCustomFontInputs();
+      _buildFontSlots();
+    });
+
+    document.getElementById(`custom-font-clear-${slot.key}`)?.addEventListener('click', () => {
+      const customFonts = { ...(Config.get().customFonts || {}) };
+      const slotFonts   = FONTS[slot.key === 'quotesrc' ? 'quoteSrc' : slot.key === 'wm' ? 'wm' : slot.key];
+
+      if (customFonts[slot.key]) {
+        delete slotFonts[customFonts[slot.key].name];
+        delete customFonts[slot.key];
+      }
+
+      const defaultFont = Object.keys(slotFonts)[0] || 'Inter';
+      _save({ [slot.cfgKey]: defaultFont, customFonts }, 'Custom font removed');
+      _buildCustomFontInputs();
+      _buildFontSlots();
+    });
+  });
+}
+
+function _extractFontName(url) {
+  try {
+    const match = url.match(/family=([^:&]+)/);
+    if (!match) return null;
+    return decodeURIComponent(match[1]).replace(/\+/g, ' ');
+  } catch(e) {
+    return null;
+  }
 }
 
 /* ── Timezone select ── */
