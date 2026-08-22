@@ -204,8 +204,13 @@
     <!-- ── APPEARANCE ── -->
     <div class="config-section" id="panel-appearance">
       <div class="sec-title">Theme</div>
-      <!-- Built dynamically by _buildThemeGrid() in settings.js -->
-      <div class="theme-grid" id="theme-grid"></div>
+
+      <div class="seg-ctrl" id="theme-mode-toggle">
+        <button class="seg-btn active" data-theme-mode="dark">● Dark</button>
+        <button class="seg-btn" data-theme-mode="light">○ Light</button>
+      </div>
+
+      <div class="theme-grid" id="theme-grid" data-mode="dark"></div>
     </div>
 
     <!-- ── FONTS ── -->

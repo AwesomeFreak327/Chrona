@@ -33,6 +33,41 @@ window.addEventListener('DOMContentLoaded', () => {
   // Build dynamic UI sections
   _buildTimezoneSelect();
   _buildThemeGrid();
+
+  document.querySelectorAll('[data-theme-mode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.themeMode;
+      const grid = document.getElementById('theme-grid');
+      if (!grid) return;
+
+      document.querySelectorAll('[data-theme-mode]').forEach(b =>
+        b.classList.toggle('active', b.dataset.themeMode === mode)
+      );
+
+      grid.dataset.mode = mode;
+
+      const cfg        = Config.get();
+      const current    = THEMES[cfg.theme];
+
+      if (current && current.mode !== mode) {
+        const paired = current.pair;
+        if (paired && THEMES[paired]) {
+          _save({ theme: paired }, `Theme → ${THEMES[paired].label}`);
+          _applyAccent(paired);
+        }
+      }
+
+      _buildThemeGrid();
+    });
+  });
+
+  const initialMode = THEMES[Config.get().theme]?.mode || 'dark';
+  const grid = document.getElementById('theme-grid');
+  if (grid) grid.dataset.mode = initialMode;
+  document.querySelectorAll('[data-theme-mode]').forEach(b =>
+    b.classList.toggle('active', b.dataset.themeMode === initialMode)
+  );
+  
   _buildFontSlots();
   _buildCustomFontInputs();
 
@@ -349,42 +384,52 @@ function _wireSimpleBindings() {
 function _buildThemeGrid() {
   const grid = document.getElementById('theme-grid');
   if (!grid) return;
+
+  const currentMode = grid.dataset.mode || 'dark';
+
   grid.innerHTML = '';
 
-  const ORDER = [
-    'eclipse','dusk',
-    'ambient','glass','void',
-    'horizon','ember','forest',
-    'monolith','ash','slate',
-    'nordic','ivory','minimal',
-  ];
-  const sorted = ORDER
-    .filter(k => THEMES[k])
-    .map(k => [k, THEMES[k]]);
+  const FAMILY_ORDER = ['violet','blue','teal','green','amber','red','pink','slate'];
+  const FAMILY_LABEL = {
+    violet:'Violet', blue:'Blue', teal:'Teal', green:'Green',
+    amber:'Amber', red:'Red', pink:'Pink', slate:'Slate'
+  };
 
-  sorted.forEach(([key, t]) => {
+  const cfg = Config.get();
+
+  FAMILY_ORDER.forEach(family => {
+    const entry = Object.entries(THEMES).find(
+      ([, t]) => t.family === family && t.mode === currentMode
+    );
+    if (!entry) return;
+    const [key, t] = entry;
+
     const card = document.createElement('div');
     card.className = 'theme-card';
     card.dataset.theme = key;
+    if (cfg.theme === key) card.classList.add('active');
+
     card.innerHTML = `
       <div class="theme-swatch" style="background:${t.bg}">
         <div class="theme-swatch-bar" style="background:${t.clock};box-shadow:0 0 8px ${t.clock}40"></div>
         <div class="theme-swatch-preview">
           <span class="theme-swatch-clock" style="color:${t.clock}">12:00</span>
-          <span class="theme-swatch-name" style="color:${t.clock};opacity:.45">${t.label}</span>
+          <span class="theme-swatch-name" style="color:${t.clock};opacity:.45">${FAMILY_LABEL[family]}</span>
         </div>
       </div>
       <div class="theme-label">
         <span>${t.label}</span>
-        <span class="theme-dot"></span>
+        <span class="theme-dot" style="${cfg.theme === key ? 'opacity:1' : ''}"></span>
       </div>
     `;
+
     card.addEventListener('click', () => {
       document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
       card.classList.add('active');
       _save({ theme: key }, `Theme → ${t.label}`);
       _applyAccent(key);
     });
+
     grid.appendChild(card);
   });
 }

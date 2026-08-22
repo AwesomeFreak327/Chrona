@@ -94,19 +94,21 @@
 
 /* ── ACCENT OVERRIDES ─────────────────────────────────────── */
 [data-accent=eclipse]  { --accent:#a78bfa; --accent-dim:rgba(167,139,250,.12); --accent-b:rgba(167,139,250,.28); }
-[data-accent=minimal]  { --accent:#94a3b8; --accent-dim:rgba(148,163,184,.12); --accent-b:rgba(148,163,184,.28); }
-[data-accent=ambient]  { --accent:#60a5fa; --accent-dim:rgba(96,165,250,.12);  --accent-b:rgba(96,165,250,.28);  }
-[data-accent=glass]    { --accent:#7dd3fc; --accent-dim:rgba(125,211,252,.12); --accent-b:rgba(125,211,252,.28); }
-[data-accent=horizon]  { --accent:#fb923c; --accent-dim:rgba(251,146,60,.12);  --accent-b:rgba(251,146,60,.28);  }
-[data-accent=monolith] { --accent:#cbd5e1; --accent-dim:rgba(203,213,225,.10); --accent-b:rgba(203,213,225,.22); }
-[data-accent=ash]      { --accent:#c8c0b0; --accent-dim:rgba(200,192,176,.10); --accent-b:rgba(200,192,176,.22); }
-[data-accent=dusk]     { --accent:#e090d0; --accent-dim:rgba(224,144,208,.12); --accent-b:rgba(224,144,208,.28); }
-[data-accent=nordic]   { --accent:#4a7ab5; --accent-dim:rgba(74,122,181,.12);  --accent-b:rgba(74,122,181,.28);  }
-[data-accent=ember]    { --accent:#e06020; --accent-dim:rgba(224,96,32,.12);   --accent-b:rgba(224,96,32,.28);   }
+[data-accent=lavender] { --accent:#7c3aed; --accent-dim:rgba(124,58,237,.12);  --accent-b:rgba(124,58,237,.28);  }
+[data-accent=midnight] { --accent:#60a5fa; --accent-dim:rgba(96,165,250,.12);  --accent-b:rgba(96,165,250,.28);  }
+[data-accent=skyline]  { --accent:#3b82f6; --accent-dim:rgba(59,130,246,.12);  --accent-b:rgba(59,130,246,.28);  }
+[data-accent=abyss]    { --accent:#14b8a6; --accent-dim:rgba(20,184,166,.12);  --accent-b:rgba(20,184,166,.28);  }
+[data-accent=seafoam]  { --accent:#0d9488; --accent-dim:rgba(13,148,136,.12);  --accent-b:rgba(13,148,136,.28);  }
 [data-accent=forest]   { --accent:#40a850; --accent-dim:rgba(64,168,80,.12);   --accent-b:rgba(64,168,80,.28);   }
-[data-accent=slate]    { --accent:#7090b0; --accent-dim:rgba(112,144,176,.12); --accent-b:rgba(112,144,176,.28); }
-[data-accent=ivory]    { --accent:#8a7a60; --accent-dim:rgba(138,122,96,.12);  --accent-b:rgba(138,122,96,.28);  }
+[data-accent=sage]     { --accent:#16a34a; --accent-dim:rgba(22,163,74,.12);   --accent-b:rgba(22,163,74,.28);   }
+[data-accent=horizon]  { --accent:#fb923c; --accent-dim:rgba(251,146,60,.12);  --accent-b:rgba(251,146,60,.28);  }
+[data-accent=gilded]   { --accent:#d97706; --accent-dim:rgba(217,119,6,.12);   --accent-b:rgba(217,119,6,.28);   }
+[data-accent=ember]    { --accent:#e06020; --accent-dim:rgba(224,96,32,.12);   --accent-b:rgba(224,96,32,.28);   }
+[data-accent=scarlet]  { --accent:#dc2626; --accent-dim:rgba(220,38,38,.12);   --accent-b:rgba(220,38,38,.28);   }
+[data-accent=dusk]     { --accent:#e090d0; --accent-dim:rgba(224,144,208,.12); --accent-b:rgba(224,144,208,.28); }
+[data-accent=blossom]  { --accent:#db2777; --accent-dim:rgba(219,39,119,.12);  --accent-b:rgba(219,39,119,.28);  }
 [data-accent=void]     { --accent:#5060b0; --accent-dim:rgba(80,96,176,.12);   --accent-b:rgba(80,96,176,.28);   }
+[data-accent=paper]    { --accent:#475569; --accent-dim:rgba(71,85,105,.12);   --accent-b:rgba(71,85,105,.28);   }
 
 /* ── BASE ─────────────────────────────────────────────────── */
 html, body {
