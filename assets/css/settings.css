@@ -411,6 +411,19 @@ textarea:focus {
   border-color:var(--accent);
   box-shadow:0 0 0 2px var(--accent-dim);
 }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--txt) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--surface2) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+[data-settings-theme=light] input:-webkit-autofill,
+[data-settings-theme=light] input:-webkit-autofill:hover,
+[data-settings-theme=light] input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--surface) inset !important;
+}
 select option { background:var(--surface2); }
 textarea { min-height:86px; font-size:.73rem; line-height:1.55; }
 
@@ -838,8 +851,11 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
 ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
 
 /* ── DISABLED SECTION OVERLAY ─────────────────────────────── */
-.disabled-section {
+[id$="-section"] {
   display:flex; flex-direction:column; gap:var(--sp-4);
+}
+
+.disabled-section {
   opacity:.38;
   pointer-events:none;
   user-select:none;

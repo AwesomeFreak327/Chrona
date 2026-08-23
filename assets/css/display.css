@@ -289,7 +289,7 @@ body.theme-switching #halo::after  { opacity:1; }
 #logo-area {
   display:flex; flex-direction:column;
   align-items:center; gap:1.2vh;
-  margin-bottom:6vh;
+  margin-bottom:9vh;
 }
 #logo-img {
   max-height: calc(7vh * var(--s-logo));
@@ -310,7 +310,7 @@ body.theme-switching #halo::after  { opacity:1; }
 #clock-wrap {
   display:flex;
   align-items:baseline;
-  margin-top:1vh;
+  margin-top:2vh;
 }
 #clock {
   font-family: var(--font-clock);
@@ -451,7 +451,7 @@ body.theme-switching #halo::after  { opacity:1; }
   font-family: var(--font-clock);
   font-style:italic;
   font-weight:400;
-  font-size: clamp(1.6rem, 4vw, 3.2rem);
+  font-size: clamp(2rem, 5.5vw, 4.5rem);
   color: var(--clock-c);
   letter-spacing:.02em;
   z-index:20;
@@ -499,6 +499,20 @@ body.theme-switching #halo::after  { opacity:1; }
     transform var(--dur-overlay, 900ms) var(--ease-out);
 }
 #stage:not(.announcing) #meta-row {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity   var(--dur-overlay, 900ms) var(--ease-out),
+    transform var(--dur-overlay, 900ms) var(--ease-out);
+}
+#stage.announcing #logo-area {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity   var(--dur-overlay, 900ms) var(--ease-out),
+    transform var(--dur-overlay, 900ms) var(--ease-out);
+}
+#stage:not(.announcing) #logo-area {
   opacity: 1;
   transform: translateY(0);
   transition:

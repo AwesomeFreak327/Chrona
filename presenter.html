@@ -196,6 +196,7 @@
 </div>
 
 <div id="fs-hint">Press F to fullscreen</div>
+<button id="invert-btn">☀ Light</button>
 
 <script src="assets/js/config.js"></script>
 <script>
@@ -311,8 +312,20 @@ BC.onmessage = e => {
       if (d.config) {
         const s = document.documentElement.style;
         const f = d.config;
-        if (f.fontClock) s.setProperty('--font-clock', `'${f.fontClock}', Georgia, serif`);
-        if (f.fontMeta)  s.setProperty('--font-meta',  `'${f.fontMeta}', system-ui, sans-serif`);
+        if (f.fontClock) {
+          s.setProperty('--font-clock', `'${f.fontClock}', Georgia, serif`);
+          const cu = FONTS.clock?.[f.fontClock]?.url;
+          if (cu) loadFont(cu);
+        }
+        if (f.fontMeta) {
+          s.setProperty('--font-meta', `'${f.fontMeta}', system-ui, sans-serif`);
+          const mu = FONTS.meta?.[f.fontMeta]?.url;
+          if (mu) loadFont(mu);
+        }
+        const customFonts = f.customFonts || {};
+        Object.values(customFonts).forEach(cf => {
+          if (cf?.url) loadFont(cf.url);
+        });
       }
       break;
 
@@ -386,6 +399,5 @@ document.getElementById('invert-btn')?.addEventListener('click', function() {
   this.textContent = inv ? '☾ Dark' : '☀ Light';
 });
 </script>
-<button id="invert-btn">☀ Light</button>
 </body>
 </html>

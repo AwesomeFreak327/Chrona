@@ -349,6 +349,10 @@ function _loadDisplayFonts(cfg) {
     const url = reg?.[cfg[key]]?.url;
     if (url) loadFont(url);
   });
+  const customFonts = cfg.customFonts || {};
+  Object.values(customFonts).forEach(f => {
+    if (f?.url) loadFont(f.url);
+  });
 }
 
 /* ── FONT FADE SWAP ───────────────────────────────────────── */
@@ -570,8 +574,11 @@ function _timerStart(seconds) {
   _timerRunning    = true;
   _timerPaused     = false;
   if (_el.timerArea) _el.timerArea.classList.remove('hidden','finished','warning');
-  _timerInterval   = setInterval(_timerTick, 500);
-  _timerTick();
+  const msToNext = 1000 - (Date.now() % 1000);
+  setTimeout(() => {
+    _timerTick();
+    _timerInterval = setInterval(_timerTick, 1000);
+  }, msToNext);
 }
 
 function _timerTick() {

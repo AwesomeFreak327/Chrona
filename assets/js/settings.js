@@ -67,7 +67,7 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-theme-mode]').forEach(b =>
     b.classList.toggle('active', b.dataset.themeMode === initialMode)
   );
-  
+
   _buildFontSlots();
   _buildCustomFontInputs();
 
@@ -576,11 +576,13 @@ function _buildCustomFontInputs() {
 
       loadFont(url);
 
-      const stack       = `'${name}', system-ui, sans-serif`;
+      const stack    = `'${name}', system-ui, sans-serif`;
+      const regKey   = slot.key === 'quotesrc' ? 'quoteSrc' : slot.key;
+      FONTS[regKey]  = FONTS[regKey] || {};
+      FONTS[regKey][name] = { url, stack, note: 'Custom import' };
+
       const customFonts = { ...(Config.get().customFonts || {}), [slot.key]: { name, url, stack } };
       _save({ [slot.cfgKey]: name, customFonts }, `Custom font → ${name}`);
-
-      FONTS[slot.key === 'quotesrc' ? 'quoteSrc' : slot.key === 'wm' ? 'wm' : slot.key][name] = { url, stack, note: 'Custom import' };
 
       _buildCustomFontInputs();
       _buildFontSlots();
@@ -926,10 +928,13 @@ function _initTimer() {
     _timerSeconds = dur;
     _timerRunning = true;
     _timerPaused  = false;
-    _timerState   = { type: 'timer-start', seconds: dur };
-    BC.postMessage(_timerState);
-    _sendToFrame('preview-frame', _timerState);
-    _startTimerSync();
+    const msToNext = 1000 - (Date.now() % 1000);
+    setTimeout(() => {
+      _timerState = { type: 'timer-start', seconds: dur };
+      BC.postMessage(_timerState);
+      _sendToFrame('preview-frame', _timerState);
+      _startTimerSync();
+    }, msToNext);
     _setTimerStatus(`Running — ${Config.get().timerDuration} min`);
   });
 
@@ -1453,6 +1458,19 @@ function _initPresenter() {
       'menubar=no,toolbar=no,location=no,status=no,scrollbars=no'
     );
     _updateStageMonitorDot(true);
+
+    _presenterWin = window.open(
+      'presenter.html', 'chrona_presenter',
+      'width=800,height=480,left=0,top=0,' +
+      'menubar=no,toolbar=no,location=no,status=no,scrollbars=no'
+    );
+    if (_presenterWin) {
+      setTimeout(() => {
+        BC.postMessage({ type: 'config', config: Config.get() });
+      }, 900);
+    }
+    _updateStageMonitorDot(true);
+
     if (_presenterCheck) clearInterval(_presenterCheck);
     _presenterCheck = setInterval(() => {
       if (_presenterWin && _presenterWin.closed) {

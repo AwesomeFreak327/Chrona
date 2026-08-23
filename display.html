@@ -148,10 +148,16 @@
     }
   }, { once: true });
 
+  let _escPressed = false;
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') _escPressed = true;
+  }, true);
+
   document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
+    if (!document.fullscreenElement && _escPressed) {
       window.close();
     }
+    _escPressed = false;
   });
 })();
 </script>
