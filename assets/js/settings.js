@@ -1153,15 +1153,30 @@ function _initPresentControls() {
     if (displayWin) {
       _liveMode = true;
       Config.set({ liveMode: true }, { silent: true });
-      if (Config.get().autoFullscreen) {
-        displayWin.addEventListener('load', () => {
-          setTimeout(() => {
+
+      displayWin.addEventListener('load', () => {
+        setTimeout(() => {
+          BC.postMessage({ type: 'config', config: Config.get() });
+
+          if (_timerRunning && _timerState) {
+            const elapsed  = _timerSyncInt ? 0 : 0;
+            const remaining = Math.max(0, _timerSeconds);
+            setTimeout(() => {
+              BC.postMessage({ type: 'timer-start', seconds: remaining });
+              if (_timerPaused) {
+                setTimeout(() => BC.postMessage({ type: 'timer-pause' }), 100);
+              }
+            }, 200);
+          }
+
+          if (Config.get().autoFullscreen) {
             try {
               displayWin.document.documentElement.requestFullscreen?.();
             } catch(e) {}
-          }, 600);
-        });
-      }
+          }
+        }, 400);
+      });
+
       _setPresentBtn(true);
       _updatePresentStatus(true);
       _startWinCheck();
@@ -1452,23 +1467,31 @@ let _presenterCheck = null;
 
 function _initPresenter() {
   document.getElementById('btn-open-presenter')?.addEventListener('click', () => {
-    _presenterWin = window.open(
-      'presenter.html', 'chrona_presenter',
-      'width=800,height=480,left=0,top=0,' +
-      'menubar=no,toolbar=no,location=no,status=no,scrollbars=no'
-    );
-    _updateStageMonitorDot(true);
+    if (_presenterWin && !_presenterWin.closed) {
+      _presenterWin.focus();
+      return;
+    }
 
     _presenterWin = window.open(
       'presenter.html', 'chrona_presenter',
       'width=800,height=480,left=0,top=0,' +
       'menubar=no,toolbar=no,location=no,status=no,scrollbars=no'
     );
+
     if (_presenterWin) {
       setTimeout(() => {
         BC.postMessage({ type: 'config', config: Config.get() });
+        if (_timerRunning && _timerState) {
+          setTimeout(() => {
+            BC.postMessage({ type: 'timer-start', seconds: Math.max(0, _timerSeconds) });
+            if (_timerPaused) {
+              setTimeout(() => BC.postMessage({ type: 'timer-pause' }), 100);
+            }
+          }, 200);
+        }
       }, 900);
     }
+
     _updateStageMonitorDot(true);
 
     if (_presenterCheck) clearInterval(_presenterCheck);
