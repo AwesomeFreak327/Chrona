@@ -295,9 +295,9 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
 /* ── GLASS CONTROL BUTTONS ────────────────────────────────── */
 /* Pause, Blank — frosted feel, less prominent than Present */
 .ctrl-btn {
-  flex:1; padding:7px 6px;
+  flex:1; padding:0 6px;
   min-width:80px;
-  min-height:34px;
+  height:36px;
   white-space:nowrap;
   background:var(--surface2);
   border:1px solid var(--border2);
