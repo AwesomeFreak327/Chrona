@@ -312,6 +312,20 @@ function _wireSimpleBindings() {
       _setTimerStatus('Timer not running');
     }
   });
+  document.getElementById('timerAutoStart')?.addEventListener('change', function() {
+    if (this.checked) {
+      const timeVal = document.getElementById('timerStartTime')?.value.trim();
+      const input   = document.getElementById('timerStartTime');
+      if (!timeVal && input) {
+        input.style.borderColor = 'var(--danger)';
+        input.style.boxShadow   = '0 0 0 2px rgba(248,113,113,.2)';
+        setTimeout(() => {
+          input.style.borderColor = '';
+          input.style.boxShadow   = '';
+        }, 3000);
+      }
+    }
+  });
   document.getElementById('annScheduleTime')?.addEventListener('blur', function() {
     const text    = document.getElementById('annScheduleText')?.value.trim();
     const timeVal = this.value.trim();
@@ -899,6 +913,7 @@ function _initOverlay() {
     BC.postMessage({ type: 'overlay-cancel' });
     _sendToFrame('preview-frame', { type: 'overlay-cancel' });
   });
+function _initTimer() {
 
   document.getElementById('btn-save-preset')?.addEventListener('click', () => {
     const text = document.getElementById('overlayText')?.value.trim();
@@ -910,7 +925,6 @@ function _initOverlay() {
 
 /* ── Timer ── */
 function _initTimer() {
-  _bind('timerEnabled',  'timerEnabled');
   _bind('timerAutoStart','timerAutoStart');
   _bind('timerDuration', 'timerDuration', Number);
   _bind('timerStartTime','timerStartTime');
@@ -922,31 +936,50 @@ function _initTimer() {
     _save({ scaleTimer: v });
   });
 
+  function _setTimerBtns(state) {
+    const start = document.getElementById('btn-timer-start');
+    const pause = document.getElementById('btn-timer-pause');
+    const reset = document.getElementById('btn-timer-reset');
+    if (state === 'idle') {
+      if (start) { start.style.display = ''; start.textContent = '▶ Start'; }
+      if (pause) pause.style.display = 'none';
+      if (reset) reset.style.display = 'none';
+    } else if (state === 'running') {
+      if (start) start.style.display = 'none';
+      if (pause) { pause.style.display = ''; pause.textContent = '⏸ Pause'; pause.classList.remove('active'); }
+      if (reset) reset.style.display = '';
+    } else if (state === 'paused') {
+      if (start) start.style.display = 'none';
+      if (pause) { pause.style.display = ''; pause.textContent = '▶ Resume'; pause.classList.add('active'); }
+      if (reset) reset.style.display = '';
+    }
+  }
+
   document.getElementById('btn-timer-start')?.addEventListener('click', () => {
     if (!Config.get().timerEnabled) return;
     const dur = (Config.get().timerDuration || 120) * 60;
-    _timerSeconds = dur;
-    _timerRunning = true;
-    _timerPaused  = false;
     const msToNext = 1000 - (Date.now() % 1000);
     setTimeout(() => {
-      _timerState = { type: 'timer-start', seconds: dur };
+      _timerSeconds = dur;
+      _timerRunning = true;
+      _timerPaused  = false;
+      _timerState   = { type: 'timer-start', seconds: dur };
       BC.postMessage(_timerState);
       _sendToFrame('preview-frame', _timerState);
       _startTimerSync();
+      _setTimerBtns('running');
+      _setTimerStatus(`Running — ${Config.get().timerDuration} min`);
     }, msToNext);
-    _setTimerStatus(`Running — ${Config.get().timerDuration} min`);
   });
 
   document.getElementById('btn-timer-pause')?.addEventListener('click', () => {
-    if (!Config.get().timerEnabled) return;
+    if (!_timerRunning) return;
     _timerPaused = !_timerPaused;
     const msg = { type: 'timer-pause' };
     BC.postMessage(msg);
     _sendToFrame('preview-frame', msg);
     if (_timerState) _timerState = { ..._timerState, paused: _timerPaused };
-    const btn = document.getElementById('btn-timer-pause');
-    if (btn) btn.textContent = _timerPaused ? '▶ Resume' : '⏸ Pause';
+    _setTimerBtns(_timerPaused ? 'paused' : 'running');
     _setTimerStatus(_timerPaused ? 'Paused' : `Running — ${Config.get().timerDuration} min`);
   });
 
@@ -955,10 +988,20 @@ function _initTimer() {
     _resetTimerState();
     BC.postMessage({ type: 'timer-reset' });
     _sendToFrame('preview-frame', { type: 'timer-reset' });
-    const btn = document.getElementById('btn-timer-pause');
-    if (btn) btn.textContent = '⏸ Pause';
+    _setTimerBtns('idle');
     _setTimerStatus('Timer not running');
   });
+
+  setInterval(() => {
+    if (!_timerRunning || _timerPaused) return;
+    _timerSeconds = Math.max(0, _timerSeconds - 1);
+    _sendToFrame('preview-frame', { type: 'timer-sync-tick', seconds: _timerSeconds });
+    if (_timerSeconds === 0) {
+      _timerRunning = false;
+      _setTimerBtns('idle');
+      _setTimerStatus('Time up');
+    }
+  }, 1000);
 }
 
 function _startTimerSync() {
@@ -1011,6 +1054,7 @@ function _renderAnnPresets() {
         ${item.favourite ? '★' : '☆'}
       </button>
       <span class="chip-txt" title="${item.text}">${item.label || item.text}</span>
+      <button class="chip-rename" title="Rename">✎</button>
       <button class="chip-del" title="Delete">✕</button>
     `;
 
@@ -1024,10 +1068,12 @@ function _renderAnnPresets() {
       setTimeout(_renderAnnPresets, 50);
     });
 
-    // Double-click to rename
-    chip.querySelector('.chip-txt').addEventListener('dblclick', e => {
+    chip.querySelector('.chip-rename').addEventListener('click', e => {
       e.stopPropagation();
       _startChipRename(chip, item);
+    });
+
+    chip.querySelector('.chip-fav').addEventListener('click', e => {
     });
 
     // Favourite toggle

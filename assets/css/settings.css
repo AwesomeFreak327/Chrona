@@ -688,6 +688,12 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
   padding:2px 4px; border-radius:4px; flex-shrink:0;
 }
 .chip-del:hover { color:var(--danger); }
+.chip-rename {
+  font-size:.7rem; color:var(--txt3); background:none; border:none;
+  cursor:pointer; font-family:var(--fu);
+  padding:2px 4px; border-radius:4px; flex-shrink:0;
+}
+.chip-rename:hover { color:var(--accent); }
 .chip-empty { font-size:.71rem; color:var(--txt3); text-align:center; padding:10px 0; }
 
 /* Rename input — shown inline when rename mode is active */
