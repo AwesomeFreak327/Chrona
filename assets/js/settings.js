@@ -1717,4 +1717,4 @@ function _setConfigW(w) {
     maxWidth: `${w}px`,
     flexShrink: '0',
   });
-}
+}}
