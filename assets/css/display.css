@@ -448,8 +448,8 @@ body.theme-switching #halo::after  { opacity:1; }
   border:none;
   border-radius:0;
   padding: 0 4vw;
-  font-family: var(--font-clock);
-  font-style:italic;
+  font-family: var(--font-meta);
+  font-style:normal;
   font-weight:400;
   font-size: clamp(2rem, 5.5vw, 4.5rem);
   color: var(--clock-c);
@@ -506,18 +506,18 @@ body.theme-switching #halo::after  { opacity:1; }
     transform var(--dur-overlay, 900ms) var(--ease-out);
 }
 #stage.announcing #logo-area {
-  opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(-18vh) scale(0.35);
+  opacity: 0.2;
   transition:
-    opacity   var(--dur-overlay, 900ms) var(--ease-out),
-    transform var(--dur-overlay, 900ms) var(--ease-out);
+    transform var(--dur-overlay, 900ms) var(--ease-spring),
+    opacity   var(--dur-overlay, 900ms) var(--ease-out);
 }
 #stage:not(.announcing) #logo-area {
+  transform: translateY(0) scale(1);
   opacity: 1;
-  transform: translateY(0);
   transition:
-    opacity   var(--dur-overlay, 900ms) var(--ease-out),
-    transform var(--dur-overlay, 900ms) var(--ease-out);
+    transform var(--dur-overlay, 900ms) var(--ease-spring),
+    opacity   var(--dur-overlay, 900ms) var(--ease-out);
 }
 
 /* Timer fades during announcement if visible */

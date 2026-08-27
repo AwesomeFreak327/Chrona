@@ -228,10 +228,16 @@ function _sizeLbl(k, v) {
 /* ─────────────────────────────────────────────────────────────
    SAVE & BROADCAST
 ───────────────────────────────────────────────────────────── */
+let _lastPushedConfig = null;
+
 function _save(partial, label) {
   Config.set(partial, { label });
   if (_liveMode) {
     BC.postMessage({ type: 'config', config: Config.get() });
+    _lastPushedConfig = JSON.stringify(Config.get());
+    _updateLiveUI();
+  } else {
+    _updateLiveUI();
   }
   _pushToPreview();
   _applyAccent(Config.get().theme);
@@ -279,7 +285,9 @@ function _sendToFrame(id, msg) {
 
 function _pushLive() {
   BC.postMessage({ type: 'config', config: Config.get() });
+  _lastPushedConfig = JSON.stringify(Config.get());
   _pushToPreview();
+  _updateLiveUI();
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -789,6 +797,19 @@ function _initQuotes() {
     r.readAsText(f);
   });
 
+  function _updateFeedBtns() {
+    const hasQuotes = (Config.get().quotes?.length || 0) > 0;
+    const next  = document.getElementById('btn-quote-next');
+    const pause = document.getElementById('btn-quote-pause');
+    if (next)  next.disabled  = !hasQuotes;
+    if (pause) pause.disabled = !hasQuotes;
+    if (next)  next.style.opacity  = hasQuotes ? '' : '.4';
+    if (pause) pause.style.opacity = hasQuotes ? '' : '.4';
+  }
+
+  document.getElementById('quotesText')?.addEventListener('input', _updateFeedBtns);
+  _updateFeedBtns();
+
   // Manual controls (next + pause) — broadcast to display
   document.getElementById('btn-quote-next')?.addEventListener('click', () => {
     BC.postMessage({ type: 'quote-next' });
@@ -1275,9 +1296,11 @@ function _updateLiveUI() {
     if (txt)   txt.textContent = 'Preview only';
     if (panel) { panel.classList.add('is-preview'); panel.classList.remove('is-live'); }
   } else {
-    if (btn)   { btn.textContent = '● Live'; btn.classList.add('active'); }
+    const currentConfig = JSON.stringify(Config.get());
+    const inSync = !_lastPushedConfig || _lastPushedConfig === currentConfig;
+    if (btn)   { btn.textContent = inSync ? '● Live' : '● Live*'; btn.classList.add('active'); }
     if (dot)   { dot.classList.remove('offline','preview'); }
-    if (txt)   txt.textContent = 'Live';
+    if (txt)   txt.textContent = inSync ? 'Live' : 'Changes pending';
     if (panel) { panel.classList.add('is-live'); panel.classList.remove('is-preview'); }
   }
 
@@ -1626,11 +1649,16 @@ function _initKeyNav() {
     '5':'background','6':'sizing','7':'feed','8':'weather',
     '9':'overlay','0':'advanced',
   };
+  const ALPHA_MAP = { 'h':'history', 's':'presenter', 'a':'about' };
   document.addEventListener('keydown', e => {
     // Don't intercept when user is typing in a form field
     if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
     if (e.altKey && MAP[e.key]) {
       document.querySelector(`.nav-item[data-panel="${MAP[e.key]}"]`)?.click();
+      e.preventDefault();
+    }
+    if (e.altKey && ALPHA_MAP[e.key.toLowerCase()]) {
+      document.querySelector(`.nav-item[data-panel="${ALPHA_MAP[e.key.toLowerCase()]}"]`)?.click();
       e.preventDefault();
     }
     if ((e.key === 'p' || e.key === 'P') && !e.altKey && !e.ctrlKey && !e.metaKey) {
