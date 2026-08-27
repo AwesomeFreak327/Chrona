@@ -32,7 +32,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Build dynamic UI sections
   _buildTimezoneSelect();
+
+  const initialMode = THEMES[Config.get().theme]?.mode || 'dark';
+  const _themeGrid = document.getElementById('theme-grid');
+  if (_themeGrid) _themeGrid.dataset.mode = initialMode;
+
   _buildThemeGrid();
+
+  document.querySelectorAll('[data-theme-mode]').forEach(b =>
+    b.classList.toggle('active', b.dataset.themeMode === initialMode)
+  );
 
   document.querySelectorAll('[data-theme-mode]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -60,13 +69,6 @@ window.addEventListener('DOMContentLoaded', () => {
       _buildThemeGrid();
     });
   });
-
-  const initialMode = THEMES[Config.get().theme]?.mode || 'dark';
-  const grid = document.getElementById('theme-grid');
-  if (grid) grid.dataset.mode = initialMode;
-  document.querySelectorAll('[data-theme-mode]').forEach(b =>
-    b.classList.toggle('active', b.dataset.themeMode === initialMode)
-  );
 
   _buildFontSlots();
   _buildCustomFontInputs();
@@ -152,6 +154,10 @@ function _populateUI() {
     _sv(k, cfg[k] ?? 1);
     _sizeLbl(k, cfg[k] ?? 1);
   });
+  _sv('presenterScale', cfg.presenterScale ?? 1);
+  _sizeLbl('presenterScale', cfg.presenterScale ?? 1);
+  _sv('presenterInvert', cfg.presenterInvert ?? false);
+  _sv('presenterLinked', cfg.presenterLinked !== false);
 
   // Slider display labels
   ['wmOpacity','wmSpacing','wmSpeed'].forEach(k => _lbl(k+'-val', cfg[k] || 4));
@@ -295,6 +301,7 @@ function _bind(id, key, transform) {
 // (called from the single DOMContentLoaded block above via inline setup)
 /* ── Simple bindings — wired directly, no wrapper needed ── */
 function _wireSimpleBindings() {
+    _bind('presenterLinked', 'presenterLinked');
   ['orgName','showOrgName','showLogo','showSeconds','showAmPm',
    'showWeather','showQuotes','wmText','overlayText',
    'burnIn','autoFullscreen','smoothAnimations',
@@ -641,6 +648,16 @@ function _buildTimezoneSelect() {
     if (tz.disabled) opt.disabled = true;
     sel.appendChild(opt);
   });
+  const saved = Config.get().timezone;
+  if (saved && saved !== 'auto') {
+    const exists = Array.from(sel.options).some(o => o.value === saved);
+    if (!exists) {
+      const opt = document.createElement('option');
+      opt.value = saved;
+      opt.textContent = saved;
+      sel.appendChild(opt);
+    }
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -913,8 +930,9 @@ function _initOverlay() {
     BC.postMessage({ type: 'overlay-cancel' });
     _sendToFrame('preview-frame', { type: 'overlay-cancel' });
   });
-function _initTimer() {
+}
 
+function _initTimer() {
   document.getElementById('btn-save-preset')?.addEventListener('click', () => {
     const text = document.getElementById('overlayText')?.value.trim();
     if (!text) return;
@@ -1512,6 +1530,18 @@ let _presenterWin = null;
 let _presenterCheck = null;
 
 function _initPresenter() {
+  const scaleEl = document.getElementById('presenterScale');
+  scaleEl?.addEventListener('input', function() {
+    const v = parseFloat(this.value);
+    _sizeLbl('presenterScale', v);
+    _save({ presenterScale: v });
+    BC.postMessage({ type: 'presenter-scale', scale: v });
+  });
+
+  document.getElementById('presenterInvert')?.addEventListener('change', function() {
+    _save({ presenterInvert: this.checked });
+    BC.postMessage({ type: 'presenter-invert', inverted: this.checked });
+  });
   document.getElementById('btn-open-presenter')?.addEventListener('click', () => {
     if (_presenterWin && !_presenterWin.closed) {
       _presenterWin.focus();
@@ -1717,4 +1747,4 @@ function _setConfigW(w) {
     maxWidth: `${w}px`,
     flexShrink: '0',
   });
-}}
+}

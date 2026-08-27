@@ -46,7 +46,7 @@
   }
   #timer-display {
     font-family: var(--font-clock, 'Orbitron', monospace);
-    font-size:clamp(4rem, 16vw, 11rem);
+    font-size:calc(clamp(4rem, 16vw, 11rem) * var(--p-scale, 1));
     font-weight:700; letter-spacing:.04em;
     color:#fff; line-height:1;
   }
@@ -83,7 +83,7 @@
   /* When timer is inactive — clock becomes dominant */
   #clock-wrap.dominant #clock-display {
     font-family: var(--font-clock, 'Cormorant Garamond', Georgia, serif);
-    font-size:clamp(4rem, 16vw, 11rem);
+    font-size:calc(clamp(4rem, 16vw, 11rem) * var(--p-scale, 1));
     font-weight:400; letter-spacing:-.02em;
     color:#fff;
   }
@@ -185,6 +185,13 @@
   <div id="clock-wrap">
     <div class="label">Current Time</div>
     <div id="clock-display">—:——</div>
+    <div id="date-display" style="
+      font-family:var(--font-meta,'Inter',system-ui,sans-serif);
+      font-size:calc(clamp(.65rem,1.4vw,.95rem) * var(--p-scale,1));
+      color:rgba(255,255,255,.35);
+      letter-spacing:.08em;
+      margin-top:.6vh;
+    "></div>
   </div>
 
 </div>
@@ -225,6 +232,9 @@ const el = {
 };
 
 /* ── CLOCK ── */
+const DAYS_P   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS_P = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
 function _tickClock() {
   const now = new Date();
   const h   = now.getHours() % 12 || 12;
@@ -232,6 +242,8 @@ function _tickClock() {
   const s   = now.getSeconds();
   const pm  = now.getHours() >= 12 ? 'PM' : 'AM';
   el.clockDisp.innerHTML = `${pad(h)}:${pad(m)}:${pad(s)}<span style="font-size:.35em;letter-spacing:.18em;margin-left:.3em;vertical-align:super;opacity:.6">${pm}</span>`;
+  const dateEl = document.getElementById('date-display');
+  if (dateEl) dateEl.textContent = `${DAYS_P[now.getDay()]}, ${MONTHS_P[now.getMonth()]} ${now.getDate()}`;
 }
 _tickClock();
 _renderTimer();
@@ -293,8 +305,15 @@ function _timerTick() {
 }
 
 /* ── CONNECT ── */
-function _setConnected() {
+function _setConnected(fromConfig) {
   if (_connected) return;
+  const cfg = fromConfig || {};
+  if (cfg.presenterLinked === false) {
+    _connected = true;
+    el.notConn.classList.add('hidden');
+    el.stage.style.display = 'flex';
+    return;
+  }
   _connected = true;
   el.notConn.classList.add('hidden');
   el.stage.style.display = 'flex';
@@ -338,7 +357,11 @@ BC.onmessage = e => {
       _timerRunning    = true;
       _timerPaused     = false;
       _renderTimer();
-      _timerInterval   = setInterval(_timerTick, 500);
+      const _msToNext = 1000 - (Date.now() % 1000);
+      setTimeout(() => {
+        _timerTick();
+        _timerInterval = setInterval(_timerTick, 1000);
+      }, _msToNext);
       break;
 
     case 'timer-pause':
@@ -381,6 +404,16 @@ BC.onmessage = e => {
       el.annWrap.classList.remove('visible');
       if (_annTimer) { clearTimeout(_annTimer); _annTimer = null; }
       break;
+
+    case 'presenter-scale':
+      document.documentElement.style.setProperty('--p-scale', d.scale);
+      break;
+
+    case 'presenter-invert':
+      document.body.classList.toggle('inverted', !!d.inverted);
+      const btn = document.getElementById('invert-btn');
+      if (btn) btn.textContent = d.inverted ? '☾ Dark' : '☀ Light';
+      break;
   }
 };
 
@@ -398,6 +431,14 @@ document.getElementById('invert-btn')?.addEventListener('click', function() {
   const inv = document.body.classList.toggle('inverted');
   this.textContent = inv ? '☾ Dark' : '☀ Light';
 });
+(function() {
+  try {
+    const cfg = JSON.parse(localStorage.getItem('chrona_config') || '{}');
+    if (cfg.presenterLinked === false) {
+      _setConnected({});
+    }
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>

@@ -645,6 +645,18 @@
       </div>
       <p class="field-hint" style="margin-top:-8px">Fluid theme and font transitions. Disable on older hardware to reduce GPU load.</p>
 
+      <div class="tog-row">
+        <span class="tog-lbl">
+          Link stage monitor to display
+          <span class="tip" data-tip="When on, stage monitor requires display to be active. Turn off to run stage monitor independently.">i</span>
+        </span>
+        <label class="tog">
+          <input type="checkbox" id="presenterLinked" checked>
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+      <p class="field-hint" style="margin-top:-8px">Off: stage monitor runs standalone without needing the display open.</p>
+
       <div class="info-box">
         <b>Multi-monitor</b><br>
         Open the display, drag its window to the projector or secondary screen,
@@ -698,17 +710,32 @@
     <!-- ── PRESENTER ── -->
     <div class="config-section" id="panel-presenter">
       <div class="sec-title">Stage Monitor</div>
-      <p style="font-size:.71rem;color:var(--txt3);line-height:1.6;margin-bottom:4px">
-        Opens a minimal stage-facing screen showing the countdown timer and current time.
-        Designed for a small monitor or tablet facing the speaker — not the audience.
-      </p>
+
       <button class="act-btn" id="btn-open-presenter" style="width:100%">
         ↗ Open Stage Monitor
       </button>
-      <div class="info-box" style="margin-top:4px">
-        <b>How to use:</b> Open this on a second screen or tablet facing the stage.
-        It stays in sync with the main display automatically via the same channel.
-        Timer, current time, and scheduled announcements are shown.
+
+      <div class="field">
+        <label class="lbl">Display size</label>
+        <p class="field-hint">Scale the clock and timer text on the stage monitor.</p>
+        <div class="slider-row">
+          <input type="range" id="presenterScale" min="0.5" max="2.0" step="0.05" value="1">
+          <span class="slider-val" id="presenterScale-val">1.0×</span>
+        </div>
+      </div>
+
+      <div class="tog-row">
+        <span class="tog-lbl">Light background</span>
+        <label class="tog">
+          <input type="checkbox" id="presenterInvert">
+          <div class="tog-track"></div><div class="tog-thumb"></div>
+        </label>
+      </div>
+
+      <div class="info-box">
+        <b>How to use:</b> Open on a tablet or monitor facing the stage speaker.
+        Syncs automatically. Timer, clock, and announcements are shown.
+        Fonts follow your display font settings.
       </div>
     </div>
     

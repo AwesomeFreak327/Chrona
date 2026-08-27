@@ -106,10 +106,13 @@ const DEFAULTS = {
   annScheduleText:    '',
   // countdown timer
   timerEnabled:     false,
-  timerDuration:    120,   // in minutes
-  timerStartTime:   '',    // 'HH:MM' 24h format — empty means manual start
-  timerAutoStart:   false, // auto-start when clock reaches timerStartTime
-  scaleTimer:       1,     // sizing multiplier
+  timerDuration:    120,
+  timerStartTime:   '',
+  timerAutoStart:   false, 
+  scaleTimer:       1,
+  presenterScale:   1,
+  presenterInvert:  false,
+  presenterLinked:  true,
 };
 
 /* ── FONT REGISTRY ────────────────────────────────────────── */
