@@ -320,6 +320,7 @@ body.theme-switching #halo::after  { opacity:1; }
   letter-spacing:-.02em;
   text-align:center;
   user-select:none;
+  text-shadow: 0 2px 24px rgba(0,0,0,.18);
 }
 #ampm {
   font-family: var(--font-clock);
@@ -422,6 +423,7 @@ body.theme-switching #halo::after  { opacity:1; }
   color: var(--quote-c);
   line-height:1.6;
   opacity: var(--q-op);
+  text-shadow: 0 1px 12px rgba(0,0,0,.15);
 }
 #quote-src {
   font-family: var(--font-quote-src);

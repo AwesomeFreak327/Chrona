@@ -157,6 +157,9 @@ function _populateUI() {
   _sv('presenterScale', cfg.presenterScale ?? 1);
   _sizeLbl('presenterScale', cfg.presenterScale ?? 1);
   _sv('presenterInvert', cfg.presenterInvert ?? false);
+  const dur = cfg.timerDuration || 120;
+  _sv('timerHours',   Math.floor(dur / 60));
+  _sv('timerMinutes', dur % 60);
   _sv('presenterLinked', cfg.presenterLinked !== false);
 
   // Slider display labels
@@ -558,7 +561,7 @@ function _buildCustomFontInputs() {
 
   const hint = document.createElement('p');
   hint.className = 'field-hint';
-  hint.textContent = 'Paste a Google Fonts URL to use any font not in the list above. One per slot.';
+  hint.textContent = 'Paste the Google Fonts embed URL — not the specimen page. On fonts.google.com, select a font → Get embed code → copy the URL from inside href="".';
   area.appendChild(hint);
 
   slots.forEach(slot => {
@@ -993,6 +996,15 @@ function _initTimer() {
       if (reset) reset.style.display = '';
     }
   }
+
+  function _syncTimerDuration() {
+    const h = parseInt(document.getElementById('timerHours')?.value  || 0);
+    const m = parseInt(document.getElementById('timerMinutes')?.value || 0);
+    const total = (h * 60) + m;
+    _save({ timerDuration: Math.max(1, total) });
+  }
+  document.getElementById('timerHours')?.addEventListener('change', _syncTimerDuration);
+  document.getElementById('timerMinutes')?.addEventListener('change', _syncTimerDuration);
 
   document.getElementById('btn-timer-start')?.addEventListener('click', () => {
     if (!Config.get().timerEnabled) return;

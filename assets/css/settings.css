@@ -322,6 +322,31 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
 }
 .ctrl-btn.danger { border-color:rgba(248,113,113,.3); color:var(--danger); }
 .ctrl-btn.danger:hover { background:rgba(248,113,113,.08); border-color:var(--danger); }
+#btn-present,
+.act-btn,
+.ctrl-btn,
+.ghost-btn,
+.danger-btn,
+#btn-live-toggle,
+#btn-push {
+  transition:
+    background-color var(--dur-fast, 180ms) ease,
+    border-color     var(--dur-fast, 180ms) ease,
+    color            var(--dur-fast, 180ms) ease,
+    opacity          var(--dur-fast, 180ms) ease,
+    transform        var(--dur-fast, 180ms) ease,
+    box-shadow       var(--dur-fast, 180ms) ease;
+}
+
+.act-btn:active,
+.ctrl-btn:active,
+.ghost-btn:active,
+.danger-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+#btn-live-toggle:hover { filter:brightness(1.12); }
+#btn-push:hover        { filter:brightness(1.12); }
 
 /* Live indicator dot */
 .live-row {
