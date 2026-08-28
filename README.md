@@ -15,8 +15,6 @@ No framework, no backend, no build tools.
 Hosted on GitHub Pages. Works offline after first load.
 
 Live URL: https://AwesomeFreak327.github.io/Chrona/
-Repository: https://github.com/AwesomeFreak327/Chrona
-Developer: Joshua (AwesomeFreak327)
 
 ---
 
