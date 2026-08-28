@@ -14,6 +14,10 @@ const KEYS = {
   configW:   'chrona_config_w',
   cities:    'chrona_saved_cities',
 };
+let _idCounter = 0;
+function _uid() {
+  return Date.now() * 1000 + (++_idCounter % 1000);
+}
 
 /* ── ANIMATION TIMING TOKENS ─────────────────────────────── */
 /* Single source of truth for all durations.
@@ -406,11 +410,51 @@ const THEMES = {
   },
 };
 
+/* ─────────────────────────────────────────────────── */
+function _normalizeConfig(raw) {
+  const out = {};
+  const bools = ['showLogo','showOrgName','showSeconds','showAmPm',
+    'showWeather','showQuotes','burnIn','autoFullscreen','smoothAnimations',
+    'liveMode','timerEnabled','timerAutoStart','annScheduleEnabled',
+    'presenterInvert','presenterLinked','quotePaused'];
+  const nums = ['quoteInterval','quoteOpacity','quoteSrcOpacity',
+    'wmOpacity','wmSpacing','wmSpeed',
+    'scaleLogo','scaleClock','scaleMeta','scaleQuote','scaleWmFont',
+    'scaleTimer','presenterScale','overlayDuration','timerDuration'];
+  const validThemes = Object.keys(THEMES);
+
+  for (const key of Object.keys(DEFAULTS)) {
+    const val = raw[key];
+    if (val === undefined) continue;
+
+    if (bools.includes(key)) {
+      out[key] = !!val;
+    } else if (nums.includes(key)) {
+      const n = Number(val);
+      out[key] = isNaN(n) ? DEFAULTS[key] : n;
+    } else if (key === 'theme') {
+      out[key] = validThemes.includes(val) ? val : DEFAULTS.theme;
+    } else if (key === 'quotes') {
+      out[key] = Array.isArray(val) ? val : DEFAULTS.quotes;
+    } else if (key === 'customFonts') {
+      out[key] = (val && typeof val === 'object' && !Array.isArray(val))
+        ? val : {};
+    } else if (key === 'logoData') {
+      out[key] = typeof val === 'string' ? val : '';
+    } else {
+      out[key] = val;
+    }
+  }
+  return out;
+}
+
 /* ── CONFIG ───────────────────────────────────────────────── */
 const Config = {
   _state: { ...DEFAULTS },
 
-  get() { return { ...this._state }; },
+  get() {
+    return JSON.parse(JSON.stringify(this._state));
+  },
 
   set(partial, opts = {}) {
     this._state = { ...this._state, ...partial };
@@ -428,8 +472,13 @@ const Config = {
   load() {
     try {
       const raw = localStorage.getItem(KEYS.config);
-      if (raw) this._state = { ...DEFAULTS, ...JSON.parse(raw) };
-    } catch(e) { /* corrupt storage — fall back to defaults silently */ }
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          this._state = { ...DEFAULTS, ..._normalizeConfig(parsed) };
+        }
+      }
+    } catch(e) {}
     return this._state;
   },
 
@@ -460,10 +509,15 @@ const Config = {
       scaleMeta:      'Meta size adjusted',
       scaleQuote:     'Quote size adjusted',
       scaleWmFont:    'Watermark size adjusted',
+      scaleTimer:     'Timer size adjusted',
+      presenterScale: 'Stage monitor size adjusted',
       wmOpacity:      'Watermark opacity adjusted',
       wmSpeed:        'Watermark speed adjusted',
+      wmSpacing:      'Watermark spacing adjusted',
       wmText:         'Watermark text changed',
       orgName:        'Organisation name changed',
+      showLogo:       'Logo toggled',
+      showOrgName:    'Org name toggled',
       showSeconds:    'Seconds toggled',
       showAmPm:       'AM/PM toggled',
       showQuotes:     'Feed toggled',
@@ -474,7 +528,20 @@ const Config = {
       quoteSrcOpacity:'Source opacity adjusted',
       burnIn:         'Burn-in prevention toggled',
       smoothAnimations:'Smooth animations toggled',
+      autoFullscreen: 'Auto fullscreen toggled',
       timezone:       'Timezone changed',
+      weatherCity:    'Weather city changed',
+      timerEnabled:   'Timer toggled',
+      timerDuration:  'Timer duration changed',
+      timerStartTime: 'Timer schedule changed',
+      timerAutoStart: 'Timer auto-start toggled',
+      overlayDuration:'Announcement duration changed',
+      annScheduleEnabled:'Scheduled announcement toggled',
+      annScheduleTime:'Announcement schedule changed',
+      annScheduleText:'Announcement message changed',
+      presenterInvert:'Stage monitor theme changed',
+      presenterLinked:'Stage monitor link toggled',
+      customFonts:    'Custom font updated',
     };
     return MAP[key] || 'Settings changed';
   },
@@ -499,7 +566,7 @@ const History = {
     // saved in config. Including it would bloat history by ~100KB+ per entry.
     const snapshot = JSON.parse(JSON.stringify({ ...state, logoData: '[[stored]]' }));
     const entry = {
-      id:    Date.now(),
+      id:    _uid(),
       ts:    new Date().toISOString(),
       label: label || 'Changed',
       state: snapshot,
@@ -546,12 +613,20 @@ const Announcements = {
       const raw = localStorage.getItem(KEYS.presets);
       if (raw) {
         const parsed = JSON.parse(raw);
-        // Migrate from old plain-string format if needed
-        this._items = parsed.map(item =>
-          typeof item === 'string'
-            ? { id: Date.now() + Math.random(), text: item, label: item, favourite: false, usedAt: null }
-            : item
-        );
+        if (Array.isArray(parsed)) {
+          this._items = parsed
+            .map(item => typeof item === 'string'
+              ? { id: _uid(), text: item.trim(), label: item.trim(), favourite: false, usedAt: null }
+              : {
+                  id:        typeof item.id === 'number' ? item.id : _uid(),
+                  text:      typeof item.text === 'string' ? item.text.trim() : '',
+                  label:     typeof item.label === 'string' ? item.label.trim() : (item.text || '').trim(),
+                  favourite: !!item.favourite,
+                  usedAt:    typeof item.usedAt === 'string' ? item.usedAt : null,
+                }
+            )
+            .filter(item => item.text.length > 0);
+        }
       }
     } catch(e) {}
     return this._items;
@@ -563,7 +638,7 @@ const Announcements = {
     // prevent exact duplicates
     if (this._items.find(i => i.text === trimmed)) return null;
     const item = {
-      id:        Date.now(),
+      id:        _uid(),
       text:      trimmed,
       label:     (label || trimmed).trim(),
       favourite: false,
@@ -617,7 +692,14 @@ const Cities = {
   load() {
     try {
       const raw = localStorage.getItem(KEYS.cities);
-      if (raw) this._items = JSON.parse(raw);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          this._items = parsed
+            .filter(c => c && typeof c.name === 'string' && c.name.trim())
+            .map(c => ({ name: c.name.trim() }));
+        }
+      }
     } catch(e) {}
     return this._items;
   },
