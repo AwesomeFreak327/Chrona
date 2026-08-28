@@ -1,282 +1,275 @@
-# Chrona
-
-**Ambient Display Platform for Institutional Spaces**
-
-Chrona is a lightweight, browser-based ambient display designed for auditoriums, examination halls, lobbies, and event spaces. It shows time, date, institutional branding, and contextual messages in a calm, cinematic way — built for projectors, LED walls, and large screens.
+# Chrona v1.0 — Developer Context Document
+**For AI assistant handoff. Last updated: August 2026.**
 
 ---
 
-## Quick Start
+## What Chrona Is
 
-1. Download or clone the repository
-2. Keep all files in the same folder — do not move them separately
-3. Open `index.html` in Google Chrome
-4. Configure your display using the settings panel
-5. Click **Present** to open the display window
-6. Drag the display window to your projector or second screen
-7. Press **F** inside the display window to fullscreen it
+Chrona is a browser-based ambient institutional display platform.
+It runs on a projector or large screen during examinations, assemblies,
+and institutional events. It shows a large clock, branding, weather,
+a quote/message feed, and a countdown timer.
 
-No server required. No installation. Works offline after first load.
+Built entirely in vanilla HTML, CSS, and JavaScript.
+No framework, no backend, no build tools.
+Hosted on GitHub Pages. Works offline after first load.
 
----
-
-## File Structure
-
-```
-chrona/
-├── index.html              Settings and control panel
-├── display.html            Presentation output screen
-├── assets/
-│   ├── css/
-│   │   ├── settings.css    Settings page styles
-│   │   └── display.css     Display screen styles + all themes
-│   ├── js/
-│   │   ├── config.js       Shared state, font registry, history, persistence
-│   │   ├── watermark.js    Isolated watermark animation module
-│   │   ├── settings.js     Settings page logic
-│   │   └── display.js      Display screen logic
-│   └── fonts/              Reserved for local font files (future)
-├── CHANGELOG.txt           Personal build history (internal)
-└── README.md               This file
-```
-
----
-
-## Features
-
-### Display
-
-**Clock**
-- Large serif display clock, centered on screen
-- 12-hour format with optional seconds display
-- Optional AM/PM indicator
-- Timezone support — system auto-detect or manual selection from 35 global zones
-
-**Date & Weather**
-- Full date in the format: Saturday, May 16, 2026
-- Optional weather widget inline with the date row
-- Weather via wttr.in — hides gracefully when offline
-- No broken layout when any feature is unavailable
-
-**Quote / Message Feed**
-- Rotating quotes or institutional messages
-- Elegant fade transition between entries (no scrolling ticker)
-- Accepts plain text with ` - `, `—`, or `--` as source separators
-- Upload `.txt` or `.json` files
-- Manual next button and pause/resume from settings
-- Independent opacity controls for quote text and source line
-- Center or left alignment
-
-**Announcements**
-- Slide-in pill overlay at the bottom of the display
-- Configurable duration (3–30 seconds)
-- Send instantly from settings or from saved presets
-- Cancel button to dismiss immediately
-
-**Branding**
-- Organisation name in small caps
-- Logo upload (any format, original proportions preserved, no cropping)
-- Both or either can be shown independently
-
-**Watermark Background**
-- Diagonal repeating text in alternating row directions
-- Seamless continuous motion — no visible reset at any speed
-- Fully theme-aware color
-- Configurable: text content, opacity, line spacing, motion speed, text scale
-
----
-
-### Themes (14)
-
-| Name      | Character                        |
-|-----------|----------------------------------|
-| Eclipse   | Deep violet — default            |
-| Minimal   | Light warm grey                  |
-| Ambient   | Deep navy blue                   |
-| Glass     | Dark blue-slate                  |
-| Horizon   | Warm amber-dark                  |
-| Monolith  | Pure black and white             |
-| Ash       | Warm charcoal                    |
-| Dusk      | Deep rose-violet                 |
-| Nordic    | Light cool blue-white            |
-| Ember     | Deep red-amber                   |
-| Forest    | Dark green                       |
-| Slate     | Cool industrial grey             |
-| Ivory     | Warm cream-white                 |
-| Void      | Deep dark navy                   |
-
-Each theme controls background, clock color, watermark color, glow, and halo fog. The settings panel accent color also adapts to the active theme.
-
----
-
-### Typography (5 independent font slots)
-
-| Slot         | Purpose                              |
-|--------------|--------------------------------------|
-| Clock        | Large display numerals               |
-| Date/Weather | Supporting information row           |
-| Quote Text   | Feed message body                    |
-| Quote Source | Attribution / reference line         |
-| Watermark    | Background repeating text            |
-
-**Clock fonts** (projection-safe serifs):
-Cormorant Garamond, EB Garamond, Bodoni Moda, Playfair Display, Libre Baskerville, Fraunces
-
-**UI / supporting fonts** (projection-safe sans-serifs):
-Inter, DM Sans, Source Sans 3, Lato, IBM Plex Sans, Outfit
-
-**Reading fonts** (for quote text):
-EB Garamond, Lora, Merriweather, Cormorant Garamond, Inter, DM Sans
-
-All fonts load from Google Fonts with graceful degradation to system fonts when offline.
-
----
-
-### Sizing
-
-Each display element can be scaled independently:
-
-| Element        | Range     | Presets                      |
-|----------------|-----------|------------------------------|
-| Logo           | 0.4× – 2.5× | Small, Default, Large, Wide |
-| Clock          | 0.5× – 2.0× | Small, Default, Large, Massive |
-| Date/Weather   | 0.5× – 2.0× | Small, Default, Large        |
-| Quote/Feed     | 0.5× – 2.0× | Small, Default, Large        |
-| Watermark text | 0.4× – 4.0× | Fine, Default, Bold, Display |
-
----
-
-### Settings Panel
-
-**3-column layout:**
-- Left sidebar: navigation + present controls
-- Center: configuration panel (resizable via drag divider)
-- Right: live 16:9 preview (1920×1080 internal, scaled to fit)
-
-**Live / Preview mode:**
-- Live mode: every change pushes immediately to the display
-- Preview mode: changes only apply when you click "Push to Display" — useful when adjusting settings mid-presentation
-
-**Fullscreen test:**
-- "Test Fullscreen" button opens the display in a fullscreen overlay on the admin's screen without affecting the projector output
-- Press ESC or click Exit to return to settings
-
-**Keyboard shortcuts** (visible on hover, hidden at rest):
-
-| Key     | Action                     |
-|---------|----------------------------|
-| Alt+1   | Go to Branding             |
-| Alt+2   | Go to Clock                |
-| Alt+3   | Go to Appearance           |
-| Alt+4   | Go to Fonts                |
-| Alt+5   | Go to Background           |
-| Alt+6   | Go to Sizing               |
-| Alt+7   | Go to Feed                 |
-| Alt+8   | Go to Weather              |
-| Alt+9   | Go to Announcements        |
-| Alt+0   | Go to Advanced             |
-| P       | Present                    |
-| F       | Fullscreen (display window)|
-
----
-
-### Present Controls
-
-| Control        | Description                                           |
-|----------------|-------------------------------------------------------|
-| ▶ Present      | Opens the display window                              |
-| ⏸ Pause        | Fades out foreground (clock, text) — watermark runs  |
-| ■ Blank        | Completely blanks the display screen                  |
-| ● Live toggle  | Switches between live push and manual push mode       |
-| Push to Display| Manually pushes current settings (in preview mode)   |
-
----
-
-### System Features
-
-**History**
-- Every config change is logged with a timestamp and label
-- Up to 40 entries stored locally
-- Click any entry to restore that exact state
-- Delete individual entries or clear all
-- Works like browser history — non-destructive exploration
-
-**Burn-in prevention**
-- Subtly shifts the layout by a few pixels every 4 minutes
-- Recommended for LED walls and OLED displays
-- Completely invisible to audience
-
-**Smooth animations toggle**
-- Enables fluid transitions across theme changes, font swaps, and size adjustments
-- Disable on low-spec or older hardware to reduce GPU load
-
-**Export / Import**
-- Export full configuration as `.json`
-- Import configuration from a saved `.json` file
-- Useful for transferring settings between machines
-
-**Reset**
-- Two-step confirmation before clearing
-- Clears all settings, presets, saved cities, and history
-
----
-
-### Offline Behavior
-
-Chrona is designed to work gracefully without internet:
-
-| Feature        | Offline behavior                                   |
-|----------------|----------------------------------------------------|
-| Clock & date   | Always works — system time                        |
-| Config & presets | Always works — localStorage                    |
-| History        | Always works — localStorage                       |
-| Fonts          | Falls back to system serif/sans-serif             |
-| Weather        | Hides cleanly — no broken layout                  |
-| Watermark      | Always works — canvas animation                   |
-| Logo           | Always works — stored as base64 in localStorage   |
-
----
-
-## Multi-Monitor Workflow
-
-1. Open `index.html` in Chrome on your primary screen
-2. Click **Present** — the display window opens
-3. Drag the display window to your projector or secondary screen
-4. Click inside the display window and press **F** to fullscreen
-5. Return to your primary screen — settings panel remains there
-6. Make changes in Live mode — they push to the display instantly
-7. Use **Pause** or **Blank** when needed without closing the window
-
----
-
-## Deployment Notes
-
-- Recommended browser: Google Chrome (latest)
-- All files must remain in the same folder structure
-- For GitHub Pages: push the entire folder, set Pages to serve from root
-- The `display.html` and `index.html` must be in the same directory for the Present button to work
-- BroadcastChannel API requires both pages to be on the same origin
+Live URL: https://AwesomeFreak327.github.io/Chrona/
+Repository: https://github.com/AwesomeFreak327/Chrona
+Developer: Joshua (AwesomeFreak327)
 
 ---
 
 ## Design Philosophy
 
-Chrona was designed around one principle: **restraint**.
-
-The clock is large because presence matters. The background moves slowly because stillness without motion becomes hollow. The typography is chosen because craft signals care. The animations are subtle because elegance is not the same as spectacle.
-
-This is not a feature-maximising dashboard. It is an ambient presence — designed to belong to a room, not to demand attention from it.
-
----
-
-## Credits
-
-Chrona v1.0  
-Designed & developed by **AwesomeFreak**  
-[github.com/AwesomeFreak](https://github.com/AwesomeFreak)
+- Calm, cinematic, ambient — not flashy or busy
+- Think airport premium displays, Apple event screens
+- Every animation decision is restrained by intention
+- Quality and consistency matter more than speed of delivery
+- Solve real institutional problems simply
 
 ---
 
-## License
+## File Structure
+```bash
+Chrona/
+├── index.html Settings and control panel (admin screen)
+├── display.html Presentation output screen (projector)
+├── presenter.html Stage monitor (speaker-facing screen)
+├── favicon.svg SVG favicon
+├── assets/
+│ ├── css/
+│ │ ├── settings.css
+│ │ └── display.css
+│ ├── js/
+│ │ ├── config.js Shared state, THEMES, FONTS, DEFAULTS,
+│ │ │ Config, History, Announcements, Cities,
+│ │ │ BC (BroadcastChannel), helpers
+│ │ ├── watermark.js Isolated canvas animation module
+│ │ ├── display.js Display screen runtime logic
+│ │ └── settings.js Settings page logic
+│ └── fonts/ Reserved for local woff2 (offline use)
+├── README.md
+└── CHANGELOG.txt
+```
 
-Personal / institutional use. Not for redistribution without permission.
+---
+
+## Architecture
+
+**Communication:**
+- BroadcastChannel API ('chrona_v1') — between index.html and display.html
+- postMessage — between index.html and the preview iframe
+- Both channels used in parallel: BC for real display window,
+  postMessage for preview iframe inside settings page
+
+**Persistence:**
+- localStorage for all config, history, presets, cities, custom fonts
+- No server, no accounts, no cloud sync
+
+**Three pages:**
+1. index.html — settings panel + live preview iframe of display.html
+2. display.html — the actual projector output, opened via window.open()
+3. presenter.html — stage monitor, opened separately, syncs via BC
+
+---
+
+## Key Systems
+
+### Config (config.js)
+- `Config.get/set/load/reset` — single source of truth
+- `DEFAULTS` — every config key with its default value
+- `History` — 40-entry ring buffer, omits logoData from snapshots
+- `Announcements` — CRUD with favourite, rename, usedAt
+- `Cities` — saved weather cities
+- `DURATION` — animation timing tokens, injected as CSS custom props
+- `THEMES` — 16 themes (8 colour families × dark/light)
+- `FONTS` — 5 font slots (clock, meta, quote, quoteSrc, wm)
+- `BC` — shared BroadcastChannel instance
+
+### Theme System
+8 colour families, each with a dark and light variant = 16 themes total.
+Each theme has: label, family, mode ('dark'/'light'), pair (the other mode's key),
+bg, clock, wm (RGB string), halo (rgba string), accent.
+
+Families: violet, blue, teal, green, amber, red, pink, slate
+
+Dark themes: eclipse, midnight, abyss, forest, horizon, ember, dusk, void
+Light themes: lavender, skyline, seafoam, sage, gilded, scarlet, blossom, paper
+
+Settings page has a Dark/Light toggle that switches the entire theme grid
+and auto-pairs — if Eclipse (violet dark) is active and user switches to
+Light, it automatically applies Lavender (violet light).
+
+Settings page itself has its own separate dark/light/auto theme
+(stored in localStorage as 'chrona_settings_theme').
+
+### Font System
+5 independent font slots. Each has a curated list in FONTS registry.
+Font URLs are Google Fonts CDN links loaded on demand via loadFont().
+Custom fonts supported: user pastes a Google Fonts embed URL,
+name is extracted from URL, font is loaded and added to registry.
+Custom fonts saved in config.customFonts per slot.
+
+Clock slot requires lining numerals — avoid old-style numeral fonts
+(Cormorant Garamond, EB Garamond, Lora at large sizes).
+
+### Watermark (watermark.js)
+Canvas-based diagonal animation. Public API: start(), update(), pause(), resume().
+Offset accumulates as a continuous float — never resets.
+Pause freezes the canvas frame. Resume restarts from same offset.
+Font, colour, speed, opacity all update without restarting the loop.
+
+### Timer
+Wall-clock math — NOT a countdown variable.
+Stores startTimestamp + durationMs. Each tick: remaining = durationMs - (Date.now() - startTimestamp - pausedMs).
+Zero drift. Self-corrects after tab blur or device sleep.
+Auto-start: checked every second in _tick() against timerStartTime (HH:MM 24h).
+Timer state re-broadcast to display window when Present is clicked.
+
+### Clock
+Self-correcting scheduler — NOT setInterval.
+Uses setTimeout(delay) where delay = 1000 - (Date.now() % 1000).
+Fires at exact millisecond each second turns over. Zero cumulative drift.
+
+### Announcement Overlay
+When sent: clock compresses upward (scale 0.32, translateY -22vh),
+logo area compresses upward, meta row and quote fade.
+Overlay text appears centered in the cleared space.
+Font follows --font-meta. Fully animated with spring easing.
+After duration: everything returns to original positions.
+
+### Present Window
+Opens via window.open() as a popup.
+Shows a "Click anywhere to begin" prompt on first open.
+User click triggers requestFullscreen() — true fullscreen, URL bar hidden.
+ESC or X button exits fullscreen, window.close() is called via fullscreenchange listener.
+window.open uses popup=yes flag to suppress browser chrome.
+
+### Stage Monitor (presenter.html)
+Third page on same BroadcastChannel.
+Shows: large countdown timer, current time, date, announcements.
+Clock becomes dominant (large) when timer is not running.
+Timer becomes dominant when running.
+Invert toggle (light/dark) controlled from Stage Monitor settings panel.
+Scale slider in Stage Monitor panel controls font sizes.
+presenterLinked config key — when true, requires display to be active.
+When false, runs standalone.
+
+---
+
+## DEFAULTS (key values)
+```bash
+theme: 'eclipse'
+fontClock: 'Playfair Display'
+fontMeta: 'Inter'
+fontQuote: 'Lora'
+fontQuoteSrc: 'Inter'
+fontWm: 'Inter'
+wmOpacity: 10 (full opacity by default)
+wmSpeed: 4
+wmSpacing: 5
+showQuotes: false
+showWeather: false
+timerEnabled: false
+timerDuration: 120 (minutes)
+presenterLinked: true
+presenterScale: 1
+smoothAnimations:true
+burnIn: true
+```
+
+---
+
+## CSS Token System
+
+Animation durations from config.js DURATION object,
+injected as CSS custom properties on :root at runtime:
+--dur-instant, --dur-fast, --dur-normal, --dur-slow,
+--dur-theme, --dur-font, --dur-overlay
+
+Easing curves defined in display.css:
+--ease-out, --ease-spring, --ease-in-out
+
+Scale multipliers as CSS custom properties:
+--s-logo, --s-clock, --s-meta, --s-quote, --s-wm, --s-timer, --p-scale (presenter)
+
+---
+
+## Settings Panel Layout
+
+[Sidebar 216px] [Config panel — resizable] [Resizer 5px] [Preview — flex:1]
+
+Sidebar has nav items with Alt+1..0 keyboard shortcuts,
+plus Alt+H (History), Alt+S (Stage Monitor), Alt+A (About).
+
+Config panel sections: Branding, Clock, Appearance, Fonts, Background,
+Sizing, Feed, Weather, Announcements, Timer, Advanced, History,
+Stage Monitor, About.
+
+Feature toggles grey out and disable their child sections when OFF
+via .disabled-section CSS class + _initDisabledSections() JS.
+
+---
+
+## Weather
+
+Uses Open-Meteo API (free, no key).
+Geocoding via Open-Meteo geocoding API for city names.
+Reverse geocoding via BigDataCloud API (free, no key) for geolocation.
+Geolocation requires HTTPS — works on GitHub Pages, not on localhost HTTP.
+
+---
+
+## Decisions Made — Not Changing
+
+- No React, no Node, no build tools — stays vanilla
+- No server — localStorage only, each user has independent state
+- GitHub Pages for hosting — HTTPS, free, shareable via link
+- Electron discussed as future option but not current priority
+- Halo crossfade on theme change: accepted browser limitation,
+  radial-gradient with CSS variables cannot be transitioned
+- Chrome autocomplete dropdown: cannot be themed, accepted
+- window.open() popup shows URL bar for ~3 seconds: browser security,
+  cannot be removed without custom domain or Electron
+
+---
+
+## Known Open Items (as of August 2026)
+
+- Font system: old-style numeral fonts still in quote slot
+  (Lora, Fraunces) — acceptable for quote text, not for clock
+- Timer preset chips: planned but not yet implemented
+- Timer wheel-style input: planned, currently hours/minutes number inputs
+- Paired light/dark themes could be expanded with more per family
+- Favicon: functional but could be more distinctive
+- Presenter.html timing: minor visual glitch at fast tick intervals,
+  wall-clock math self-corrects but not yet fully smooth
+- Halo animation snap on theme change: accepted, not fixable in CSS
+
+---
+
+## Deployment
+
+GitHub Pages from main branch root.
+All JS, CSS, HTML at same path level — BroadcastChannel requires same origin.
+Each visitor has completely independent localStorage state.
+After pushing changes, bump ?v=1.xx on script tags in HTML files
+to bust browser cache for existing users.
+
+---
+
+## Developer Notes for AI Assistants
+
+- Always give code snippets, never full file rewrites
+- One fix at a time unless fixes are in the same 3-line area
+- No over-engineering — simplest solution that works cleanly
+- Check uploaded files before assuming current state
+- config.js is loaded by ALL THREE pages — changes affect everything
+- watermark.js is isolated — never touches display.js state
+- _tick() in display.js runs every second — keep it lightweight
+- _populateUI() in settings.js must stay in sync with DEFAULTS
+- THEMES and FONTS objects are the single source of truth for visual options
+- BroadcastChannel does NOT work across iframes — use postMessage for preview
+- Timer state must be re-broadcast when Present window opens
+- Stage monitor must check _presenterWin.closed before window.open to avoid reload
