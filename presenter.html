@@ -208,16 +208,18 @@
 <script src="assets/js/config.js"></script>
 <script>
 /* ── STATE ── */
-let _timerRemaining  = 0;
-let _timerRunning    = false;
-let _timerPaused     = false;
-let _timerInterval   = null;
-let _timerDurationMs = 0;
-let _timerStartedAt  = null;
-let _timerPausedAt   = null;
-let _timerPausedMs   = 0;
-let _connected      = false;
-let _annTimer       = null;
+let _timerRemaining     = 0;
+let _timerRunning       = false;
+let _timerPaused        = false;
+let _timerInterval      = null;
+let _timerDurationMs    = 0;
+let _timerStartedAt     = null;
+let _timerPausedAt      = null;
+let _timerPausedMs      = 0;
+let _connected          = false;
+let _annTimer           = null;
+let _timerStartTimeout  = null;
+let _timeUpTimeout      = null;
 
 const pad = n => String(n).padStart(2, '0');
 
@@ -277,7 +279,9 @@ function _renderTimer() {
   if (_timerRemaining === 0) {
     el.timerDisp.className = 'finished';
     el.timerLabel.textContent = 'Time Up';
-    setTimeout(() => {
+    if (_timeUpTimeout) clearTimeout(_timeUpTimeout);
+    _timeUpTimeout = setTimeout(() => {
+      _timeUpTimeout = null;
       timerWrap?.classList.add('inactive');
       divider?.classList.add('inactive');
       clockWrap?.classList.add('dominant');
@@ -349,6 +353,8 @@ BC.onmessage = e => {
       break;
 
     case 'timer-start':
+      if (_timerStartTimeout) { clearTimeout(_timerStartTimeout); _timerStartTimeout = null; }
+      if (_timeUpTimeout)     { clearTimeout(_timeUpTimeout);     _timeUpTimeout     = null; }
       clearInterval(_timerInterval);
       _timerDurationMs = d.seconds * 1000;
       _timerStartedAt  = Date.now();
@@ -356,15 +362,18 @@ BC.onmessage = e => {
       _timerPausedAt   = null;
       _timerRunning    = true;
       _timerPaused     = false;
+      _timerRemaining  = d.seconds;
       _renderTimer();
       const _msToNext = 1000 - (Date.now() % 1000);
-      setTimeout(() => {
+      _timerStartTimeout = setTimeout(() => {
+        _timerStartTimeout = null;
         _timerTick();
         _timerInterval = setInterval(_timerTick, 1000);
       }, _msToNext);
       break;
 
     case 'timer-pause':
+      if (!_timerRunning) break;
       _timerPaused = !_timerPaused;
       if (_timerPaused) {
         _timerPausedAt = Date.now();
@@ -378,6 +387,8 @@ BC.onmessage = e => {
       break;
 
     case 'timer-reset':
+      if (_timerStartTimeout) { clearTimeout(_timerStartTimeout); _timerStartTimeout = null; }
+      if (_timeUpTimeout)     { clearTimeout(_timeUpTimeout);     _timeUpTimeout     = null; }
       clearInterval(_timerInterval);
       _timerInterval   = null;
       _timerRunning    = false;
