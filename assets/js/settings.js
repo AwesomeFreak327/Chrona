@@ -214,6 +214,11 @@ function _populateUI() {
 /* ─────────────────────────────────────────────────────────────
    HELPERS
 ───────────────────────────────────────────────────────────── */
+function _esc(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
 function _sv(id, val) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -578,7 +583,7 @@ function _buildCustomFontInputs() {
           type="text"
           id="custom-font-${slot.key}"
           placeholder="https://fonts.googleapis.com/css2?family=..."
-          value="${saved?.url || ''}"
+          value="${_esc(saved?.url || '')}"
           style="flex:1;font-size:.7rem"
         >
         <button class="ctrl-btn" id="custom-font-apply-${slot.key}"
@@ -589,7 +594,7 @@ function _buildCustomFontInputs() {
           style="padding:8px 10px;flex-shrink:0">✕</button>` : ''}
       </div>
       ${saved ? `<p class="field-hint" style="color:var(--accent)">
-        Active: ${saved.name}</p>` : ''}
+        Active: ${_esc(saved.name)}</p>` : ''}
     `;
 
     area.appendChild(group);
@@ -598,6 +603,12 @@ function _buildCustomFontInputs() {
       const input = document.getElementById(`custom-font-${slot.key}`);
       const url   = input?.value.trim();
       if (!url) return;
+
+      if (!/^https:\/\/fonts\.googleapis\.com\//.test(url)) {
+        input.style.borderColor = 'var(--danger)';
+        setTimeout(() => { input.style.borderColor = ''; }, 2000);
+        return;
+      }
 
       const name = _extractFontName(url);
       if (!name) {
@@ -755,6 +766,9 @@ function _initLogo() {
 }
 
 function _readLogoFile(file) {
+  if (!file.type.startsWith('image/')) return;
+  if (file.size > 2 * 1024 * 1024) return;
+
   const r = new FileReader();
   r.onload = () => {
     const prev = document.getElementById('logo-preview');
@@ -914,7 +928,7 @@ function _renderCities() {
     const chip = document.createElement('div');
     chip.className = 'chip-item';
     chip.innerHTML = `
-      <span class="chip-txt">${city.name}</span>
+      <span class="chip-txt">${_esc(city.name)}</span>
       <button class="chip-del" title="Remove">✕</button>
     `;
     chip.querySelector('.chip-txt').addEventListener('click', () => {
@@ -933,6 +947,13 @@ function _renderCities() {
 
 /* ── Announcements ── */
 function _initOverlay() {
+  document.getElementById('btn-save-preset')?.addEventListener('click', () => {
+    const text = document.getElementById('overlayText')?.value.trim();
+    if (!text) return;
+    Announcements.add(text);
+    _renderAnnPresets();
+  });
+
   document.getElementById('btn-overlay')?.addEventListener('click', () => {
     const input   = document.getElementById('overlayText');
     const hint    = document.getElementById('overlay-hint');
@@ -953,15 +974,6 @@ function _initOverlay() {
   document.getElementById('btn-overlay-cancel')?.addEventListener('click', () => {
     BC.postMessage({ type: 'overlay-cancel' });
     _sendToFrame('preview-frame', { type: 'overlay-cancel' });
-  });
-}
-
-function _initTimer() {
-  document.getElementById('btn-save-preset')?.addEventListener('click', () => {
-    const text = document.getElementById('overlayText')?.value.trim();
-    if (!text) return;
-    Announcements.add(text);
-    _renderAnnPresets();
   });
 }
 
@@ -1042,17 +1054,6 @@ function _initTimer() {
     _setTimerBtns('idle');
     _setTimerStatus('Timer not running');
   });
-
-  setInterval(() => {
-    if (!_timerRunning || _timerPaused) return;
-    _timerSeconds = Math.max(0, _timerSeconds - 1);
-    _sendToFrame('preview-frame', { type: 'timer-sync-tick', seconds: _timerSeconds });
-    if (_timerSeconds === 0) {
-      _timerRunning = false;
-      _setTimerBtns('idle');
-      _setTimerStatus('Time up');
-    }
-  }, 1000);
 }
 
 function _startTimerSync() {
@@ -1104,7 +1105,7 @@ function _renderAnnPresets() {
       <button class="chip-fav" title="${item.favourite ? 'Unfavourite' : 'Favourite'}">
         ${item.favourite ? '★' : '☆'}
       </button>
-      <span class="chip-txt" title="${item.text}">${item.label || item.text}</span>
+      <span class="chip-txt" title="${_esc(item.text)}">${_esc(item.label || item.text)}</span>
       <button class="chip-rename" title="Rename">✎</button>
       <button class="chip-del" title="Delete">✕</button>
     `;
@@ -1122,9 +1123,6 @@ function _renderAnnPresets() {
     chip.querySelector('.chip-rename').addEventListener('click', e => {
       e.stopPropagation();
       _startChipRename(chip, item);
-    });
-
-    chip.querySelector('.chip-fav').addEventListener('click', e => {
     });
 
     // Favourite toggle
@@ -1256,7 +1254,6 @@ function _initPresentControls() {
           BC.postMessage({ type: 'config', config: Config.get() });
 
           if (_timerRunning && _timerState) {
-            const elapsed  = _timerSyncInt ? 0 : 0;
             const remaining = Math.max(0, _timerSeconds);
             setTimeout(() => {
               BC.postMessage({ type: 'timer-start', seconds: remaining });
@@ -1487,7 +1484,7 @@ function _renderHistory() {
 
     div.innerHTML = `
       <div style="flex:1;min-width:0">
-        <div class="history-label">${entry.label || 'Settings changed'}</div>
+        <div class="history-label">${_esc(entry.label || 'Settings changed')}</div>
         <div class="history-time">${date} ${time}</div>
       </div>
       <button class="history-del" title="Remove">✕</button>
