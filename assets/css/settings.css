@@ -128,10 +128,6 @@ html, body {
 .nav-item,
 .nav-item svg,
 .nav-item .kb,
-#btn-present,
-.ctrl-btn,
-.act-btn,
-.ghost-btn,
 .danger-btn,
 .preview-act-btn,
 .file-upload-btn,
@@ -164,15 +160,6 @@ body {
     --accent     var(--dur-normal, 280ms) ease,
     --accent-dim var(--dur-normal, 280ms) ease,
     --accent-b   var(--dur-normal, 280ms) ease;
-}
-
-/* Present button needs transform + box-shadow transitions too */
-#btn-present {
-  transition:
-    opacity          var(--dur-fast, 180ms) ease,
-    transform        var(--dur-fast, 180ms) ease,
-    box-shadow       var(--dur-fast, 180ms) ease,
-    background-color var(--dur-fast, 180ms) ease;
 }
 
 /* Slider thumb */
@@ -322,6 +309,7 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
 }
 .ctrl-btn.danger { border-color:rgba(248,113,113,.3); color:var(--danger); }
 .ctrl-btn.danger:hover { background:rgba(248,113,113,.08); border-color:var(--danger); }
+/* Single authoritative transition rule for all standard action buttons */
 #btn-present,
 .act-btn,
 .ctrl-btn,
@@ -359,7 +347,7 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
   box-shadow:0 0 6px var(--green);
   animation:pulse 2s ease-in-out infinite;
   flex-shrink:0;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  transition: background var(--dur-normal, 280ms) ease, box-shadow var(--dur-normal, 280ms) ease;
 }
 [data-settings-theme=light] .live-dot {
   box-shadow:0 0 8px var(--green);
@@ -405,10 +393,6 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
 
 .config-section { display:none; flex-direction:column; gap:var(--sp-4); }
 .config-section.active { display:flex; }
-
-.disabled-section {
-  display:flex; flex-direction:column; gap:var(--sp-4);
-}
 
 .sec-title {
   font-size:.6rem; font-weight:500;
@@ -814,7 +798,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
   background:var(--surface);
   display:flex; align-items:center; justify-content:space-between;
   font-size:.69rem; color:var(--txt3); flex-shrink:0; gap:var(--sp-2);
-  transition: border-color 0.3s ease;
+  transition: border-color var(--dur-normal, 280ms) ease;
 }
 #preview-panel.is-live {
   outline: 2px solid var(--green);
@@ -838,7 +822,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
 #stage-monitor-dot {
   width:7px; height:7px; border-radius:50%;
   background:var(--border2); box-shadow:none;
-  flex-shrink:0; transition: background 0.3s ease, box-shadow 0.3s ease;
+  flex-shrink:0; transition: background var(--dur-normal, 280ms) ease, box-shadow var(--dur-normal, 280ms) ease;
 }
 #stage-monitor-dot.active {
   background:#60a5fa;
@@ -856,7 +840,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
   width:6px; height:6px; border-radius:50%;
   margin-right:5px; vertical-align:middle;
   background:var(--green);
-  transition: background 0.3s ease;
+  transition: background var(--dur-normal, 280ms) ease;
 }
 #preview-panel:not(.is-live):not(.is-preview) #preview-status-txt::before {
   background:var(--border2);
@@ -914,10 +898,6 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
 ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
 
 /* ── DISABLED SECTION OVERLAY ─────────────────────────────── */
-[id$="-section"] {
-  display:flex; flex-direction:column; gap:var(--sp-4);
-}
-
 .disabled-section {
   opacity:.38;
   pointer-events:none;
@@ -927,8 +907,8 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
 
 .disabled-section::after {
   content:attr(data-disabled-msg);
-  position:fixed;
-  left:auto; right:20px;
+  position:absolute;
+  top:0; right:0;
   z-index:9000;
   background:#1a1a2a;
   border:1px solid var(--border2);
