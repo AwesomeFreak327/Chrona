@@ -1658,9 +1658,8 @@ function _initKeyNav() {
     '5':'background','6':'sizing','7':'feed','8':'weather',
     '9':'overlay','0':'advanced',
   };
-  const ALPHA_MAP = { 'h':'history', 's':'presenter', 'a':'about' };
+  const ALPHA_MAP = { 'h':'history', 's':'presenter', 'a':'about', 't':'timer' };
   document.addEventListener('keydown', e => {
-    // Don't intercept when user is typing in a form field
     if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
     if (e.altKey && MAP[e.key]) {
       document.querySelector(`.nav-item[data-panel="${MAP[e.key]}"]`)?.click();
