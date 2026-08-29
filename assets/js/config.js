@@ -14,9 +14,8 @@ const KEYS = {
   configW:   'chrona_config_w',
   cities:    'chrona_saved_cities',
 };
-let _idCounter = 0;
 function _uid() {
-  return Date.now() * 1000 + (++_idCounter % 1000);
+  return Date.now() * 1000 + Math.floor(Math.random() * 1000);
 }
 
 /* ── ANIMATION TIMING TOKENS ─────────────────────────────── */
@@ -421,6 +420,24 @@ function _normalizeConfig(raw) {
     'wmOpacity','wmSpacing','wmSpeed',
     'scaleLogo','scaleClock','scaleMeta','scaleQuote','scaleWmFont',
     'scaleTimer','presenterScale','overlayDuration','timerDuration'];
+  // Bounds taken directly from the sliders/inputs in index.html
+  const RANGES = {
+    quoteInterval:   [10, 120],
+    quoteOpacity:    [0.1, 1],
+    quoteSrcOpacity: [0.05, 1],
+    wmOpacity:       [1, 10],
+    wmSpacing:       [1, 10],
+    wmSpeed:         [1, 10],
+    scaleLogo:       [0.4, 2.5],
+    scaleClock:      [0.5, 2.0],
+    scaleMeta:       [0.5, 2.0],
+    scaleQuote:      [0.5, 2.0],
+    scaleWmFont:     [0.4, 4.0],
+    scaleTimer:      [0.4, 2.0],
+    presenterScale:  [0.5, 2.0],
+    overlayDuration: [3, 30],
+    timerDuration:   [1, 599],
+  };
   const validThemes = Object.keys(THEMES);
   const validTimezones = TIMEZONES.filter(tz => !tz.disabled).map(tz => tz.value);
 
@@ -429,10 +446,12 @@ function _normalizeConfig(raw) {
     if (val === undefined) continue;
 
     if (bools.includes(key)) {
-      out[key] = !!val;
+      out[key] = val === 'false' ? false : !!val;
     } else if (nums.includes(key)) {
       const n = Number(val);
-      out[key] = isNaN(n) ? DEFAULTS[key] : n;
+      const clean = isNaN(n) ? DEFAULTS[key] : n;
+      const range = RANGES[key];
+      out[key] = range ? Math.min(range[1], Math.max(range[0], clean)) : clean;
     } else if (key === 'theme') {
       out[key] = validThemes.includes(val) ? val : DEFAULTS.theme;
     } else if (key === 'timezone') {
@@ -440,10 +459,26 @@ function _normalizeConfig(raw) {
     } else if (key === 'quotes') {
       out[key] = Array.isArray(val) ? val : DEFAULTS.quotes;
     } else if (key === 'customFonts') {
-      out[key] = (val && typeof val === 'object' && !Array.isArray(val))
-        ? val : {};
+      const obj = (val && typeof val === 'object' && !Array.isArray(val)) ? val : {};
+      const cleaned = {};
+      for (const slot of Object.keys(obj)) {
+        const f = obj[slot];
+        if (f && typeof f.url === 'string' && typeof f.name === 'string' &&
+            /^https:\/\/fonts\.googleapis\.com\//.test(f.url)) {
+          cleaned[slot] = { name: f.name, url: f.url, stack: typeof f.stack === 'string' ? f.stack : `'${f.name}', system-ui, sans-serif` };
+        }
+      }
+      out[key] = cleaned;
     } else if (key === 'logoData') {
       out[key] = typeof val === 'string' ? val : '';
+    } else if (key === 'weatherLat' || key === 'weatherLon') {
+      if (val === null) {
+        out[key] = null;
+      } else {
+        const n = Number(val);
+        const max = key === 'weatherLat' ? 90 : 180;
+        out[key] = (Number.isFinite(n) && n >= -max && n <= max) ? n : null;
+      }
     } else {
       out[key] = val;
     }
@@ -467,6 +502,8 @@ const Config = {
   },
 
   reset() {
+    clearTimeout(this._histTimer);
+    this._histTimer = null;
     this._state = { ...DEFAULTS };
     this._save();
     History.clear();
@@ -499,7 +536,9 @@ const Config = {
   },
 
   _describeChange(partial) {
-    const key = Object.keys(partial)[0];
+    const keys = Object.keys(partial);
+    if (keys.length > 1) return 'Multiple settings changed';
+    const key = keys[0];
     const MAP = {
       theme:          'Theme changed',
       fontClock:      'Clock font changed',
@@ -564,7 +603,7 @@ const History = {
         if (Array.isArray(parsed)) {
           this._entries = parsed.filter(e =>
             e && typeof e.id !== 'undefined' && typeof e.ts === 'string' && e.state && typeof e.state === 'object'
-          );
+          ).slice(0, MAX_HISTORY);
         }
       }
     } catch(e) {}
@@ -632,7 +671,7 @@ const Announcements = {
                   text:      typeof item.text === 'string' ? item.text.trim() : '',
                   label:     typeof item.label === 'string' ? item.label.trim() : (item.text || '').trim(),
                   favourite: !!item.favourite,
-                  usedAt:    typeof item.usedAt === 'string' ? item.usedAt : null,
+                  usedAt:    (typeof item.usedAt === 'string' && !isNaN(Date.parse(item.usedAt))) ? item.usedAt : null,
                 }
             )
             .filter(item => item.text.length > 0);
@@ -764,6 +803,7 @@ function loadFont(url) {
     rel:  'stylesheet',
     href: url,
   });
+  link.onerror = () => { _loadedFonts.delete(url); };
   document.head.appendChild(link);
 }
 
