@@ -35,14 +35,16 @@ let _overlayTimer = null;
 let _annScheduleFired = false;
 
 // Countdown timer
-let _timerInterval   = null;
-let _timerDurationMs = 0;
-let _timerStartedAt  = null;
-let _timerPausedAt   = null;
-let _timerPausedMs   = 0;
-let _timerRunning    = false;
-let _timerPaused     = false;
-let _timerRemaining  = 0;
+let _timerInterval            = null;
+let _timerStartTimeout        = null;
+let _timerDurationMs          = 0;
+let _timerStartedAt           = null;
+let _timerPausedAt            = null;
+let _timerPausedMs            = 0;
+let _timerRunning             = false;
+let _timerPaused              = false;
+let _timerAutoPausedByDisplay = false;
+let _timerRemaining           = 0;
 
 // State flags for CSS class system
 let _wasPaused  = false;
@@ -68,7 +70,6 @@ const pad = n => String(n).padStart(2, '0');
   _runEntranceAnimations();
 
   // Clock
-  _clockInterval = setInterval(_tick, 1000);
   _tick();
   _scheduleNextTick();
 
@@ -323,7 +324,9 @@ function _applyContent(cfg) {
   }
 
   // Weather — only re-fetch if city/location changed
-  const newCity = cfg.weatherCity || (cfg.weatherLat ? `${cfg.weatherLat},${cfg.weatherLon}` : '');
+  const newCity = cfg.weatherCity ||
+    (typeof cfg.weatherLat === 'number' && typeof cfg.weatherLon === 'number'
+      ? `${cfg.weatherLat},${cfg.weatherLon}` : '');
   if (cfg.showWeather && newCity) {
     if (newCity !== _weatherCity) {
       _weatherCity = newCity;
@@ -442,8 +445,8 @@ function _tick() {
 
   _el.dateTxt.textContent =
     `${DAYS[now.getDay()]}, ${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
-  _timerCheckAutoStart(_cfg);
-  _annCheckSchedule(_cfg);
+  _timerCheckAutoStart(_cfg, now);
+  _annCheckSchedule(_cfg, now);
 }
 
 function _scheduleNextTick() {
@@ -499,7 +502,7 @@ function _setQuotePaused(paused) {
 async function _fetchWeather() {
   if (_weatherTimer) { clearTimeout(_weatherTimer); _weatherTimer = null; }
 
-  const loc = _cfg.weatherLat && _cfg.weatherLon
+  const loc = (typeof _cfg.weatherLat === 'number' && typeof _cfg.weatherLon === 'number')
     ? `${_cfg.weatherLat},${_cfg.weatherLon}`
     : _cfg.weatherCity;
 
@@ -575,7 +578,8 @@ function _timerStart(seconds) {
   _timerPaused     = false;
   if (_el.timerArea) _el.timerArea.classList.remove('hidden','finished','warning');
   const msToNext = 1000 - (Date.now() % 1000);
-  setTimeout(() => {
+  _timerStartTimeout = setTimeout(() => {
+    _timerStartTimeout = null;
     _timerTick();
     _timerInterval = setInterval(_timerTick, 1000);
   }, msToNext);
@@ -620,6 +624,7 @@ function _timerTogglePause() {
 }
 
 function _timerReset() {
+  if (_timerStartTimeout) { clearTimeout(_timerStartTimeout); _timerStartTimeout = null; }
   clearInterval(_timerInterval);
   _timerInterval   = null;
   _timerRunning    = false;
@@ -643,22 +648,19 @@ function _timerRender() {
   _el.timerDisplay.textContent = `${h}:${pad(m)}:${pad(s)}`;
 }
 
-function _timerCheckAutoStart(cfg) {
+function _timerCheckAutoStart(cfg, now = new Date()) {
   if (!cfg?.timerAutoStart || !cfg?.timerStartTime || _timerRunning) return;
-  const now  = new Date();
   const h    = now.getHours();
   const m    = now.getMinutes();
   const s    = now.getSeconds();
   const curr = `${pad(h)}:${pad(m)}`;
-  if (curr === cfg.timerStartTime && s === 0) {
+  if (curr === cfg.timerStartTime && s < 3) {
     _timerStart((cfg.timerDuration || 120) * 60);
   }
 }
 
-
-function _annCheckSchedule(cfg) {
+function _annCheckSchedule(cfg, now = new Date()) {
   if (!cfg?.annScheduleEnabled || !cfg?.annScheduleTime || !cfg?.annScheduleText) return;
-  const now  = new Date();
   const h    = now.getHours();
   const m    = now.getMinutes();
   const s    = now.getSeconds();
@@ -728,8 +730,12 @@ function _setPause(active) {
     if (_clockInterval) { clearTimeout(_clockInterval); _clockInterval = null; }
     // Stop quotes
     _stopQuotes();
-    // Stop timer
-    if (_timerInterval) { clearInterval(_timerInterval); }
+    // Stop timer, and freeze its elapsed-time math for the duration of the pause
+    if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+    if (_timerRunning && !_timerPaused) {
+      _timerPausedAt = Date.now();
+      _timerAutoPausedByDisplay = true;
+    }
     // Freeze watermark — true still frame
     Watermark.pause();
   } else {
@@ -742,8 +748,13 @@ function _setPause(active) {
     if (_cfg.showQuotes && _quoteList.length && !_quotePaused) {
       _startQuotes();
     }
-    // Restart timer interval if it was running
+    // Restart timer interval if it was running, accounting for the pause duration
     if (_timerRunning && !_timerPaused) {
+      if (_timerAutoPausedByDisplay && _timerPausedAt) {
+        _timerPausedMs += Date.now() - _timerPausedAt;
+        _timerPausedAt = null;
+        _timerAutoPausedByDisplay = false;
+      }
       _timerInterval = setInterval(_timerTick, 1000);
     }
     // Only resume watermark if not blanked
