@@ -366,7 +366,6 @@ body.theme-switching #halo::after  { opacity:1; }
   letter-spacing:-.01em;
   text-align:center;
   user-select:none;
-  transition: color var(--dur-theme, 1300ms) var(--ease-out);
 }
 #timer-label {
   font-family: var(--font-meta);
@@ -376,7 +375,6 @@ body.theme-switching #halo::after  { opacity:1; }
   letter-spacing:.2em;
   text-transform:uppercase;
   opacity:.55;
-  transition: color var(--dur-theme, 1300ms) var(--ease-out);
 }
 
 /* Warning state — last 10 minutes */
@@ -596,6 +594,22 @@ body.was-paused:not(.paused) #halo {
 body.was-paused:not(.paused) .glow-orb {
   opacity:1;
   transition: opacity 1400ms var(--ease-spring);
+}
+
+/* State precedence: if blank/pause overlap, whichever is still ACTIVE
+   wins — a recovery from one must never reveal the display while the
+   other is still hiding it. */
+body.was-blanked:not(.blanked).paused #stage,
+body.was-blanked:not(.blanked).paused #halo,
+body.was-blanked:not(.blanked).paused .glow-orb {
+  opacity:0;
+  transition: opacity var(--dur-theme, 1300ms) var(--ease-in-out);
+}
+body.was-paused:not(.paused).blanked #stage,
+body.was-paused:not(.paused).blanked #halo,
+body.was-paused:not(.paused).blanked .glow-orb {
+  opacity:0;
+  transition: opacity var(--dur-slow, 500ms) var(--ease-in-out);
 }
 
 /* ── ENTRANCE ANIMATION ───────────────────────────────────── */

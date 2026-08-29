@@ -192,6 +192,8 @@ function _handleMessage(d) {
 }
 
 /* ── APPLY CONFIG ─────────────────────────────────────────── */
+let _themeSwitchTimeout = null;
+
 function _applyAll(cfg, immediate = false) {
   _cfg = cfg;
 
@@ -215,7 +217,9 @@ function _applyAll(cfg, immediate = false) {
     document.body.classList.add('theme-switching');
     document.body.setAttribute('data-theme', newTheme);
 
-    setTimeout(() => {
+    if (_themeSwitchTimeout) clearTimeout(_themeSwitchTimeout);
+    _themeSwitchTimeout = setTimeout(() => {
+      _themeSwitchTimeout = null;
       document.body.classList.remove('theme-switching');
       if (haloEl) {
         haloEl.style.setProperty('--halo-prev', nextHalo);
