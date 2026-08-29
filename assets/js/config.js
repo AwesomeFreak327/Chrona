@@ -422,6 +422,7 @@ function _normalizeConfig(raw) {
     'scaleLogo','scaleClock','scaleMeta','scaleQuote','scaleWmFont',
     'scaleTimer','presenterScale','overlayDuration','timerDuration'];
   const validThemes = Object.keys(THEMES);
+  const validTimezones = TIMEZONES.filter(tz => !tz.disabled).map(tz => tz.value);
 
   for (const key of Object.keys(DEFAULTS)) {
     const val = raw[key];
@@ -434,6 +435,8 @@ function _normalizeConfig(raw) {
       out[key] = isNaN(n) ? DEFAULTS[key] : n;
     } else if (key === 'theme') {
       out[key] = validThemes.includes(val) ? val : DEFAULTS.theme;
+    } else if (key === 'timezone') {
+      out[key] = validTimezones.includes(val) ? val : DEFAULTS.timezone;
     } else if (key === 'quotes') {
       out[key] = Array.isArray(val) ? val : DEFAULTS.quotes;
     } else if (key === 'customFonts') {
@@ -457,7 +460,7 @@ const Config = {
   },
 
   set(partial, opts = {}) {
-    this._state = { ...this._state, ...partial };
+    this._state = _normalizeConfig({ ...this._state, ...partial });
     this._save();
     if (!opts.silent) this._scheduleHistory(partial, opts.label);
     return this._state;
@@ -556,7 +559,14 @@ const History = {
   load() {
     try {
       const raw = localStorage.getItem(KEYS.history);
-      if (raw) this._entries = JSON.parse(raw);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          this._entries = parsed.filter(e =>
+            e && typeof e.id !== 'undefined' && typeof e.ts === 'string' && e.state && typeof e.state === 'object'
+          );
+        }
+      }
     } catch(e) {}
     return this._entries;
   },
