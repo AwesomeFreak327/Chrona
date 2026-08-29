@@ -13,7 +13,7 @@
 
 <!--
   Preload default fonts only.
-  Defaults match config.js DEFAULTS: fontClock='Crimson Text', fontMeta='Work Sans'.
+  Defaults match config.js DEFAULTS: fontClock='Playfair Display', fontMeta='Inter', fontQuote='Lora'.
   All other fonts are loaded on demand by display.js via loadFont().
   Adding display=swap prevents invisible text during font load.
 -->
@@ -136,7 +136,7 @@
         prompt.remove();
       })
       .catch(() => {
-        prompt.remove();
+        // Leave the prompt up on failure — it's the only way back in
       });
   });
 
@@ -144,9 +144,9 @@
     if ((e.key === 'f' || e.key === 'F') && !document.fullscreenElement) {
       document.documentElement.requestFullscreen()
         .then(() => prompt.remove())
-        .catch(() => prompt.remove());
+        .catch(() => {});
     }
-  }, { once: true });
+  });
 
   document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) {
