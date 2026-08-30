@@ -50,20 +50,24 @@ const Watermark = (() => {
       resizeBound = true;
     }
 
-    if (!raf) _loop(performance.now());
+    if (!raf && !paused) _loop(performance.now());
   }
 
   /* ── PUBLIC: update ── */
   function update(cfg) {
     const theme = THEMES[cfg.theme] || THEMES.eclipse;
     const [r, g, b] = (theme.wm || '160,80,255').split(',').map(Number);
+    const clampParam = (v, def, lo, hi) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : def;
+    };
     params = {
       text:      (cfg.wmText     || 'CHRONA').toUpperCase(),
-      opacity:   cfg.wmOpacity   ?? 4,
-      spacing:   cfg.wmSpacing   ?? 5,
-      speed:     cfg.wmSpeed     ?? 4,
+      opacity:   clampParam(cfg.wmOpacity,   4, 1, 10),
+      spacing:   clampParam(cfg.wmSpacing,   5, 1, 10),
+      speed:     clampParam(cfg.wmSpeed,     4, 1, 10),
       fontName:  cfg.fontWm      || 'Work Sans',
-      fontScale: cfg.scaleWmFont ?? 1,
+      fontScale: clampParam(cfg.scaleWmFont, 1, 0.4, 4),
       wmR: r, wmG: g, wmB: b,
     };
   }
