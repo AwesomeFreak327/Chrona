@@ -11,7 +11,6 @@ const KEYS = {
   config:    'chrona_config',
   history:   'chrona_history',
   presets:   'chrona_ann_presets',
-  configW:   'chrona_config_w',
   cities:    'chrona_saved_cities',
 };
 function _uid() {
@@ -446,16 +445,20 @@ function _normalizeConfig(raw) {
     if (val === undefined) continue;
 
     if (bools.includes(key)) {
-      out[key] = val === 'false' ? false : !!val;
+      out[key] = (val === true || val === 'true') ? true
+        : (val === false || val === 'false') ? false
+        : DEFAULTS[key];
     } else if (nums.includes(key)) {
       const n = Number(val);
-      const clean = isNaN(n) ? DEFAULTS[key] : n;
+      const clean = Number.isFinite(n) ? n : DEFAULTS[key];
       const range = RANGES[key];
       out[key] = range ? Math.min(range[1], Math.max(range[0], clean)) : clean;
     } else if (key === 'theme') {
       out[key] = validThemes.includes(val) ? val : DEFAULTS.theme;
     } else if (key === 'timezone') {
       out[key] = validTimezones.includes(val) ? val : DEFAULTS.timezone;
+    } else if (key === 'quoteAlign') {
+      out[key] = ['center','left','right'].includes(val) ? val : DEFAULTS.quoteAlign;
     } else if (key === 'quotes') {
       out[key] = Array.isArray(val) ? val : DEFAULTS.quotes;
     } else if (key === 'customFonts') {
@@ -479,6 +482,10 @@ function _normalizeConfig(raw) {
         const max = key === 'weatherLat' ? 90 : 180;
         out[key] = (Number.isFinite(n) && n >= -max && n <= max) ? n : null;
       }
+    } else if (['orgName','weatherCity','wmText','fontClock','fontMeta','fontQuote',
+                'fontQuoteSrc','fontWm','overlayText','annScheduleTime',
+                'annScheduleText','timerStartTime'].includes(key)) {
+      out[key] = typeof val === 'string' ? val : DEFAULTS[key];
     } else {
       out[key] = val;
     }
@@ -596,6 +603,7 @@ const History = {
   _entries: [],
 
   load() {
+    this._entries = [];
     try {
       const raw = localStorage.getItem(KEYS.history);
       if (raw) {
@@ -658,6 +666,7 @@ const Announcements = {
   _items: [],
 
   load() {
+    this._items = [];
     try {
       const raw = localStorage.getItem(KEYS.presets);
       if (raw) {
@@ -739,6 +748,7 @@ const Cities = {
   _items: [],
 
   load() {
+    this._items = [];
     try {
       const raw = localStorage.getItem(KEYS.cities);
       if (raw) {
@@ -761,6 +771,7 @@ const Cities = {
   },
 
   remove(index) {
+    if (!Number.isInteger(index) || index < 0 || index >= this._items.length) return;
     this._items.splice(index, 1);
     this._save();
   },
