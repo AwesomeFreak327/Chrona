@@ -10,12 +10,12 @@
 let _cfg           = {};
 let _lastFgFontKey = '';
 let _lastWmFontKey = '';
-let _lastQuoteKey  = '';   // detects actual quote list / interval changes
-let _lastBurnIn    = null; // detects burn-in setting changes
+let _lastQuoteKey  = '';
+let _lastBurnIn    = null;
 
 // Clock
-let _clockInterval = null;
-const _el = {};            // cached DOM references — populated in _cacheDom()
+let _clockTimeout = null;
+const _el = {};
 
 // Quotes
 let _quoteList   = [];
@@ -25,14 +25,17 @@ let _quotePaused = false;
 
 // Weather
 let _weatherTimer   = null;
-let _weatherCity    = null; // last city fetched — avoids redundant re-fetches
+let _weatherCity    = null;
 
 // Burn-in
 let _burnTimer = null;
 
 // Overlay
 let _overlayTimer = null;
-let _annScheduleFired = false;
+let _annScheduleFiredFor = null;
+
+// Timer auto-start
+let _timerAutoStartFiredFor = null;
 
 // Countdown timer
 let _timerInterval            = null;
@@ -43,7 +46,7 @@ let _timerPausedAt            = null;
 let _timerPausedMs            = 0;
 let _timerRunning             = false;
 let _timerPaused              = false;
-let _timerAutoPausedByDisplay = false;
+let _displayPauseTimerAt      = null;
 let _timerRemaining           = 0;
 
 // State flags for CSS class system
@@ -61,10 +64,9 @@ const pad = n => String(n).padStart(2, '0');
 /* ── INIT ─────────────────────────────────────────────────── */
 (function init() {
   Config.load();
-  History.load();
 
   _cacheDom();
-  _applyAll(Config.get(), true); // immediate — no fades on first load
+  _applyAll(Config.get(), true);
 
   // Entrance animations — applied once, removed after they complete
   _runEntranceAnimations();
@@ -82,7 +84,6 @@ const pad = n => String(n).padStart(2, '0');
 })();
 
 /* ── DOM CACHE ────────────────────────────────────────────── */
-// Query once, never again. Avoids getElementById on every tick.
 function _cacheDom() {
   _el.html       = document.documentElement;
   _el.body       = document.body;
@@ -106,8 +107,6 @@ function _cacheDom() {
 }
 
 /* ── ENTRANCE ANIMATIONS ──────────────────────────────────── */
-// Applied once on load. Removed after animation ends.
-// This prevents applyConfig() from ever re-triggering them.
 function _runEntranceAnimations() {
   const pairs = [
     [_el.logoArea,                          'entrance-logo'],
@@ -120,14 +119,10 @@ function _runEntranceAnimations() {
     if (!el) return;
     el.classList.add(cls);
 
-    // Primary removal — fires when animation completes normally
     el.addEventListener('animationend', () => {
       el.classList.remove(cls);
     }, { once: true });
 
-    // Fallback removal — fires after 3s regardless
-    // Covers cases where element is hidden (display:none)
-    // and animationend never fires
     setTimeout(() => {
       el.classList.remove(cls);
     }, 3000);
@@ -137,8 +132,8 @@ function _runEntranceAnimations() {
 /* ── BROADCAST CHANNEL ────────────────────────────────────── */
 BC.onmessage = e => _handleMessage(e.data);
 
-// Also listens to postMessage from settings page (iframe preview)
 window.addEventListener('message', e => {
+  if (e.origin !== window.location.origin) return;
   if (e.data?.type === 'ping') {
     try { window.parent?.postMessage({ type: 'ready' }, '*'); } catch(ex) {}
     return;
@@ -151,7 +146,6 @@ function _handleMessage(d) {
   switch (d.type) {
     case 'config':
     case 'preview':
-      // Merge incoming partial into stored config, then re-apply
       Config.set(d.config, { silent: true });
       _applyAll(Config.get());
       break;
@@ -174,7 +168,7 @@ function _handleMessage(d) {
       _setQuotePaused(d.paused);
       break;
     case 'timer-start':
-      _timerStart(d.seconds);
+      if (Number.isFinite(d.seconds) && d.seconds > 0) _timerStart(d.seconds);
       break;
     case 'timer-pause':
       _timerTogglePause();
@@ -183,7 +177,7 @@ function _handleMessage(d) {
       _timerReset();
       break;
     case 'timer-sync-tick':
-      if (window.parent) {
+      if (window.parent && Number.isFinite(d.seconds) && d.seconds >= 0) {
         _timerRemaining = d.seconds;
         _timerRender();
       }
@@ -255,11 +249,14 @@ function _applyAll(cfg, immediate = false) {
   _lastWmFontKey = wmFontKey;
 
   if (fgFontChanged && cfg.smoothAnimations) {
-    _fontFadeSwap(() => _applyContent(cfg));
-  } else if (wmFontChanged && cfg.smoothAnimations) {
-    _wmFontFadeSwap(() => _applyContent(cfg));
+    _fontFadeSwap(() => { _applyFontVars(cfg); _applyContent(cfg); });
   } else {
+    _applyFontVars(cfg);
     _applyContent(cfg);
+  }
+
+  if (wmFontChanged && cfg.smoothAnimations) {
+    _wmFontFadeSwap(() => {});
   }
 
   // 7. Burn-in — only restart if setting changed
@@ -269,11 +266,10 @@ function _applyAll(cfg, immediate = false) {
   }
 }
 
-function _setCSSVars(cfg) {
+function _applyFontVars(cfg) {
   const s = _el.html.style;
   const fReg = FONTS;
 
-  // Font stacks — fall back gracefully if font name not in registry
   const fClock = fReg.clock[cfg.fontClock]?.stack        || `'${cfg.fontClock}', Georgia, serif`;
   const fMeta  = fReg.meta[cfg.fontMeta]?.stack          || `'${cfg.fontMeta}', system-ui, sans-serif`;
   const fQuote = fReg.quote[cfg.fontQuote]?.stack        || `'${cfg.fontQuote}', Georgia, serif`;
@@ -283,6 +279,10 @@ function _setCSSVars(cfg) {
   s.setProperty('--font-meta',      fMeta);
   s.setProperty('--font-quote',     fQuote);
   s.setProperty('--font-quote-src', fQSrc);
+}
+
+function _setCSSVars(cfg) {
+  const s = _el.html.style;
 
   // Scale multipliers
   s.setProperty('--s-logo',  cfg.scaleLogo   ?? 1);
@@ -298,6 +298,8 @@ function _setCSSVars(cfg) {
 }
 
 function _applyContent(cfg) {
+  _quotePaused = !!cfg.quotePaused;
+
   // Logo
   const hasLogo = cfg.showLogo && cfg.logoData;
   const hasName = cfg.showOrgName && cfg.orgName;
@@ -307,12 +309,11 @@ function _applyContent(cfg) {
   _el.logoName.style.display = hasName ? 'block' : 'none';
   _el.logoArea.style.display = (hasLogo || hasName) ? 'flex' : 'none';
 
-  // Quote alignment — three-way
+  // Quote alignment
   _el.quoteArea.classList.toggle('align-center', cfg.quoteAlign === 'center' || !cfg.quoteAlign);
   _el.quoteArea.classList.toggle('align-left',   cfg.quoteAlign === 'left');
   _el.quoteArea.classList.toggle('align-right',  cfg.quoteAlign === 'right');
 
-  // Quotes — only restart if list or interval actually changed
   const quoteKey = JSON.stringify(cfg.quotes) + '|' + cfg.quoteInterval;
   const quotesChanged = quoteKey !== _lastQuoteKey;
   _lastQuoteKey = quoteKey;
@@ -327,9 +328,8 @@ function _applyContent(cfg) {
     _stopQuotes();
   }
 
-  // Weather — only re-fetch if city/location changed
   const newCity = cfg.weatherCity ||
-    (typeof cfg.weatherLat === 'number' && typeof cfg.weatherLon === 'number'
+    (_validCoord(cfg.weatherLat, cfg.weatherLon)
       ? `${cfg.weatherLat},${cfg.weatherLon}` : '');
   if (cfg.showWeather && newCity) {
     if (newCity !== _weatherCity) {
@@ -363,19 +363,17 @@ function _loadDisplayFonts(cfg) {
 }
 
 /* ── FONT FADE SWAP ───────────────────────────────────────── */
-// Uses transitionend — not a setTimeout guess.
-// Step 1: add font-fading → opacity goes to 0.
-// Step 2: transitionend fires on #clock (first element to finish).
-// Step 3: run the content swap.
-// Step 4: remove font-fading → opacity returns to 1.
+let _fontFadeGen = 0;
+
 function _fontFadeSwap(swapFn) {
+  const gen = ++_fontFadeGen;
   _el.body.classList.add('font-fading');
 
   function onFadeOut(e) {
     if (e.propertyName !== 'opacity') return;
     _el.clock.removeEventListener('transitionend', onFadeOut);
+    if (gen !== _fontFadeGen) return; 
     swapFn();
-    // One rAF gap before removing class ensures the DOM has updated
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         _el.body.classList.remove('font-fading');
@@ -385,9 +383,8 @@ function _fontFadeSwap(swapFn) {
 
   _el.clock.addEventListener('transitionend', onFadeOut);
 
-  // Safety fallback: if transition never fires (smooth=off edge case)
-  // clean up after DURATION.font * 2
   setTimeout(() => {
+    if (gen !== _fontFadeGen) return;
     if (_el.body.classList.contains('font-fading')) {
       _el.clock.removeEventListener('transitionend', onFadeOut);
       swapFn();
@@ -396,21 +393,23 @@ function _fontFadeSwap(swapFn) {
   }, (DURATION.font || 220) * 2.5);
 }
 
+let _wmFontFadeGen = 0;
+
 function _wmFontFadeSwap(swapFn) {
-  // Fade the watermark canvas only — foreground untouched
   if (!_el.wmCanvas) { swapFn(); return; }
+  const gen = ++_wmFontFadeGen;
 
   _el.wmCanvas.style.transition =
     `opacity ${DURATION.font || 220}ms ease`;
   _el.wmCanvas.style.opacity = '0';
 
   setTimeout(() => {
-    swapFn(); // swap font in params
+    if (gen !== _wmFontFadeGen) return;
+    swapFn();
     requestAnimationFrame(() => {
       _el.wmCanvas.style.opacity = '1';
       setTimeout(() => {
-        // Clean up inline transition after fade completes
-        _el.wmCanvas.style.transition = '';
+        if (gen === _wmFontFadeGen) _el.wmCanvas.style.transition = '';
       }, DURATION.font || 220);
     });
   }, DURATION.font || 220);
@@ -423,7 +422,7 @@ function _tick() {
     try {
       now = new Date(new Date().toLocaleString('en-US', { timeZone: _cfg.timezone }));
     } catch(e) {
-      now = new Date(); // invalid timezone — fall back silently
+      now = new Date();
     }
   } else {
     now = new Date();
@@ -456,7 +455,7 @@ function _tick() {
 function _scheduleNextTick() {
   const now   = Date.now();
   const delay = 1000 - (now % 1000);
-  _clockInterval = setTimeout(() => {
+  _clockTimeout = setTimeout(() => {
     _tick();
     _scheduleNextTick();
   }, delay);
@@ -474,12 +473,16 @@ function _stopQuotes() {
   if (_qTimer) { clearInterval(_qTimer); _qTimer = null; }
 }
 
+let _quoteFadeGen = 0;
+
 function _advanceQuote() {
   _quoteIdx = (_quoteIdx + 1) % Math.max(1, _quoteList.length);
   if (_cfg.smoothAnimations) {
+    const gen = ++_quoteFadeGen;
     _el.quoteTxt.style.opacity = '0';
     _el.quoteSrc.style.opacity = '0';
     setTimeout(() => {
+      if (gen !== _quoteFadeGen) return;
       _renderQuote(_quoteIdx);
       _el.quoteTxt.style.opacity = String(_cfg.quoteOpacity    ?? 1);
       _el.quoteSrc.style.opacity = String(_cfg.quoteSrcOpacity ?? 0.68);
@@ -503,25 +506,30 @@ function _setQuotePaused(paused) {
 }
 
 /* ── WEATHER ──────────────────────────────────────────────── */
+let _weatherReqGen = 0;
+
 async function _fetchWeather() {
   if (_weatherTimer) { clearTimeout(_weatherTimer); _weatherTimer = null; }
+  const myGen = ++_weatherReqGen;
 
-  const loc = (typeof _cfg.weatherLat === 'number' && typeof _cfg.weatherLon === 'number')
+  const loc = _validCoord(_cfg.weatherLat, _cfg.weatherLon)
     ? `${_cfg.weatherLat},${_cfg.weatherLon}`
     : _cfg.weatherCity;
 
   if (!loc) return;
 
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), 10000);
+
   try {
     let lat, lon;
 
     if (loc.includes(',') && !isNaN(parseFloat(loc.split(',')[0]))) {
-      // Already lat,lon
       [lat, lon] = loc.split(',').map(s => parseFloat(s.trim()));
     } else {
-      // Geocode city name via Open-Meteo geocoding API (no key required)
       const geo = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(loc)}&count=1&language=en&format=json`
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(loc)}&count=1&language=en&format=json`,
+        { signal: controller.signal }
       );
       if (!geo.ok) throw new Error('Geocoding failed');
       const geoData = await geo.json();
@@ -530,25 +538,38 @@ async function _fetchWeather() {
       lon = geoData.results[0].longitude;
     }
 
+    if (myGen !== _weatherReqGen) return;
+
     const weather = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`,
+      { signal: controller.signal }
     );
     if (!weather.ok) throw new Error('Weather API failed');
     const data    = await weather.json();
     const current = data.current;
+    if (!current || !Number.isFinite(current.temperature_2m) || !Number.isFinite(current.weather_code)) {
+      throw new Error('Invalid weather data');
+    }
+
+    clearTimeout(timeoutId);
+    if (myGen !== _weatherReqGen) return;
 
     _el.weatherTxt.textContent = `${Math.round(current.temperature_2m)}°C  ${_weatherCode(current.weather_code)}`;
     _weatherTxt(true);
 
-    // Refresh every 30 minutes
     _weatherTimer = setTimeout(_fetchWeather, 30 * 60 * 1000);
 
   } catch(e) {
-    // Hide gracefully — no broken layout, no alerts
+    clearTimeout(timeoutId);
+    if (myGen !== _weatherReqGen) return;
     _weatherTxt(false);
-    // Retry after 10 minutes
     _weatherTimer = setTimeout(_fetchWeather, 10 * 60 * 1000);
   }
+}
+
+function _validCoord(lat, lon) {
+  return Number.isFinite(lat) && Number.isFinite(lon) &&
+    lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
 }
 
 function _weatherTxt(visible) {
@@ -557,7 +578,6 @@ function _weatherTxt(visible) {
 }
 
 function _weatherCode(code) {
-  // WMO Weather interpretation codes (wmo-codes.org)
   if (code === 0)              return 'Clear';
   if (code === 1)              return 'Mostly clear';
   if (code === 2)              return 'Partly cloudy';
@@ -576,7 +596,7 @@ function _weatherCode(code) {
 function _timerStart(seconds) {
   _timerReset();
   _timerDurationMs = seconds * 1000;
-  _timerStartedAt  = Date.now();
+  _timerStartedAt  = performance.now();
   _timerPausedMs   = 0;
   _timerRunning    = true;
   _timerPaused     = false;
@@ -592,7 +612,7 @@ function _timerStart(seconds) {
 function _timerTick() {
   if (!_timerRunning || _timerPaused) return;
 
-  const elapsed    = Date.now() - _timerStartedAt - _timerPausedMs;
+  const elapsed    = performance.now() - _timerStartedAt - _timerPausedMs;
   _timerRemaining  = Math.max(0, Math.round((_timerDurationMs - elapsed) / 1000));
 
   _timerRender();
@@ -615,11 +635,21 @@ function _timerTogglePause() {
   if (!_timerRunning) return;
   _timerPaused = !_timerPaused;
   if (_timerPaused) {
-    _timerPausedAt = Date.now();
+    if (_displayPauseTimerAt) {
+      _timerPausedMs += performance.now() - _displayPauseTimerAt;
+      _displayPauseTimerAt = null;
+    }
+    _timerPausedAt = performance.now();
   } else {
     if (_timerPausedAt) {
-      _timerPausedMs += Date.now() - _timerPausedAt;
+      _timerPausedMs += performance.now() - _timerPausedAt;
       _timerPausedAt  = null;
+    }
+    if (_isPaused) {
+      _displayPauseTimerAt = performance.now();
+    } else if (!_timerInterval && !_timerStartTimeout) {
+      _timerTick();
+      _timerInterval = setInterval(_timerTick, 1000);
     }
   }
   if (_el.timerLabel) {
@@ -654,29 +684,36 @@ function _timerRender() {
 
 function _timerCheckAutoStart(cfg, now = new Date()) {
   if (!cfg?.timerAutoStart || !cfg?.timerStartTime || _timerRunning) return;
-  const h    = now.getHours();
-  const m    = now.getMinutes();
-  const s    = now.getSeconds();
-  const curr = `${pad(h)}:${pad(m)}`;
-  if (curr === cfg.timerStartTime && s < 3) {
+  const [th, tm] = cfg.timerStartTime.split(':').map(Number);
+  if (isNaN(th) || isNaN(tm)) return;
+
+  const fireKey = `${now.toDateString()} ${cfg.timerStartTime}`;
+  if (_timerAutoStartFiredFor === fireKey) return;
+
+  const target  = new Date(now);
+  target.setHours(th, tm, 0, 0);
+  const diffSec = (now - target) / 1000;
+
+  if (diffSec >= 0 && diffSec <= 120) {
+    _timerAutoStartFiredFor = fireKey;
     _timerStart((cfg.timerDuration || 120) * 60);
   }
 }
 
 function _annCheckSchedule(cfg, now = new Date()) {
   if (!cfg?.annScheduleEnabled || !cfg?.annScheduleTime || !cfg?.annScheduleText) return;
-  const h    = now.getHours();
-  const m    = now.getMinutes();
-  const s    = now.getSeconds();
-  const curr = `${pad(h)}:${pad(m)}`;
+  const [th, tm] = cfg.annScheduleTime.split(':').map(Number);
+  if (isNaN(th) || isNaN(tm)) return;
 
-  if (curr !== cfg.annScheduleTime) {
-    _annScheduleFired = false;
-    return;
-  }
+  const fireKey = `${now.toDateString()} ${cfg.annScheduleTime}`;
+  if (_annScheduleFiredFor === fireKey) return;
 
-  if (s < 5 && !_annScheduleFired) {
-    _annScheduleFired = true;
+  const target  = new Date(now);
+  target.setHours(th, tm, 0, 0);
+  const diffSec = (now - target) / 1000;
+
+  if (diffSec >= 0 && diffSec <= 120) {
+    _annScheduleFiredFor = fireKey;
     _showOverlay(cfg.annScheduleText, cfg.overlayDuration || 8);
   }
 }
@@ -684,12 +721,13 @@ function _annCheckSchedule(cfg, now = new Date()) {
 /* ── OVERLAY ──────────────────────────────────────────────── */
 function _showOverlay(text, dur) {
   if (!_el.overlay) return;
-  _el.overlay.textContent = text;
+  _el.overlay.textContent = typeof text === 'string' ? text : '';
   _el.overlay.classList.add('show');
   _el.stage?.classList.add('announcing');
 
   if (_overlayTimer) clearTimeout(_overlayTimer);
-  _overlayTimer = setTimeout(() => _cancelOverlay(), (dur || 8) * 1000);
+  const seconds = Number.isFinite(dur) && dur > 0 ? dur : 8;
+  _overlayTimer = setTimeout(() => _cancelOverlay(), seconds * 1000);
 }
 
 function _cancelOverlay() {
@@ -700,7 +738,6 @@ function _cancelOverlay() {
 }
 
 /* ── BLANK ────────────────────────────────────────────────── */
-// Blank: foreground fades. Watermark keeps running. Clock keeps ticking.
 function _setBlank(active) {
   if (active && !_wasBlanked) {
     _wasBlanked = true;
@@ -709,8 +746,6 @@ function _setBlank(active) {
   _isBlanked = active;
   _el.body.classList.toggle('blanked', active);
 
-  // Blank only affects foreground — watermark keeps running
-  // If currently paused, unfreeze watermark so it runs behind blank
   if (active && _isPaused) {
     Watermark.resume();
   } else if (!active && _isPaused) {
@@ -719,8 +754,6 @@ function _setBlank(active) {
 }
 
 /* ── PAUSE ────────────────────────────────────────────────── */
-// Pause: everything visible freezes — clock, watermark rAF, quotes all stop.
-// The display becomes a true still frame.
 function _setPause(active) {
   if (active && !_wasPaused) {
     _wasPaused = true;
@@ -730,38 +763,34 @@ function _setPause(active) {
   _el.body.classList.toggle('paused', active);
 
   if (active) {
-    // Stop clock ticker
-    if (_clockInterval) { clearTimeout(_clockInterval); _clockInterval = null; }
-    // Stop quotes
+    if (_clockTimeout) { clearTimeout(_clockTimeout); _clockTimeout = null; }
     _stopQuotes();
-    // Stop timer, and freeze its elapsed-time math for the duration of the pause
+    if (_timerStartTimeout) { clearTimeout(_timerStartTimeout); _timerStartTimeout = null; }
     if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
     if (_timerRunning && !_timerPaused) {
-      _timerPausedAt = Date.now();
-      _timerAutoPausedByDisplay = true;
+      _displayPauseTimerAt = performance.now();
     }
-    // Freeze watermark — true still frame
     Watermark.pause();
   } else {
-    // Restart clock
-    if (!_clockInterval) {
+    if (!_clockTimeout) {
       _tick();
       _scheduleNextTick();
     }
-    // Restart quotes if they were running
     if (_cfg.showQuotes && _quoteList.length && !_quotePaused) {
       _startQuotes();
     }
-    // Restart timer interval if it was running, accounting for the pause duration
     if (_timerRunning && !_timerPaused) {
-      if (_timerAutoPausedByDisplay && _timerPausedAt) {
-        _timerPausedMs += Date.now() - _timerPausedAt;
-        _timerPausedAt = null;
-        _timerAutoPausedByDisplay = false;
+      if (_displayPauseTimerAt) {
+        _timerPausedMs += performance.now() - _displayPauseTimerAt;
+        _displayPauseTimerAt = null;
       }
-      _timerInterval = setInterval(_timerTick, 1000);
+      const msToNext = 1000 - (Date.now() % 1000);
+      _timerStartTimeout = setTimeout(() => {
+        _timerStartTimeout = null;
+        _timerTick();
+        _timerInterval = setInterval(_timerTick, 1000);
+      }, msToNext);
     }
-    // Only resume watermark if not blanked
     if (!_isBlanked) Watermark.resume();
   }
 }
