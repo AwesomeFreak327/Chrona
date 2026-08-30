@@ -6,21 +6,26 @@
                DURATION, BC, loadFont, loadAllFontsForSlot)
 ───────────────────────────────────────────────────────────── */
 
-const RENDER_W    = 1920;
-const RENDER_H    = 1080;
-const CONFIG_W_KEY = 'chrona_config_w';
+const RENDER_W      = 1920;
+const RENDER_H      = 1080;
+const CONFIG_W_KEY  = 'chrona_config_w';
 
 /* ── MODULE STATE ─────────────────────────────────────────── */
-let displayWin    = null;
-let _liveMode     = true;
-let _quotePaused  = false;
-let _pdTimer      = null;
-let _scrollMem    = {};
-let _timerState   = null;
-let _timerSeconds = 0;
-let _timerRunning = false;
-let _timerPaused  = false;
-let _timerSyncInt = null;
+let displayWin          = null;
+let _liveMode           = true;
+let _quotePaused        = false;
+let _pdTimer            = null;
+let _scrollMem          = {};
+let _timerState         = null;
+let _timerSeconds       = 0;
+let _timerRunning       = false;
+let _timerPaused        = false;
+let _timerSyncInt       = null;
+let _timerStartPending  = null;
+let _timerDurationMs    = 0;
+let _timerStartedAt     = null;
+let _timerPausedAt      = null;
+let _timerPausedMs      = 0;
 
 /* ── SINGLE INIT ──────────────────────────────────────────── */
 window.addEventListener('DOMContentLoaded', () => {
@@ -516,9 +521,9 @@ function _buildFontSlots() {
         : (slot.key === 'quote' ? '\u201cQuote\u201d' : 'Aa');
 
       chip.innerHTML = `
-        <span class="font-preview" style="font-family:'${name}',Georgia,sans-serif">${preview}</span>
-        <span class="font-name">${name}</span>
-        <span class="font-note">${meta.note || ''}</span>
+        <span class="font-preview" style="font-family:'${_esc(name)}',Georgia,sans-serif">${preview}</span>
+        <span class="font-name">${_esc(name)}</span>
+        <span class="font-note">${_esc(meta.note || '')}</span>
       `;
       chip.addEventListener('click', () => {
         document.querySelectorAll(`[data-font-slot="${slot.key}"]`)
@@ -604,7 +609,9 @@ function _buildCustomFontInputs() {
       const url   = input?.value.trim();
       if (!url) return;
 
-      if (!/^https:\/\/fonts\.googleapis\.com\//.test(url)) {
+      let parsedUrl;
+      try { parsedUrl = new URL(url); } catch(e) { parsedUrl = null; }
+      if (!parsedUrl || parsedUrl.protocol !== 'https:' || parsedUrl.hostname !== 'fonts.googleapis.com') {
         input.style.borderColor = 'var(--danger)';
         setTimeout(() => { input.style.borderColor = ''; }, 2000);
         return;
@@ -650,9 +657,11 @@ function _buildCustomFontInputs() {
 
 function _extractFontName(url) {
   try {
-    const match = url.match(/family=([^:&]+)/);
-    if (!match) return null;
-    return decodeURIComponent(match[1]).replace(/\+/g, ' ');
+    const parsed = new URL(url);
+    const family = parsed.searchParams.get('family');
+    if (!family) return null;
+    const name = family.split(':')[0].replace(/\+/g, ' ').trim();
+    return name || null;
   } catch(e) {
     return null;
   }
@@ -718,7 +727,14 @@ function _initTimezone() {
       }
 
       _save({ timezone: tz }, 'Timezone auto-detected');
-      _tzStatus('success', `Detected: ${tz}`);
+
+      const actual = Config.get().timezone;
+      if (actual === tz) {
+        _tzStatus('success', `Detected: ${tz}`);
+      } else {
+        if (tzEl) tzEl.value = actual;
+        _tzStatus('error', `"${tz}" isn't in the supported list — kept ${actual === 'auto' ? 'automatic' : actual}.`);
+      }
       setTimeout(() => _tzStatus('', ''), 4000);
     } catch(e) {
       _tzStatus('error', 'Could not detect timezone. Select manually.');
@@ -766,8 +782,15 @@ function _initLogo() {
 }
 
 function _readLogoFile(file) {
-  if (!file.type.startsWith('image/')) return;
-  if (file.size > 2 * 1024 * 1024) return;
+  const drop = document.getElementById('logo-drop');
+  if (!file.type.startsWith('image/')) {
+    _logoReject(drop, 'Not an image file');
+    return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    _logoReject(drop, 'Image too large (max 2MB)');
+    return;
+  }
 
   const r = new FileReader();
   r.onload = () => {
@@ -779,11 +802,41 @@ function _readLogoFile(file) {
     if (clr)  clr.style.display = 'inline-block';
     _save({ logoData: r.result }, 'Logo uploaded');
   };
+  r.onerror = () => _logoReject(drop, 'Could not read that file');
   r.readAsDataURL(file);
+}
+
+function _flashInvalid(el) {
+  if (!el) return;
+  el.style.borderColor = 'var(--danger)';
+  el.style.boxShadow   = '0 0 0 2px rgba(248,113,113,.2)';
+  setTimeout(() => {
+    el.style.borderColor = '';
+    el.style.boxShadow   = '';
+  }, 3000);
+}
+
+function _logoReject(drop, msg) {
+  if (!drop) return;
+  const p = drop.querySelector('p');
+  const original = p ? p.textContent : null;
+  drop.style.borderColor = 'var(--danger)';
+  if (p) p.textContent = msg;
+  setTimeout(() => {
+    drop.style.borderColor = '';
+    if (p && original !== null) p.textContent = original;
+  }, 2500);
 }
 
 /* ── Quotes ── */
 function _initQuotes() {
+  _quotePaused = !!Config.get().quotePaused;
+  const pauseBtnInit = document.getElementById('btn-quote-pause');
+  if (pauseBtnInit) {
+    pauseBtnInit.textContent = _quotePaused ? '▶ Resume' : '⏸ Pause feed';
+    pauseBtnInit.classList.toggle('active', _quotePaused);
+  }
+
   document.getElementById('quotesText')?.addEventListener('input', function() {
     const quotes = this.value.split('\n').map(l => l.trim()).filter(Boolean);
     _save({ quotes }, 'Quotes updated');
@@ -792,13 +845,19 @@ function _initQuotes() {
   // File upload
   document.getElementById('quotesFile')?.addEventListener('change', function() {
     const f = this.files[0]; if (!f) return;
+    const label = document.getElementById('quotesFile-label') || this;
     const r = new FileReader();
     r.onload = () => {
       try {
         let quotes;
         if (f.name.endsWith('.json')) {
           const arr = JSON.parse(r.result);
-          quotes = Array.isArray(arr) ? arr : [];
+          quotes = Array.isArray(arr)
+            ? arr.filter(q =>
+                (typeof q === 'string' && q.trim()) ||
+                (q && typeof q === 'object' && typeof q.text === 'string' && q.text.trim())
+              )
+            : [];
         } else {
           quotes = r.result.split('\n').map(l => l.trim()).filter(Boolean);
         }
@@ -809,8 +868,11 @@ function _initQuotes() {
             : q
         ).join('\n');
         _save({ quotes }, 'Quotes imported from file');
-      } catch(e) { /* corrupt file — do nothing */ }
+      } catch(e) {
+        _flashInvalid(label);
+      }
     };
+    r.onerror = () => _flashInvalid(label);
     r.readAsText(f);
   });
 
@@ -836,6 +898,7 @@ function _initQuotes() {
   document.getElementById('btn-quote-pause')?.addEventListener('click', () => {
     _quotePaused = !_quotePaused;
     BC.postMessage({ type: 'quote-pause', paused: _quotePaused });
+    _save({ quotePaused: _quotePaused }, `Quote feed ${_quotePaused ? 'paused' : 'resumed'}`);
     const btn = document.getElementById('btn-quote-pause');
     if (btn) {
       btn.textContent = _quotePaused ? '▶ Resume' : '⏸ Pause feed';
@@ -849,7 +912,6 @@ function _initWeather() {
   const cityInput = document.getElementById('weatherCity');
   const geoBtn    = document.getElementById('btn-geo');
   const saveCity  = document.getElementById('btn-save-city');
-  const statusEl  = document.getElementById('weather-status');
 
   cityInput?.addEventListener('input', function() {
     _save({ weatherCity: this.value, weatherLat: null, weatherLon: null });
@@ -866,14 +928,26 @@ function _initWeather() {
 
     navigator.geolocation.getCurrentPosition(
         async pos => {
-          const lat = pos.coords.latitude.toFixed(4);
-          const lon = pos.coords.longitude.toFixed(4);
+          const rawLat = pos.coords.latitude;
+          const rawLon = pos.coords.longitude;
+          if (!Number.isFinite(rawLat) || !Number.isFinite(rawLon)) {
+            _weatherStatus('error', 'Could not detect a valid location.');
+            geoBtn.disabled = false;
+            return;
+          }
+          const lat = rawLat.toFixed(4);
+          const lon = rawLon.toFixed(4);
           _weatherStatus('loading', 'Detecting city name…');
           let cityName = `${lat},${lon}`;
+          let geocodeFailed = false;
+          const controller = new AbortController();
+          const timeoutId  = setTimeout(() => controller.abort(), 8000);
           try {
             const res  = await fetch(
-              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
+              { signal: controller.signal }
             );
+            if (!res.ok) throw new Error('Reverse geocoding failed');
             const data = await res.json();
             cityName   =
               data.locality ||
@@ -881,10 +955,16 @@ function _initWeather() {
               data.principalSubdivision ||
               data.countryName ||
               cityName;
-          } catch(e) {}
+          } catch(e) {
+            geocodeFailed = true;
+          } finally {
+            clearTimeout(timeoutId);
+          }
           if (cityInput) cityInput.value = cityName;
           _save({ weatherCity: cityName, weatherLat: lat, weatherLon: lon });
-          _weatherStatus('success', `Detected: ${cityName}`);
+          _weatherStatus('success', geocodeFailed
+            ? `Location detected (${lat}, ${lon}) — city name unavailable`
+            : `Detected: ${cityName}`);
           geoBtn.disabled = false;
           setTimeout(() => _weatherStatus('', ''), 4000);
         },
@@ -983,13 +1063,6 @@ function _initTimer() {
   _bind('timerDuration', 'timerDuration', Number);
   _bind('timerStartTime','timerStartTime');
 
-  const scaleEl = document.getElementById('scaleTimer');
-  scaleEl?.addEventListener('input', function() {
-    const v = parseFloat(this.value);
-    _sizeLbl('scaleTimer', v);
-    _save({ scaleTimer: v });
-  });
-
   function _setTimerBtns(state) {
     const start = document.getElementById('btn-timer-start');
     const pause = document.getElementById('btn-timer-pause');
@@ -1019,10 +1092,15 @@ function _initTimer() {
   document.getElementById('timerMinutes')?.addEventListener('change', _syncTimerDuration);
 
   document.getElementById('btn-timer-start')?.addEventListener('click', () => {
-    if (!Config.get().timerEnabled) return;
+    if (!Config.get().timerEnabled || _timerStartPending) return;
     const dur = (Config.get().timerDuration || 120) * 60;
     const msToNext = 1000 - (Date.now() % 1000);
-    setTimeout(() => {
+    _timerStartPending = setTimeout(() => {
+      _timerStartPending = null;
+      _timerDurationMs   = dur * 1000;
+      _timerStartedAt    = performance.now();
+      _timerPausedAt     = null;
+      _timerPausedMs     = 0;
       _timerSeconds = dur;
       _timerRunning = true;
       _timerPaused  = false;
@@ -1038,6 +1116,12 @@ function _initTimer() {
   document.getElementById('btn-timer-pause')?.addEventListener('click', () => {
     if (!_timerRunning) return;
     _timerPaused = !_timerPaused;
+    if (_timerPaused) {
+      _timerPausedAt = performance.now();
+    } else if (_timerPausedAt) {
+      _timerPausedMs += performance.now() - _timerPausedAt;
+      _timerPausedAt  = null;
+    }
     const msg = { type: 'timer-pause' };
     BC.postMessage(msg);
     _sendToFrame('preview-frame', msg);
@@ -1056,11 +1140,18 @@ function _initTimer() {
   });
 }
 
+function _currentTimerSeconds() {
+  if (!_timerRunning) return 0;
+  if (_timerPaused) return _timerSeconds;
+  const elapsed = performance.now() - _timerStartedAt - _timerPausedMs;
+  return Math.max(0, Math.round((_timerDurationMs - elapsed) / 1000));
+}
+
 function _startTimerSync() {
   if (_timerSyncInt) clearInterval(_timerSyncInt);
   _timerSyncInt = setInterval(() => {
     if (!_timerRunning || _timerPaused) return;
-    _timerSeconds = Math.max(0, _timerSeconds - 1);
+    _timerSeconds = _currentTimerSeconds();
     _sendToFrame('preview-frame', {
       type: 'timer-sync-tick',
       seconds: _timerSeconds
@@ -1074,10 +1165,15 @@ function _startTimerSync() {
 }
 
 function _resetTimerState() {
-  _timerState   = null;
-  _timerSeconds = 0;
-  _timerRunning = false;
-  _timerPaused  = false;
+  if (_timerStartPending) { clearTimeout(_timerStartPending); _timerStartPending = null; }
+  _timerState      = null;
+  _timerSeconds    = 0;
+  _timerRunning    = false;
+  _timerPaused     = false;
+  _timerDurationMs = 0;
+  _timerStartedAt  = null;
+  _timerPausedAt   = null;
+  _timerPausedMs   = 0;
   if (_timerSyncInt) { clearInterval(_timerSyncInt); _timerSyncInt = null; }
 }
 
@@ -1154,7 +1250,10 @@ function _startChipRename(chip, item) {
   input.focus();
   input.select();
 
+  let committed = false;
   function commit() {
+    if (committed) return;
+    committed = true;
     const newLabel = input.value.trim();
     if (newLabel) Announcements.rename(item.id, newLabel);
     _renderAnnPresets();
@@ -1254,7 +1353,7 @@ function _initPresentControls() {
           BC.postMessage({ type: 'config', config: Config.get() });
 
           if (_timerRunning && _timerState) {
-            const remaining = Math.max(0, _timerSeconds);
+            const remaining = _currentTimerSeconds();
             setTimeout(() => {
               BC.postMessage({ type: 'timer-start', seconds: remaining });
               if (_timerPaused) {
@@ -1344,16 +1443,25 @@ function _initAdvanced() {
   });
   document.getElementById('btn-import')?.addEventListener('change', function() {
     const f = this.files[0]; if (!f) return;
+    const trigger = document.getElementById('btn-import-trigger');
     const r = new FileReader();
     r.onload = () => {
       try {
-        const imported = { ...DEFAULTS, ...JSON.parse(r.result) };
+        const parsed = JSON.parse(r.result);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+          _flashInvalid(trigger);
+          return;
+        }
+        const imported = { ...DEFAULTS, ...parsed };
         Config.set(imported, { silent: true });
         _populateUI();
         _applyAccent(Config.get().theme);
         _pushLive();
-      } catch(e) { /* invalid JSON — do nothing */ }
+      } catch(e) {
+        _flashInvalid(trigger);
+      }
     };
+    r.onerror = () => _flashInvalid(trigger);
     r.readAsText(f);
   });
 
@@ -1590,8 +1698,9 @@ function _initPresenter() {
       setTimeout(() => {
         BC.postMessage({ type: 'config', config: Config.get() });
         if (_timerRunning && _timerState) {
+          const remaining = _currentTimerSeconds();
           setTimeout(() => {
-            BC.postMessage({ type: 'timer-start', seconds: Math.max(0, _timerSeconds) });
+            BC.postMessage({ type: 'timer-start', seconds: remaining });
             if (_timerPaused) {
               setTimeout(() => BC.postMessage({ type: 'timer-pause' }), 100);
             }
