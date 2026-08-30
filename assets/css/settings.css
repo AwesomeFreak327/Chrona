@@ -217,6 +217,7 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
   margin:1px 6px; border-radius:7px;
   font-size:.78rem; font-weight:400; color:var(--txt2);
   cursor:pointer; user-select:none; position:relative;
+  width:100%; text-align:left; background:none; border:none; font-family:inherit;
 }
 .nav-item:hover { background:var(--accent-dim); color:var(--txt); }
 .nav-item.active { background:var(--accent-dim); color:var(--accent); font-weight:500; }
@@ -404,6 +405,7 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
 
 /* ── FORM ELEMENTS ────────────────────────────────────────── */
 .field { display:flex; flex-direction:column; gap:var(--sp-1); }
+.field fieldset { all: unset; display: contents; }
 
 .lbl {
   font-size:.72rem; font-weight:400;
