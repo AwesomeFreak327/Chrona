@@ -128,7 +128,6 @@ html, body {
 .nav-item,
 .nav-item svg,
 .nav-item .kb,
-.danger-btn,
 .preview-act-btn,
 .file-upload-btn,
 .chip-item,
@@ -152,14 +151,6 @@ textarea,
     border-color     var(--dur-fast, 180ms) ease,
     color            var(--dur-fast, 180ms) ease,
     opacity          var(--dur-fast, 180ms) ease;
-}
-
-/* Accent colour tokens themselves transition on theme change */
-body {
-  transition:
-    --accent     var(--dur-normal, 280ms) ease,
-    --accent-dim var(--dur-normal, 280ms) ease,
-    --accent-b   var(--dur-normal, 280ms) ease;
 }
 
 /* Slider thumb */
@@ -217,7 +208,7 @@ nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
   margin:1px 6px; border-radius:7px;
   font-size:.78rem; font-weight:400; color:var(--txt2);
   cursor:pointer; user-select:none; position:relative;
-  width:100%; text-align:left; background:none; border:none; font-family:inherit;
+  width:calc(100% - 12px); text-align:left; background:none; border:none; font-family:inherit;
 }
 .nav-item:hover { background:var(--accent-dim); color:var(--txt); }
 .nav-item.active { background:var(--accent-dim); color:var(--accent); font-weight:500; }
@@ -901,10 +892,13 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
 
 /* ── DISABLED SECTION OVERLAY ─────────────────────────────── */
 .disabled-section {
+  position:relative;
+  user-select:none;
+}
+
+.disabled-section > * {
   opacity:.38;
   pointer-events:none;
-  user-select:none;
-  position:relative;
 }
 
 .disabled-section::after {
