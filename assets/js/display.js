@@ -81,6 +81,12 @@ const pad = n => String(n).padStart(2, '0');
 
   // Signal ready to settings page (iframe postMessage)
   try { window.parent?.postMessage({ type: 'ready' }, '*'); } catch(e) {}
+
+  // Announce this display is alive — presenter.html listens for this to know whether to show "Waiting to connect"
+  BC.postMessage({ type: 'display-heartbeat' });
+  setInterval(() => {
+    BC.postMessage({ type: 'display-heartbeat' });
+  }, 3000);
 })();
 
 /* ── DOM CACHE ────────────────────────────────────────────── */
