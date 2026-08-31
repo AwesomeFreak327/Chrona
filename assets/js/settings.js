@@ -262,20 +262,22 @@ function _pushToPreview() {
     const cfg = Config.get();
     _postToFrame('preview-frame', cfg);
     _postToFrame('fs-frame', cfg);
-    if (_timerState && _timerRunning) {
-      setTimeout(() => {
-        _sendToFrame('preview-frame', {
-          type: 'timer-start',
-          seconds: _timerSeconds
-        });
-        if (_timerPaused) {
-          setTimeout(() => {
-            _sendToFrame('preview-frame', { type: 'timer-pause' });
-          }, 50);
-        }
-      }, 120);
-    }
   }, 80);
+}
+
+function _syncPreviewTimerState() {
+  if (!(_timerState && _timerRunning)) return;
+  setTimeout(() => {
+    _sendToFrame('preview-frame', {
+      type: 'timer-start',
+      seconds: _timerSeconds
+    });
+    if (_timerPaused) {
+      setTimeout(() => {
+        _sendToFrame('preview-frame', { type: 'timer-pause' });
+      }, 50);
+    }
+  }, 120);
 }
 
 function _postToFrame(id, cfg) {
@@ -1152,10 +1154,6 @@ function _startTimerSync() {
   _timerSyncInt = setInterval(() => {
     if (!_timerRunning || _timerPaused) return;
     _timerSeconds = _currentTimerSeconds();
-    _sendToFrame('preview-frame', {
-      type: 'timer-sync-tick',
-      seconds: _timerSeconds
-    });
     if (_timerSeconds === 0) {
       _timerRunning = false;
       clearInterval(_timerSyncInt);
@@ -1794,7 +1792,7 @@ function _initPreviewScaling() {
   if (wrap) ro.observe(wrap);
 
   document.getElementById('preview-frame')?.addEventListener('load', () => {
-    setTimeout(() => { _doScale(); _pushToPreview(); }, 300);
+    setTimeout(() => { _doScale(); _pushToPreview(); _syncPreviewTimerState(); }, 300);
   });
 }
 

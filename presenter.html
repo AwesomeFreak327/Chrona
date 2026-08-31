@@ -309,19 +309,34 @@ function _timerTick() {
   }
 }
 
-/* ── CONNECT ── */
-function _setConnected(fromConfig) {
-  if (_connected) return;
-  const cfg = fromConfig || {};
-  if (cfg.presenterLinked === false) {
-    _connected = true;
-    el.notConn.classList.add('hidden');
-    el.stage.style.display = 'flex';
-    return;
+/* ── CONNECT / DISCONNECT ── */
+function _isLinked() {
+  try {
+    const cfg = JSON.parse(localStorage.getItem('chrona_config') || '{}');
+    return cfg.presenterLinked !== false;
+  } catch(e) {
+    return true;
   }
+}
+
+function _connect() {
+  if (_connected) return;
   _connected = true;
   el.notConn.classList.add('hidden');
   el.stage.style.display = 'flex';
+}
+
+function _disconnect() {
+  if (!_connected) return;
+  _connected = false;
+  el.notConn.classList.remove('hidden');
+  el.stage.style.display = 'none';
+}
+
+function _reconcileConnection() {
+  if (!_isLinked()) { _connect(); return; }
+  const stale = !_lastHeartbeatAt || (performance.now() - _lastHeartbeatAt > 7000);
+  if (stale) _disconnect(); else _connect();
 }
 
 /* ── BROADCAST CHANNEL ── */
@@ -331,13 +346,14 @@ BC.onmessage = e => {
 
   if (d.type === 'display-heartbeat') {
     _lastHeartbeatAt = performance.now();
-    _setConnected();
+    _reconcileConnection();
     return;
   }
 
   switch(d.type) {
     case 'config':
     case 'preview':
+      _reconcileConnection();
       if (d.config) {
         const s = document.documentElement.style;
         const f = d.config;
@@ -461,30 +477,9 @@ document.getElementById('invert-btn')?.addEventListener('click', function() {
   const inv = document.body.classList.toggle('inverted');
   this.textContent = inv ? '☾ Dark' : '☀ Light';
 });
-(function() {
-  try {
-    const cfg = JSON.parse(localStorage.getItem('chrona_config') || '{}');
-    if (cfg.presenterLinked === false) {
-      _setConnected({});
-    }
-  } catch(e) {}
-})();
+_reconcileConnection();
 
-setInterval(() => {
-  if (!_connected) return;
-  let linked = true;
-  try {
-    const cfg = JSON.parse(localStorage.getItem('chrona_config') || '{}');
-    linked = cfg.presenterLinked !== false;
-  } catch(e) {}
-  if (!linked) return;
-  const stale = !_lastHeartbeatAt || (performance.now() - _lastHeartbeatAt > 7000);
-  if (stale) {
-    _connected = false;
-    el.notConn.classList.remove('hidden');
-    el.stage.style.display = 'none';
-  }
-}, 2000);
+setInterval(_reconcileConnection, 2000);
 </script>
 </body>
 </html>
