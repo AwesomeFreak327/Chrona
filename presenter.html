@@ -220,6 +220,7 @@ let _connected          = false;
 let _annTimer           = null;
 let _timerStartTimeout  = null;
 let _timeUpTimeout      = null;
+let _lastHeartbeatAt    = 0;
 
 const pad = n => String(n).padStart(2, '0');
 
@@ -298,7 +299,7 @@ function _renderTimer() {
 /* ── TIMER TICK ── */
 function _timerTick() {
   if (!_timerRunning || _timerPaused) return;
-  const elapsed   = Date.now() - _timerStartedAt - _timerPausedMs;
+  const elapsed   = performance.now() - _timerStartedAt - _timerPausedMs;
   _timerRemaining = Math.max(0, Math.round((_timerDurationMs - elapsed) / 1000));
   _renderTimer();
   if (_timerRemaining === 0) {
@@ -327,7 +328,12 @@ function _setConnected(fromConfig) {
 BC.onmessage = e => {
   const d = e.data;
   if (!d) return;
-  _setConnected();
+
+  if (d.type === 'display-heartbeat') {
+    _lastHeartbeatAt = performance.now();
+    _setConnected();
+    return;
+  }
 
   switch(d.type) {
     case 'config':
@@ -349,6 +355,14 @@ BC.onmessage = e => {
         Object.values(customFonts).forEach(cf => {
           if (cf?.url) loadFont(cf.url);
         });
+        if (Number.isFinite(f.presenterScale) && f.presenterScale >= 0.5 && f.presenterScale <= 2.0) {
+          s.setProperty('--p-scale', f.presenterScale);
+        }
+        if (typeof f.presenterInvert === 'boolean') {
+          document.body.classList.toggle('inverted', f.presenterInvert);
+          const invBtn = document.getElementById('invert-btn');
+          if (invBtn) invBtn.textContent = f.presenterInvert ? '☾ Dark' : '☀ Light';
+        }
       }
       break;
 
@@ -356,8 +370,9 @@ BC.onmessage = e => {
       if (_timerStartTimeout) { clearTimeout(_timerStartTimeout); _timerStartTimeout = null; }
       if (_timeUpTimeout)     { clearTimeout(_timeUpTimeout);     _timeUpTimeout     = null; }
       clearInterval(_timerInterval);
+      if (!Number.isFinite(d.seconds) || d.seconds < 0) break;
       _timerDurationMs = d.seconds * 1000;
-      _timerStartedAt  = Date.now();
+      _timerStartedAt  = performance.now();
       _timerPausedMs   = 0;
       _timerPausedAt   = null;
       _timerRunning    = true;
@@ -376,10 +391,10 @@ BC.onmessage = e => {
       if (!_timerRunning) break;
       _timerPaused = !_timerPaused;
       if (_timerPaused) {
-        _timerPausedAt = Date.now();
+        _timerPausedAt = performance.now();
       } else {
         if (_timerPausedAt) {
-          _timerPausedMs += Date.now() - _timerPausedAt;
+          _timerPausedMs += performance.now() - _timerPausedAt;
           _timerPausedAt  = null;
         }
       }
@@ -406,9 +421,10 @@ BC.onmessage = e => {
       el.annText.textContent = d.text;
       el.annWrap.classList.add('visible');
       if (_annTimer) clearTimeout(_annTimer);
+      const dur = Number.isFinite(d.duration) && d.duration > 0 ? d.duration : 8;
       _annTimer = setTimeout(() => {
         el.annWrap.classList.remove('visible');
-      }, (d.duration || 8) * 1000);
+      }, dur * 1000);
       break;
 
     case 'overlay-cancel':
@@ -417,11 +433,14 @@ BC.onmessage = e => {
       break;
 
     case 'presenter-scale':
-      document.documentElement.style.setProperty('--p-scale', d.scale);
+      if (Number.isFinite(d.scale) && d.scale >= 0.5 && d.scale <= 2.0) {
+        document.documentElement.style.setProperty('--p-scale', d.scale);
+      }
       break;
 
     case 'presenter-invert':
-      document.body.classList.toggle('inverted', !!d.inverted);
+      if (typeof d.inverted !== 'boolean') break;
+      document.body.classList.toggle('inverted', d.inverted);
       const btn = document.getElementById('invert-btn');
       if (btn) btn.textContent = d.inverted ? '☾ Dark' : '☀ Light';
       break;
@@ -450,6 +469,22 @@ document.getElementById('invert-btn')?.addEventListener('click', function() {
     }
   } catch(e) {}
 })();
+
+setInterval(() => {
+  if (!_connected) return;
+  let linked = true;
+  try {
+    const cfg = JSON.parse(localStorage.getItem('chrona_config') || '{}');
+    linked = cfg.presenterLinked !== false;
+  } catch(e) {}
+  if (!linked) return;
+  const stale = !_lastHeartbeatAt || (performance.now() - _lastHeartbeatAt > 7000);
+  if (stale) {
+    _connected = false;
+    el.notConn.classList.remove('hidden');
+    el.stage.style.display = 'none';
+  }
+}, 2000);
 </script>
 </body>
 </html>
