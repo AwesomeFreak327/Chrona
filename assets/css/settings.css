@@ -192,7 +192,12 @@ input[type=range]::-webkit-slider-thumb {
   text-transform:uppercase; margin-top:2px;
 }
 
-nav { flex:1; overflow-y:auto; padding:var(--sp-2) 0; }
+nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--sp-2) 0;
+}
 nav::-webkit-scrollbar { width:3px; }
 nav::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
 
