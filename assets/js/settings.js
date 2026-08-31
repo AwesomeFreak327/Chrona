@@ -463,7 +463,6 @@ function _buildThemeGrid() {
       </div>
       <div class="theme-label">
         <span>${t.label}</span>
-        <span class="theme-dot" style="${cfg.theme === key ? 'opacity:1' : ''}"></span>
       </div>
     `;
 
