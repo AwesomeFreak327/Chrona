@@ -486,10 +486,10 @@
       <div class="sec-title">Countdown Timer</div>
 
       <div class="tog-row" data-controls="timer-section">
-        <span class="tog-lbl">
-          Enable timer
-        </span>
-        <p class="field-hint" style="margin-top:-8px">Shows a countdown below the clock. Hides when not active.</p>
+        <div class="timer-toggle-info">
+          <span class="tog-lbl">Enable timer</span>
+          <p class="field-hint">Shows a countdown below the clock. Hides when not active.</p>
+        </div>
         <label class="tog">
           <input type="checkbox" id="timerEnabled">
           <div class="tog-track"></div><div class="tog-thumb"></div>
@@ -532,7 +532,7 @@
         </label>
       </div>
 
-      <div style="display:flex;gap:7px;margin-top:4px">
+      <div style="display:flex;gap:7px">
         <button class="act-btn" id="btn-timer-start" style="flex:1">▶ Start</button>
         <button class="ctrl-btn" id="btn-timer-pause" style="flex:1;display:none">⏸ Pause</button>
         <button class="ctrl-btn danger" id="btn-timer-reset" style="flex:1;display:none">↺ Reset</button>

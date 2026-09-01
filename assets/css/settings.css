@@ -478,6 +478,11 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
   font-size:.78rem; color:var(--txt2);
   display:flex; align-items:center; gap:var(--sp-1);
 }
+.timer-toggle-info {
+  display:flex;
+  flex-direction:column;
+  gap:var(--sp-1);
+}
 .tog { position:relative; width:34px; height:19px; flex-shrink:0; }
 .tog input { opacity:0; width:0; height:0; position:absolute; }
 .tog-track {
