@@ -711,31 +711,17 @@ function _initTimezone() {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
       if (!tz) throw new Error('Could not detect timezone.');
 
-      // Check if detected timezone exists in our dropdown
-      const exists = Array.from(tzEl?.options || []).some(o => o.value === tz);
+      const option = Array.from(tzEl?.options || [])
+        .find(o => o.value === tz);
 
-      if (tzEl) {
-        if (exists) {
-          tzEl.value = tz;
-        } else {
-          // Add it dynamically if not in our curated list
-          const opt = document.createElement('option');
-          opt.value = tz;
-          opt.textContent = tz;
-          tzEl.appendChild(opt);
-          tzEl.value = tz;
-        }
+      if (!option) {
+        _tzStatus('error', `"${tz}" isn't available in the timezone list. Select manually.`);
+        return;
       }
 
+      if (tzEl) tzEl.value = tz;
       _save({ timezone: tz }, 'Timezone auto-detected');
-
-      const actual = Config.get().timezone;
-      if (actual === tz) {
-        _tzStatus('success', `Detected: ${tz}`);
-      } else {
-        if (tzEl) tzEl.value = actual;
-        _tzStatus('error', `"${tz}" isn't in the supported list — kept ${actual === 'auto' ? 'automatic' : actual}.`);
-      }
+      _tzStatus('success', `Detected: ${option.textContent}`);
       setTimeout(() => _tzStatus('', ''), 4000);
     } catch(e) {
       _tzStatus('error', 'Could not detect timezone. Select manually.');
