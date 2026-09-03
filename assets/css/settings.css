@@ -429,7 +429,7 @@ textarea {
 }
 select {
   min-height:34px;
-  padding:0 34px 0 11px;
+  padding:0 11px;
   cursor:pointer;
   color-scheme:dark;
   appearance:auto;
@@ -452,9 +452,10 @@ select {
   }
 
   select::picker-icon {
-    color: var(--txt3);
-    width: 10px;
-    height: 10px;
+    color:var(--txt3);
+    width:10px;
+    height:10px;
+    margin-inline-end:2px;
   }
 
   select option {
