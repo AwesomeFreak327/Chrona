@@ -673,6 +673,12 @@ function _buildTimezoneSelect() {
   const sel = document.getElementById('tzSelect');
   if (!sel) return;
   sel.innerHTML = '';
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.appendChild(document.createElement('selectedcontent'));
+  sel.appendChild(btn);
+
   TIMEZONES.forEach(tz => {
     const opt = document.createElement('option');
     opt.value = tz.value;
