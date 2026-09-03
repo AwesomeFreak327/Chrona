@@ -742,8 +742,10 @@ function _initTimezone() {
     tzAuto.disabled = true;
 
     try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      if (!tz) throw new Error('Could not detect timezone.');
+      const detectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (!detectedTz) throw new Error('Could not detect timezone.');
+
+      const tz = TZ_ALIASES[detectedTz] || detectedTz;
 
       const option = Array.from(tzEl?.options || [])
         .find(o => o.value === tz);
