@@ -443,6 +443,10 @@ select {
     align-items: center;
   }
 
+  select {
+    justify-content: space-between;
+  }
+
   select::picker(select) {
     background: var(--surface2);
     border: 1px solid var(--border2);
