@@ -501,7 +501,7 @@ input[type=number]::-webkit-outer-spin-button {
   appearance:none;
   margin:0;
 }
-.num-stepper input[type=number] { -moz-appearance:textfield; }
+.num-stepper input[type=number] { -moz-appearance:textfield; appearance:textfield; }
 
 .num-step-up,
 .num-step-down {
