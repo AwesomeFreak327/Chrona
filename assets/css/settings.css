@@ -427,14 +427,30 @@ textarea {
   font-family:var(--fu); font-size:.78rem; font-weight:300;
   outline:none; resize:vertical;
 }
-
-#tzSelect {
+select {
   min-height:34px;
-  padding-right:30px;
+  padding:0 34px 0 11px;
   cursor:pointer;
+  color-scheme:dark;
+  appearance:auto;
+  -webkit-appearance:auto;
+}
+
+input[type=number] {
+  min-height:34px;
+  padding:0 36px 0 11px;
+  text-align:center;
+  cursor:text;
   color-scheme:dark;
 }
 
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  opacity:1;
+  margin:0;
+  filter:invert(1) brightness(.75);
+  cursor:pointer;
+}
 input[type=text]:focus,
 input[type=number]:focus,
 select:focus,
