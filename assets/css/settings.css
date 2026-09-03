@@ -440,6 +440,7 @@ select {
   select,
   select::picker(select) {
     appearance: base-select;
+    align-items: center;
   }
 
   select::picker(select) {
@@ -452,6 +453,8 @@ select {
 
   select::picker-icon {
     color: var(--txt3);
+    width: 10px;
+    height: 10px;
   }
 
   select option {
