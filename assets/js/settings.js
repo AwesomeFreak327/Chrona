@@ -695,6 +695,40 @@ function _buildTimezoneSelect() {
 /* ─────────────────────────────────────────────────────────────
    FEATURE INITS
 ───────────────────────────────────────────────────────────── */
+/* Legacy/alternate IANA identifiers some browsers still report from
+   Intl.DateTimeFormat().resolvedOptions().timeZone, mapped to the
+   canonical value already present in the TIMEZONES registry (config.js).
+   Sourced from the IANA tzdb 'backward' file's "Pre-1993 naming
+   conventions" and "Alternate names for the same location" sections,
+   restricted to zones actually offered in TIMEZONES. */
+const TZ_ALIASES = {
+  'Asia/Calcutta':  'Asia/Kolkata',
+  'Asia/Dacca':     'Asia/Dhaka',
+  'Asia/Istanbul':  'Europe/Istanbul',
+  'US/Eastern':     'America/New_York',
+  'EST5EDT':        'America/New_York',
+  'US/Central':     'America/Chicago',
+  'CST6CDT':        'America/Chicago',
+  'US/Mountain':    'America/Denver',
+  'MST7MDT':        'America/Denver',
+  'US/Pacific':     'America/Los_Angeles',
+  'PST8PDT':        'America/Los_Angeles',
+  'Canada/Eastern': 'America/Toronto',
+  'Brazil/East':    'America/Sao_Paulo',
+  'GB':             'Europe/London',
+  'GB-Eire':        'Europe/London',
+  'Turkey':         'Europe/Istanbul',
+  'W-SU':           'Europe/Moscow',
+  'Egypt':          'Africa/Cairo',
+  'Hongkong':       'Asia/Hong_Kong',
+  'Japan':          'Asia/Tokyo',
+  'PRC':            'Asia/Shanghai',
+  'ROK':            'Asia/Seoul',
+  'Singapore':      'Asia/Singapore',
+  'Australia/ACT':  'Australia/Sydney',
+  'Australia/NSW':  'Australia/Sydney',
+  'NZ':             'Pacific/Auckland'
+};
 
 /* ── Timezone ── */
 function _initTimezone() {
