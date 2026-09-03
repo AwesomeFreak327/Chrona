@@ -502,14 +502,22 @@
           <legend class="lbl">Duration</legend>
           <div style="display:flex;gap:8px;align-items:center">
             <div style="flex:1;display:flex;flex-direction:column;gap:3px">
-              <input type="number" id="timerHours" min="0" max="9" value="2"
-                style="text-align:center">
+              <div class="num-stepper">
+                <input type="number" id="timerHours" min="0" max="9" value="2"
+                  style="text-align:center">
+                <button type="button" class="num-step-up" data-target="timerHours" tabindex="-1" aria-label="Increase hours">▲</button>
+                <button type="button" class="num-step-down" data-target="timerHours" tabindex="-1" aria-label="Decrease hours">▼</button>
+              </div>
               <label for="timerHours" style="font-size:.62rem;color:var(--txt3);text-align:center;letter-spacing:.1em">HRS</label>
             </div>
             <span aria-hidden="true" style="color:var(--txt3);font-size:1.2rem;padding-bottom:14px">:</span>
             <div style="flex:1;display:flex;flex-direction:column;gap:3px">
-              <input type="number" id="timerMinutes" min="0" max="59" value="0"
-                style="text-align:center">
+              <div class="num-stepper">
+                <input type="number" id="timerMinutes" min="0" max="59" value="0"
+                  style="text-align:center">
+                <button type="button" class="num-step-up" data-target="timerMinutes" tabindex="-1" aria-label="Increase minutes">▲</button>
+                <button type="button" class="num-step-down" data-target="timerMinutes" tabindex="-1" aria-label="Decrease minutes">▼</button>
+              </div>
               <label for="timerMinutes" style="font-size:.62rem;color:var(--txt3);text-align:center;letter-spacing:.1em">MIN</label>
             </div>
           </div>

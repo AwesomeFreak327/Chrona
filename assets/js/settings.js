@@ -1114,6 +1114,15 @@ function _initTimer() {
   document.getElementById('timerHours')?.addEventListener('change', _syncTimerDuration);
   document.getElementById('timerMinutes')?.addEventListener('change', _syncTimerDuration);
 
+  document.querySelectorAll('.num-step-up, .num-step-down').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+      btn.classList.contains('num-step-up') ? input.stepUp() : input.stepDown();
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
+
   document.getElementById('btn-timer-start')?.addEventListener('click', () => {
     if (!Config.get().timerEnabled || _timerStartPending) return;
     const dur = (Config.get().timerDuration || 120) * 60;
