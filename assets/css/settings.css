@@ -440,6 +440,7 @@ select {
   select,
   select::picker(select) {
     appearance: base-select;
+    align-items: center;
   }
 
   select::picker(select) {
