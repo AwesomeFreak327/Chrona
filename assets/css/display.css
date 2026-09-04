@@ -256,6 +256,7 @@ body.theme-switching #halo::after  { opacity:1; }
 }
 /* ── STAGE ────────────────────────────────────────────────── */
 #stage {
+  --stage-gap:3vh;
   position:fixed; inset:0;
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
@@ -289,7 +290,7 @@ body.theme-switching #halo::after  { opacity:1; }
 #logo-area {
   display:flex; flex-direction:column;
   align-items:center; gap:1.2vh;
-  margin-bottom:3.5vh;
+  margin-bottom:var(--stage-gap);
 }
 #logo-img {
   max-height: calc(7vh * var(--s-logo));
@@ -337,7 +338,7 @@ body.theme-switching #halo::after  { opacity:1; }
   display:flex;
   align-items:center;
   gap:1.1em;
-  margin-top:2vh;
+  margin-top:var(--stage-gap);
 }
 .meta-txt {
   font-family: var(--font-meta);
@@ -356,7 +357,7 @@ body.theme-switching #halo::after  { opacity:1; }
 #timer-area {
   display:flex; flex-direction:column;
   align-items:center; gap:.4vh;
-  margin-top:1.8vh;
+  margin-top:var(--stage-gap);
 }
 #timer-display {
   font-family: var(--font-clock);
