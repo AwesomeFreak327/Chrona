@@ -260,7 +260,7 @@ body.theme-switching #halo::after  { opacity:1; }
   position:fixed; inset:0;
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
-  z-index:10;
+  z-index:10; gap:var(--stage-gap);
   padding:6vh 8vw;
 }
 
@@ -290,7 +290,6 @@ body.theme-switching #halo::after  { opacity:1; }
 #logo-area {
   display:flex; flex-direction:column;
   align-items:center; gap:1.2vh;
-  margin-bottom:var(--stage-gap);
 }
 #logo-img {
   max-height: calc(7vh * var(--s-logo));
@@ -338,7 +337,6 @@ body.theme-switching #halo::after  { opacity:1; }
   display:flex;
   align-items:center;
   gap:1.1em;
-  margin-top:var(--stage-gap);
 }
 .meta-txt {
   font-family: var(--font-meta);
@@ -357,7 +355,6 @@ body.theme-switching #halo::after  { opacity:1; }
 #timer-area {
   display:flex; flex-direction:column;
   align-items:center; gap:.4vh;
-  margin-top:var(--stage-gap);
 }
 #timer-display {
   font-family: var(--font-clock);
@@ -408,7 +405,6 @@ body.theme-switching #halo::after  { opacity:1; }
   display:flex; flex-direction:column;
   gap:.8vh;
   max-width: min(640px,68vw);
-  margin-top:4.5vh;
 }
 /* Three alignment options */
 #quote-area.align-center { align-items:center; text-align:center; }
