@@ -47,7 +47,7 @@
   #timer-display {
     font-family: var(--font-clock, 'Orbitron', monospace);
     font-size:calc(clamp(4rem, 16vw, 11rem) * var(--p-scale, 1));
-    font-weight:700; letter-spacing:.04em;
+    font-weight:400; letter-spacing:-.02em;
     color:#fff; line-height:1;
   }
   #timer-display.warning { color:#f59e0b; }
@@ -143,6 +143,7 @@
   body.inverted .label { color:rgba(0,0,0,.3); }
   body.inverted #clock-display { color:rgba(0,0,0,.55); }
   body.inverted #clock-wrap.dominant #clock-display { color:#000; }
+  body.inverted #date-display { color:rgba(0,0,0,.35) !important; }
   body.inverted .divider { background:rgba(0,0,0,.12); }
   body.inverted #ann-text { color:rgba(0,0,0,.65); }
   body.inverted #ann-label { color:rgba(0,0,0,.3); }
