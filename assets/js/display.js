@@ -604,6 +604,8 @@ function _timerStart(seconds) {
   _timerDurationMs = seconds * 1000;
   _timerStartedAt  = performance.now();
   _timerPausedMs   = 0;
+  _timerRemaining  = seconds;
+  _timerRender();
   _timerRunning    = true;
   _timerPaused     = false;
   if (_el.timerArea) _el.timerArea.classList.remove('hidden','finished','warning');
