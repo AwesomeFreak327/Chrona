@@ -134,7 +134,7 @@ const Watermark = (() => {
       _cachedLineCount = Math.ceil(_cachedDiag / spacing) + 6;
     }
 
-    const fontKey = `${params.fontName}|${params.fontScale}|${params.text}`;
+    const fontKey = `${params.fontName}|${params.fontScale}|${params.text}|${params.spacing}`;
     if (fontKey !== _lastFontKey) {
       _lastFontKey = fontKey;
       const baseSize = Math.max(11, Math.min(22, W * 0.016));
@@ -142,7 +142,7 @@ const Watermark = (() => {
       _cachedFont = `300 ${fontSize}px '${params.fontName}', system-ui, sans-serif`;
       ctx.font = _cachedFont;
       const charW    = ctx.measureText(params.text).width;
-      _cachedTileW   = Math.max(charW + fontSize * 3.5, 1);
+      _cachedTileW   = Math.max(charW + spacing * 0.6, 1);
     } else {
       ctx.font = _cachedFont;
     }
