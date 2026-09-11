@@ -613,7 +613,19 @@ function _timerStart(seconds) {
   _timerStartTimeout = setTimeout(() => {
     _timerStartTimeout = null;
     _timerTick();
-    _timerInterval = setInterval(_timerTick, 1000);
+    _scheduleTimerTick();
+  }, msToNext);
+}
+
+function _scheduleTimerTick() {
+  const msToNext = 1000 - (Date.now() % 1000);
+  _timerStartTimeout = setTimeout(() => {
+    _timerStartTimeout = null;
+    _timerTick();
+
+    if (_timerRunning && !_timerPaused) {
+      _scheduleTimerTick();
+    }
   }, msToNext);
 }
 
@@ -657,7 +669,7 @@ function _timerTogglePause() {
       _displayPauseTimerAt = performance.now();
     } else if (!_timerInterval && !_timerStartTimeout) {
       _timerTick();
-      _timerInterval = setInterval(_timerTick, 1000);
+      _scheduleTimerTick();
     }
   }
   if (_el.timerLabel) {
@@ -796,7 +808,7 @@ function _setPause(active) {
       _timerStartTimeout = setTimeout(() => {
         _timerStartTimeout = null;
         _timerTick();
-        _timerInterval = setInterval(_timerTick, 1000);
+        _scheduleTimerTick();
       }, msToNext);
     }
     if (!_isBlanked) Watermark.resume();
