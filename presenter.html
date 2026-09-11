@@ -132,18 +132,6 @@
     font-size:.6rem; color:rgba(255,255,255,.15);
     letter-spacing:.08em;
   }
-    /* ── INVERT TOGGLE ── */
-  #invert-btn {
-    position:fixed; top:2vh; right:2vw;
-    background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.14);
-    color:rgba(255,255,255,.4);
-    font-family:'Inter',system-ui,sans-serif;
-    font-size:.6rem; letter-spacing:.1em;
-    padding:5px 10px; border-radius:6px;
-    cursor:pointer; z-index:100;
-  }
-  #invert-btn:hover { background:rgba(255,255,255,.15); color:#fff; }
 
   body.inverted {
     background:#fff; color:#000;
@@ -161,7 +149,6 @@
   body.inverted #not-connected { background:#fff; }
   body.inverted #not-connected p { color:rgba(0,0,0,.3); }
   body.inverted #not-connected .dot { background:rgba(0,0,0,.15); }
-  body.inverted #invert-btn { color:rgba(0,0,0,.4); border-color:rgba(0,0,0,.14); background:rgba(0,0,0,.05); }
   body.inverted #fs-hint { color:rgba(0,0,0,.15); }
 </style>
 </head>
@@ -203,7 +190,6 @@
 </div>
 
 <div id="fs-hint">Press F to fullscreen</div>
-<button id="invert-btn">☀ Light</button>
 
 <script src="assets/js/config.js"></script>
 <script>
@@ -376,8 +362,6 @@ BC.onmessage = e => {
         }
         if (typeof f.presenterInvert === 'boolean') {
           document.body.classList.toggle('inverted', f.presenterInvert);
-          const invBtn = document.getElementById('invert-btn');
-          if (invBtn) invBtn.textContent = f.presenterInvert ? '☾ Dark' : '☀ Light';
         }
       }
       break;
@@ -457,8 +441,6 @@ BC.onmessage = e => {
     case 'presenter-invert':
       if (typeof d.inverted !== 'boolean') break;
       document.body.classList.toggle('inverted', d.inverted);
-      const btn = document.getElementById('invert-btn');
-      if (btn) btn.textContent = d.inverted ? '☾ Dark' : '☀ Light';
       break;
   }
 };
@@ -472,10 +454,6 @@ document.addEventListener('keydown', e => {
       document.exitFullscreen?.();
     }
   }
-});
-document.getElementById('invert-btn')?.addEventListener('click', function() {
-  const inv = document.body.classList.toggle('inverted');
-  this.textContent = inv ? '☾ Dark' : '☀ Light';
 });
 _reconcileConnection();
 
