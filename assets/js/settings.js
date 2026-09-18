@@ -1427,23 +1427,24 @@ function _updateLiveUI() {
   const txt      = document.getElementById('preview-status-txt');
   const panel    = document.getElementById('preview-panel');
 
+  const currentConfig = JSON.stringify(Config.get());
+  const inSync = !_lastPushedConfig || _lastPushedConfig === currentConfig;
+
   if (!isOpen) {
     if (btn)   { btn.textContent = '○ Not Live'; btn.classList.remove('active'); }
     if (dot)   { dot.classList.add('offline'); dot.classList.remove('preview'); }
     if (txt)   txt.textContent = 'Not presenting';
-    if (panel) { panel.classList.remove('is-live','is-preview'); }
+    if (panel) { panel.classList.remove('is-live','is-preview','is-pending'); }
   } else if (!_liveMode) {
     if (btn)   { btn.textContent = '◑ Preview'; btn.classList.remove('active'); }
-    if (dot)   { dot.classList.add('preview'); dot.classList.remove('offline'); }
-    if (txt)   txt.textContent = 'Preview only';
-    if (panel) { panel.classList.add('is-preview'); panel.classList.remove('is-live'); }
+    if (dot)   { dot.classList.toggle('preview', !inSync); dot.classList.remove('offline'); }
+    if (txt)   txt.textContent = inSync ? 'Preview' : 'Preview · Changes pending';
+    if (panel) { panel.classList.add('is-preview'); panel.classList.remove('is-live'); panel.classList.toggle('is-pending', !inSync); }
   } else {
-    const currentConfig = JSON.stringify(Config.get());
-    const inSync = !_lastPushedConfig || _lastPushedConfig === currentConfig;
     if (btn)   { btn.textContent = inSync ? '● Live' : '● Live*'; btn.classList.add('active'); }
-    if (dot)   { dot.classList.remove('offline','preview'); }
+    if (dot)   { dot.classList.toggle('preview', !inSync); dot.classList.remove('offline'); }
     if (txt)   txt.textContent = inSync ? 'Live' : 'Changes pending';
-    if (panel) { panel.classList.add('is-live'); panel.classList.remove('is-preview'); }
+    if (panel) { panel.classList.add('is-live'); panel.classList.remove('is-preview'); panel.classList.toggle('is-pending', !inSync); }
   }
 
   if (pushBtn) pushBtn.style.display = (_liveMode || !isOpen) ? 'none' : 'block';
