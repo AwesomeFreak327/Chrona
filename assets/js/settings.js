@@ -1384,7 +1384,10 @@ function _initPresentControls() {
 
       displayWin.addEventListener('load', () => {
         setTimeout(() => {
-          BC.postMessage({ type: 'config', config: Config.get() });
+          const currentConfig = Config.get();
+          BC.postMessage({ type: 'config', config: currentConfig });
+          _lastPushedConfig = JSON.stringify(currentConfig);
+          _updateLiveUI();
 
           if (_timerRunning && _timerState) {
             const remaining = _currentTimerSeconds();
@@ -1411,9 +1414,14 @@ function _initPresentControls() {
   });
 
   document.getElementById('btn-live-toggle')?.addEventListener('click', () => {
-    _liveMode = !_liveMode;
+    const enteringLive = !_liveMode;
+    _liveMode = enteringLive;
     Config.set({ liveMode: _liveMode }, { silent: true });
-    _updateLiveUI();
+    if (enteringLive) {
+      _pushLive();
+    } else {
+      _updateLiveUI();
+    }
   });
 
   document.getElementById('btn-push')?.addEventListener('click', _pushLive);
