@@ -242,12 +242,19 @@ function _sizeLbl(k, v) {
    SAVE & BROADCAST
 ───────────────────────────────────────────────────────────── */
 let _lastPushedConfig = null;
+const _DISPLAY_SYNC_EXCLUDE = ['liveMode', 'presenterScale', 'presenterInvert', 'presenterLinked', 'timerEnabled'];
+
+function _displaySnapshot(cfg) {
+  const snap = { ...cfg };
+  _DISPLAY_SYNC_EXCLUDE.forEach(k => delete snap[k]);
+  return JSON.stringify(snap);
+}
 
 function _save(partial, label) {
   Config.set(partial, { label });
   if (_liveMode) {
     BC.postMessage({ type: 'config', config: Config.get() });
-    _lastPushedConfig = JSON.stringify(Config.get());
+    _lastPushedConfig = _displaySnapshot(Config.get());
     _updateLiveUI();
   } else {
     _updateLiveUI();
@@ -300,7 +307,7 @@ function _sendToFrame(id, msg) {
 
 function _pushLive() {
   BC.postMessage({ type: 'config', config: Config.get() });
-  _lastPushedConfig = JSON.stringify(Config.get());
+  _lastPushedConfig = _displaySnapshot(Config.get());
   _pushToPreview();
   _updateLiveUI();
 }
@@ -1386,7 +1393,7 @@ function _initPresentControls() {
         setTimeout(() => {
           const currentConfig = Config.get();
           BC.postMessage({ type: 'config', config: currentConfig });
-          _lastPushedConfig = JSON.stringify(currentConfig);
+          _lastPushedConfig = _displaySnapshot(currentConfig);
           _updateLiveUI();
 
           if (_timerRunning && _timerState) {
@@ -1435,7 +1442,7 @@ function _updateLiveUI() {
   const txt      = document.getElementById('preview-status-txt');
   const panel    = document.getElementById('preview-panel');
 
-  const currentConfig = JSON.stringify(Config.get());
+  const currentConfig = _displaySnapshot(Config.get());
   const inSync = !_lastPushedConfig || _lastPushedConfig === currentConfig;
 
   if (!isOpen) {

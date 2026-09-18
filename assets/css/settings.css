@@ -153,6 +153,19 @@ textarea,
     opacity          var(--dur-fast, 180ms) ease;
 }
 
+html,
+body,
+#sidebar,
+#sidebar-header,
+#config-panel,
+#preview-panel,
+#preview-bar {
+  transition:
+    background-color var(--dur-normal, 280ms) ease,
+    border-color     var(--dur-normal, 280ms) ease,
+    color            var(--dur-normal, 280ms) ease;
+}
+
 /* Slider thumb */
 input[type=range]::-webkit-slider-thumb {
   transition: transform var(--dur-fast, 180ms) ease;
