@@ -145,7 +145,12 @@ input[type=number],
 select,
 textarea,
 #logo-drop,
-#resizer {
+#logo-drop span,
+#resizer,
+.slider-val,
+.theme-label,
+.font-name,
+.chip-rename {
   transition:
     background-color var(--dur-fast, 180ms) ease,
     border-color     var(--dur-fast, 180ms) ease,
@@ -168,7 +173,9 @@ body,
 
 /* Slider thumb */
 input[type=range]::-webkit-slider-thumb {
-  transition: transform var(--dur-fast, 180ms) ease;
+  transition:
+    transform        var(--dur-fast, 180ms) ease,
+    background-color var(--dur-fast, 180ms) ease;
 }
 
 /* ── SHELL ────────────────────────────────────────────────── */
